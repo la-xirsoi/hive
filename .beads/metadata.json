@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "embedded",
+  "dolt_database": "hive",
+  "project_id": "a21d8dc6-2ea1-4ce1-b465-6cca015192b2"
+}
