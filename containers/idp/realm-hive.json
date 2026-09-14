@@ -1,0 +1,103 @@
+{
+  "realm": "hive",
+  "enabled": true,
+  "displayName": "Hive",
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "accessTokenLifespan": 900,
+  "ssoSessionIdleTimeout": 1800,
+  "clients": [
+    {
+      "clientId": "hive-web",
+      "name": "Hive web application",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "https://localhost:8444/*"
+      },
+      "redirectUris": [
+        "https://localhost:8444/auth/callback",
+        "https://localhost:4200/auth/callback"
+      ],
+      "webOrigins": ["https://localhost:8444", "https://localhost:4200"],
+      "defaultClientScopes": [
+        "openid",
+        "profile",
+        "email",
+        "web-origins",
+        "roles"
+      ],
+      "protocolMappers": [
+        {
+          "name": "audience-hive-api",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.client.audience": "hive-api",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "clientId": "hive-api",
+      "name": "Hive backend API",
+      "enabled": true,
+      "bearerOnly": true,
+      "publicClient": false,
+      "standardFlowEnabled": false
+    }
+  ],
+  "users": [
+    {
+      "username": "ada",
+      "email": "ada@hive.example",
+      "firstName": "Ada",
+      "lastName": "Lovelace",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        { "type": "password", "value": "hive", "temporary": false }
+      ]
+    },
+    {
+      "username": "grace",
+      "email": "grace@hive.example",
+      "firstName": "Grace",
+      "lastName": "Hopper",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        { "type": "password", "value": "hive", "temporary": false }
+      ]
+    },
+    {
+      "username": "alan",
+      "email": "alan@hive.example",
+      "firstName": "Alan",
+      "lastName": "Turing",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        { "type": "password", "value": "hive", "temporary": false }
+      ]
+    },
+    {
+      "username": "katherine",
+      "email": "katherine@hive.example",
+      "firstName": "Katherine",
+      "lastName": "Johnson",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        { "type": "password", "value": "hive", "temporary": false }
+      ]
+    }
+  ]
+}

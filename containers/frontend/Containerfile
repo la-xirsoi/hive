@@ -1,0 +1,46 @@
+# Hive frontend -- Angular 22 served over HTTPS by nginx.
+#
+# Build from the REPOSITORY ROOT so the build context contains frontend/:
+#   podman build -f containers/frontend/Containerfile -t hive-frontend:latest .
+
+# ---------------------------------------------------------------------------
+# Stage 1: build the Angular bundle
+# ---------------------------------------------------------------------------
+FROM docker.io/library/node:24-alpine AS build
+
+WORKDIR /build
+
+# package files first, so `npm ci` is cached across source-only edits
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci
+
+COPY frontend/ ./
+
+# The application builder emits the browser bundle under dist/<project>/browser
+RUN npm run build
+
+# ---------------------------------------------------------------------------
+# Stage 2: serve over TLS
+# ---------------------------------------------------------------------------
+FROM docker.io/library/nginx:1.27-alpine AS runtime
+
+RUN rm -rf /usr/share/nginx/html/* \
+    && rm -f /etc/nginx/conf.d/default.conf
+
+COPY --from=build /build/dist/hive-web/browser /usr/share/nginx/html
+COPY containers/frontend/nginx.conf /etc/nginx/conf.d/hive.conf
+
+# Certificates are MOUNTED at run time, never baked into the image. The compose
+# stack mounts containers/certs read-only at this path.
+VOLUME ["/etc/nginx/certs"]
+
+EXPOSE 8080 8443
+
+# nginx:alpine already drops to the nginx user for workers; the master needs to
+# bind its ports and read the mounted certs, and the unprivileged ports above
+# mean it does not need to start as root on a rootless Podman host.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider --no-check-certificate \
+        https://localhost:8443/healthz || exit 1
+
+CMD ["nginx", "-g", "daemon off;"]

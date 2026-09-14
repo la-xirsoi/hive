@@ -1,0 +1,58 @@
+# Hive backend -- Kotlin / Spring Boot 4 on JDK 21.
+#
+# Build from the REPOSITORY ROOT so the build context contains backend/:
+#   podman build -f containers/backend/Containerfile -t hive-backend:latest .
+
+# ---------------------------------------------------------------------------
+# Stage 1: build
+# ---------------------------------------------------------------------------
+FROM docker.io/library/eclipse-temurin:21-jdk AS build
+
+WORKDIR /build
+
+# Copy only the build definition first. These layers change rarely, so the
+# dependency download below is cached across source-only edits -- which matters
+# a lot here, because the Gradle distribution itself is a ~130 MB download.
+COPY backend/gradlew backend/gradlew.bat ./
+COPY backend/gradle ./gradle
+COPY backend/settings.gradle.kts backend/build.gradle.kts backend/gradle.properties ./
+
+RUN chmod +x ./gradlew \
+    && ./gradlew --no-daemon dependencies --configuration runtimeClasspath > /dev/null 2>&1 || true
+
+COPY backend/src ./src
+
+# Tests run in CI, not in the image build: a failing test should fail the
+# pipeline with readable output, not produce an opaque layer error. The image
+# is built from source that has already been tested.
+RUN ./gradlew --no-daemon clean bootJar -x test
+
+# ---------------------------------------------------------------------------
+# Stage 2: runtime
+# ---------------------------------------------------------------------------
+FROM docker.io/library/eclipse-temurin:21-jre AS runtime
+
+# Run as a non-root user. Nothing in this image needs privilege.
+RUN groupadd --system --gid 10001 hive \
+    && useradd --system --uid 10001 --gid hive --home-dir /app --shell /usr/sbin/nologin hive
+
+WORKDIR /app
+
+COPY --from=build --chown=hive:hive /build/build/libs/*.jar /app/hive.jar
+
+# Config comes from the environment. No secret is ever baked into the image;
+# SPRING_DATASOURCE_PASSWORD and friends are supplied at run time.
+ENV SPRING_PROFILES_ACTIVE=prod \
+    SERVER_PORT=8443 \
+    JAVA_OPTS="-XX:MaxRAMPercentage=75 -XX:+UseContainerSupport"
+
+EXPOSE 8443
+
+USER hive:hive
+
+# Actuator health is exposed over HTTPS with a certificate the container itself
+# serves, so the probe must not reject it for being self-signed.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=90s --retries=3 \
+    CMD curl --fail --silent --insecure https://localhost:${SERVER_PORT}/actuator/health || exit 1
+
+ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -jar /app/hive.jar"]

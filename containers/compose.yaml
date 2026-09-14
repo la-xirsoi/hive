@@ -1,0 +1,129 @@
+# Hive -- full stack for Podman.
+#
+#   cd containers
+#   cp .env.example .env          # then edit .env; it is gitignored
+#   ./scripts/generate-certs.sh   # produces certs/ (also gitignored)
+#   podman compose up -d
+#   podman compose ps
+#   podman compose down           # add -v to discard the database volume
+#
+# Build contexts are the REPOSITORY ROOT (..) because each Containerfile copies
+# from backend/ or frontend/.
+#
+# NOTE: this stack has not been executed. Podman is not installed on the machine
+# where Hive was built, so the compose file and both Containerfiles are authored
+# and reviewed but unverified. See docs/verification.md.
+
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: hive-db
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:?set MSSQL_SA_PASSWORD in .env}
+      MSSQL_PID: Developer
+    ports:
+      - "127.0.0.1:1433:1433"
+    volumes:
+      - hive-db-data:/var/opt/mssql
+    healthcheck:
+      # sqlcmd moved under /opt/mssql-tools18 in the 2022 image, and -C is
+      # required there because the server presents a self-signed certificate.
+      test:
+        [
+          "CMD-SHELL",
+          "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -C -Q 'SELECT 1' || exit 1",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 60s
+    networks: [hive]
+    restart: unless-stopped
+
+  idp:
+    # The OAuth2 / OIDC identity provider. spec.md requires a standard,
+    # OAuth-compatible login; the backend is a resource server that validates
+    # the JWTs this issues, and the SPA obtains them by authorization code +
+    # PKCE. The dev-profile token endpoint in the backend exists only for
+    # environments where this container cannot be run.
+    image: quay.io/keycloak/keycloak:26.0
+    container_name: hive-idp
+    command: ["start-dev", "--import-realm", "--https-port=8443"]
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN:?set KEYCLOAK_ADMIN in .env}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?set KEYCLOAK_ADMIN_PASSWORD in .env}
+      KC_HTTPS_CERTIFICATE_FILE: /opt/keycloak/certs/hive-idp.crt
+      KC_HTTPS_CERTIFICATE_KEY_FILE: /opt/keycloak/certs/hive-idp.key
+      KC_HEALTH_ENABLED: "true"
+    ports:
+      - "127.0.0.1:8543:8443"
+    volumes:
+      - ./certs:/opt/keycloak/certs:ro,z
+      - ./idp/realm-hive.json:/opt/keycloak/data/import/realm-hive.json:ro,z
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "exec 3<>/dev/tcp/127.0.0.1/9000 && echo -e 'GET /health/ready HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && cat <&3 | grep -q '\"status\": \"UP\"'",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 45s
+    networks: [hive]
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ..
+      dockerfile: containers/backend/Containerfile
+    image: hive-backend:latest
+    container_name: hive-backend
+    depends_on:
+      db:
+        condition: service_healthy
+      idp:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SERVER_PORT: 8443
+      # HTTPS at the application tier, not only at the edge (spec.md AU-3).
+      SERVER_SSL_ENABLED: "true"
+      SERVER_SSL_KEY_STORE: /app/certs/hive-backend.p12
+      SERVER_SSL_KEY_STORE_PASSWORD: ${CERT_PASSWORD:?set CERT_PASSWORD in .env}
+      SERVER_SSL_KEY_STORE_TYPE: PKCS12
+      SPRING_DATASOURCE_URL: jdbc:sqlserver://db:1433;databaseName=hive;encrypt=true;trustServerCertificate=true
+      SPRING_DATASOURCE_USERNAME: sa
+      SPRING_DATASOURCE_PASSWORD: ${MSSQL_SA_PASSWORD:?set MSSQL_SA_PASSWORD in .env}
+      SPRING_FLYWAY_ENABLED: "true"
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: ${OAUTH_ISSUER_URI:?set OAUTH_ISSUER_URI in .env}
+    ports:
+      - "127.0.0.1:8443:8443"
+    volumes:
+      - ./certs:/app/certs:ro,z
+    networks: [hive]
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: containers/frontend/Containerfile
+    image: hive-frontend:latest
+    container_name: hive-frontend
+    depends_on:
+      - backend
+    ports:
+      - "127.0.0.1:8080:8080"
+      - "127.0.0.1:8444:8443"
+    volumes:
+      - ./certs:/etc/nginx/certs:ro,z
+    networks: [hive]
+    restart: unless-stopped
+
+volumes:
+  hive-db-data:
+
+networks:
+  hive:
+    driver: bridge
