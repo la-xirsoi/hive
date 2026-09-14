@@ -27,6 +27,10 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
+    // `/actuator/health` is a contract endpoint (api-contract.md section 7) and
+    // the container healthcheck polls it; without the actuator starter the path
+    // simply does not exist. Only `health` is exposed (see application.yml).
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
 
     // --- Kotlin ---------------------------------------------------------------
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
@@ -44,6 +48,11 @@ dependencies {
 
     // --- Test -----------------------------------------------------------------
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    // Spring Boot 4 moved the web-layer test slice (`@WebMvcTest`, MockMvc's
+    // auto-configuration) out of spring-boot-starter-test into its own module.
+    // Without it there is no way to test a controller without booting the whole
+    // application, database included.
+    testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("io.mockk:mockk:1.14.11")
     testRuntimeOnly("com.h2database:h2")

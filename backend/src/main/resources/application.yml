@@ -21,6 +21,18 @@ spring:
 server:
   port: 8080
 
+# Only the health probe is published (docs/api-contract.md section 7): it is the
+# one actuator endpoint the container healthcheck needs, and every other one
+# would be an unauthenticated window into the running process.
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
 ---
 # =============================================================================
 # dev -- a real SQL Server 2022, typically the one from the compose stack.
@@ -54,6 +66,18 @@ spring:
     enabled: true
     locations: classpath:db/migration
     baseline-on-migrate: false
+  # The dev profile has no identity provider to point at, so this URI is not
+  # fetched: it is the `iss` claim the local issuer stamps on the tokens it
+  # mints and the value the local decoder then requires (see DevAuthConfig).
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${HIVE_JWT_ISSUER_URI:https://dev.hive.local}
+
+hive:
+  dev-auth:
+    token-ttl-seconds: ${HIVE_DEV_TOKEN_TTL:3600}
 
 ---
 # =============================================================================
@@ -85,6 +109,16 @@ spring:
     enabled: true
     locations: classpath:db/migration
     clean-disabled: false
+  # A syntactically valid issuer that is never contacted. Spring Boot builds a
+  # *deferred* decoder from `issuer-uri`, so nothing is fetched at startup, and
+  # the web-layer tests either supply their own decoder or send no token at all.
+  # HTTPS is deliberately NOT enforced under this profile: MockMvc speaks plain
+  # HTTP, so AU-3's channel rule lives in the prod-only HttpsEnforcementConfig.
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://issuer.test.invalid
 
 ---
 # =============================================================================
@@ -112,3 +146,17 @@ spring:
     locations: classpath:db/migration
     baseline-on-migrate: false
     clean-disabled: true
+  # Required from the environment: the real identity provider. Its JWKS is
+  # fetched on first use and every bearer token is validated against it.
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${HIVE_JWT_ISSUER_URI}
+
+# AU-3 enforces HTTPS in prod (HttpsEnforcementConfig). TLS is terminated at the
+# reverse proxy, so the client's original scheme arrives in `X-Forwarded-Proto`;
+# without this, the channel rule would see the proxy's plain-HTTP hop and
+# redirect forever.
+server:
+  forward-headers-strategy: framework

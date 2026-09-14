@@ -100,7 +100,11 @@ services:
       HIVE_DB_USERNAME: sa
       HIVE_DB_PASSWORD: ${MSSQL_SA_PASSWORD:?set MSSQL_SA_PASSWORD in .env}
       SPRING_FLYWAY_ENABLED: "true"
-      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: ${OAUTH_ISSUER_URI:?set OAUTH_ISSUER_URI in .env}
+      # application.yml's prod profile binds the issuer from HIVE_JWT_ISSUER_URI.
+      # Setting the fully-expanded Spring property name here would also work by
+      # relaxed binding, but only by silently outranking the placeholder -- using
+      # the name the file actually reads keeps the wiring legible.
+      HIVE_JWT_ISSUER_URI: ${OAUTH_ISSUER_URI:?set OAUTH_ISSUER_URI in .env}
     ports:
       - "127.0.0.1:8443:8443"
     volumes:

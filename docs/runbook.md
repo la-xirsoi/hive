@@ -162,7 +162,7 @@ Nothing secret is committed. Every credential is read from the environment.
 | `HIVE_DB_POOL_SIZE` | backend | Hikari pool size, default 20 in `prod` |
 | `SPRING_PROFILES_ACTIVE` | backend | `dev`, `test` or `prod` |
 | `SERVER_SSL_KEY_STORE` / `_PASSWORD` / `_TYPE` | backend | PKCS#12 keystore for HTTPS |
-| `SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI` | backend | must exactly match the `iss` claim the IdP mints |
+| `HIVE_JWT_ISSUER_URI` | backend | OAuth2 issuer; must exactly match the `iss` claim the IdP mints. Required in `prod`, defaults to a local value in `dev`. |
 | `MSSQL_SA_PASSWORD` | compose | must satisfy SQL Server's password policy or the container refuses to start |
 | `KEYCLOAK_ADMIN` / `_PASSWORD` | compose | IdP bootstrap admin |
 | `CERT_PASSWORD` | compose, cert script | protects the PKCS#12 keystore |
@@ -180,9 +180,9 @@ The profile matrix:
 ## 6. Troubleshooting
 
 **Every request returns 401.** Almost always the issuer. The `iss` claim in the
-token must match `SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI`
-character for character, and the URI must be resolvable *from inside the backend
-container* — `localhost` there is the backend itself, not your machine.
+token must match `HIVE_JWT_ISSUER_URI` character for character, and the URI must
+be resolvable *from inside the backend container* — `localhost` there is the
+backend itself, not your machine.
 
 **The backend starts but the schema is empty.** Check that
 `spring-boot-flyway` is on the classpath. Spring Boot 4 moved Flyway's
