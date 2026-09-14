@@ -187,7 +187,7 @@ is trivially unit testable. The application layer loads what the policy needs.
 ```kotlin
 object AuthorizationPolicy {
     fun canViewTask(ctx: TaskContext): Boolean                 // VIS-1..VIS-5
-    fun canEditTaskFields(ctx: TaskContext): Unit-or-throw     // TK-3, TE-1
+    fun checkEditTaskFields(ctx: TaskContext): Unit-or-throw    // TK-3, TE-1
     fun checkAssign(ctx: TaskContext, newAssignee: UserId?): Unit-or-throw
                                                                // AS-1..AS-7, TE-3
     fun canViewProject(project: Project, team: Team, actor: UserId): Boolean
