@@ -147,7 +147,7 @@ JSON array.
 | GET | `/projects/{id}` | -- | 200 `ProjectSummary` | 401, 404 |
 | PATCH | `/projects/{id}` | `{ "name": string }` | 200 `ProjectSummary` | 400, 401, 403, 404 |
 | PUT | `/projects/{id}/owner` | `{ "userId": number }` | 200 `ProjectSummary` | 400, 401, 403, 404, 409 |
-| GET | `/projects/{id}/tasks` *(paged)* | -- | 200 `TaskSummary` page | 401, 403, 404 |
+| GET | `/projects/{id}/tasks` *(paged)* | -- | 200 `TaskSummary` page | 401, 404 |
 | DELETE | `/projects/{id}` | -- | 405 | always 405 (PR-10) |
 
 - `POST /projects`: 403 if the creator is not a member or lead of `teamId`
@@ -157,6 +157,8 @@ JSON array.
 - `GET /projects/{id}/tasks` returns the caller's **visible** subset per VIS-1
   through VIS-5, not the project's full task list. Optional filter
   `?status=Todo,In Progress` narrows further. It never widens visibility.
+  403 is **not** a possible response here: an invisible project is 404, and a
+  visible one filters the task list rather than refusing the request.
 
 ---
 

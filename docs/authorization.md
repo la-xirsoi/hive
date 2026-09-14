@@ -272,3 +272,42 @@ resolve visibility (404) -> check state legality (409) -> check actor role (403)
 > possible at all does not depend on who is asking, and answering "that task is
 > already Completed" leaks nothing to a user who is already permitted to see the
 > task.
+
+---
+
+## 12. Clarifications settled during implementation
+
+These questions were raised by the implementation and are answered here so the
+answer lives with the rules rather than in a commit message.
+
+- **AS-2's 400-vs-403 split versus the ordering rule.** Section 11 places 400
+  last, but AS-2 wants 400 for a *nonexistent* assignee and 403 for a real user
+  who is not a member. The policy sees only ids, so it answers 403 for both.
+  Implementation therefore calls `checkAssign` first (preserving 409-then-403)
+  and *refines* a 403 to a 400 only when the named user genuinely does not
+  exist. Consequence: a non-lead who names a nonexistent user receives 400
+  rather than 403. This discloses nothing, because US-4 already makes the user
+  directory readable by any authenticated caller.
+
+- **AS-3's 409 is reachable only by a project owner.** A Team Lead cannot see a
+  `Draft` task (VIS-3), so for a lead `PUT /tasks/{id}/assignee` answers 404
+  before AS-3's 409 is ever considered. That is correct under the ordering rule
+  in section 11; it simply means "409 if the task is Draft" describes the
+  owner's experience, not the lead's. Both paths are tested.
+
+- **The OAuth subject claim is not stored.** `User` has no subject field, so
+  US-3 matches a principal to a Hive user **by email**, which is sound only
+  because US-2 makes email unique. The consequence worth knowing: if a user's
+  address changes at the identity provider, they become a new Hive user rather
+  than the same one. Fixing that means adding a subject column to the domain
+  model, and is deliberately out of scope here.
+
+- **Repeat sightings do not refresh the stored name.** `provisionFromPrincipal`
+  sets the name only on first creation. Refreshing it from the token on every
+  login would silently undo US-5, which grants the user control of their own
+  display name.
+
+- **Commenting on a task the actor can see is never 403.** CM-1 makes
+  commentability identical to visibility, so the only failure is 404. This is
+  why `TaskPermissions.canComment` is true whenever the task was returned at
+  all.
