@@ -5,25 +5,70 @@ spring:
     default: dev
   jpa:
     open-in-view: false
+    properties:
+      hibernate:
+        # Comment timestamps are stored as UTC wall-clock in DATETIME2(0) and are
+        # mapped through LocalDateTime, so this setting does not decide their
+        # correctness -- it is here so that any future Instant/Timestamp column
+        # binds in UTC rather than in whatever zone the JVM happens to run in.
+        jdbc:
+          time_zone: UTC
+        # Batch the inserts/updates that TM-8's saveAll produces.
+        order_inserts: true
+        order_updates: true
+        jdbc.batch_size: 50
 
 server:
   port: 8080
 
 ---
-# Local development. Real datasource + security config are owned by later issues.
+# =============================================================================
+# dev -- a real SQL Server 2022, typically the one from the compose stack.
+#
+# Connection details come from the environment. HIVE_DB_URL has a localhost
+# default purely so that a developer with the compose stack running needs no
+# setup; the credentials deliberately have NO defaults, so a missing
+# HIVE_DB_PASSWORD fails fast at startup instead of silently trying a
+# well-known password. Nothing secret is committed to this file.
+# =============================================================================
 spring:
   config:
     activate:
       on-profile: dev
+  datasource:
+    url: ${HIVE_DB_URL:jdbc:sqlserver://localhost:1433;databaseName=hive;encrypt=true;trustServerCertificate=true}
+    username: ${HIVE_DB_USERNAME}
+    password: ${HIVE_DB_PASSWORD}
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    hikari:
+      pool-name: hive-dev
+      maximum-pool-size: 10
   jpa:
     hibernate:
+      # Flyway owns the schema; Hibernate only checks that the entity mappings
+      # agree with it. Never `update` -- a schema that drifts to match the code
+      # is a schema nobody can reproduce.
       ddl-auto: validate
     show-sql: true
   flyway:
     enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: false
 
 ---
-# Test profile: embedded H2 in SQL Server compatibility mode, no Flyway.
+# =============================================================================
+# test -- embedded H2 in SQL Server compatibility mode.
+#
+# There is no container runtime on the build machine, so there is no real SQL
+# Server to test against. H2's MODE=MSSQLServer is close enough to run the
+# Flyway migrations *themselves* -- IDENTITY(1,1), NVARCHAR, DATETIME2(0), named
+# CHECK/UNIQUE/FOREIGN KEY constraints all parse and behave -- so the tests
+# exercise the real DDL rather than a Hibernate-generated replica of it, and
+# `ddl-auto: validate` then proves the entity mappings match that DDL.
+#
+# What this does and does not prove is documented in docs/testing.md. Read it
+# before trusting a green build as evidence about production.
+# =============================================================================
 spring:
   config:
     activate:
@@ -35,18 +80,35 @@ spring:
     password: ""
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: validate
   flyway:
-    enabled: false
+    enabled: true
+    locations: classpath:db/migration
+    clean-disabled: false
 
 ---
+# =============================================================================
+# prod -- a real SQL Server 2022. Every connection setting is required from the
+# environment; there are no defaults and no credentials in this file.
+# =============================================================================
 spring:
   config:
     activate:
       on-profile: prod
+  datasource:
+    url: ${HIVE_DB_URL}
+    username: ${HIVE_DB_USERNAME}
+    password: ${HIVE_DB_PASSWORD}
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    hikari:
+      pool-name: hive
+      maximum-pool-size: ${HIVE_DB_POOL_SIZE:20}
   jpa:
     hibernate:
       ddl-auto: validate
     show-sql: false
   flyway:
     enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: false
+    clean-disabled: true

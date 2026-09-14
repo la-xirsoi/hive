@@ -93,9 +93,12 @@ services:
       SERVER_SSL_KEY_STORE: /app/certs/hive-backend.p12
       SERVER_SSL_KEY_STORE_PASSWORD: ${CERT_PASSWORD:?set CERT_PASSWORD in .env}
       SERVER_SSL_KEY_STORE_TYPE: PKCS12
-      SPRING_DATASOURCE_URL: jdbc:sqlserver://db:1433;databaseName=hive;encrypt=true;trustServerCertificate=true
-      SPRING_DATASOURCE_USERNAME: sa
-      SPRING_DATASOURCE_PASSWORD: ${MSSQL_SA_PASSWORD:?set MSSQL_SA_PASSWORD in .env}
+      # These names are what application.yml actually reads. Using
+      # SPRING_DATASOURCE_* here instead would be silently ignored, because the
+      # prod profile binds the datasource from HIVE_DB_* placeholders.
+      HIVE_DB_URL: jdbc:sqlserver://db:1433;databaseName=hive;encrypt=true;trustServerCertificate=true
+      HIVE_DB_USERNAME: sa
+      HIVE_DB_PASSWORD: ${MSSQL_SA_PASSWORD:?set MSSQL_SA_PASSWORD in .env}
       SPRING_FLYWAY_ENABLED: "true"
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: ${OAUTH_ISSUER_URI:?set OAUTH_ISSUER_URI in .env}
     ports:

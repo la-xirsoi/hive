@@ -35,7 +35,16 @@ replay_pid*
 build/
 .gradle/
 !**/gradle/wrapper/gradle-wrapper.jar
-out/
+# IDE compiler output. NOTE: this pattern matches *any* directory called `out`,
+# which includes the hexagonal architecture's outbound adapter package
+# (`hive.adapter.out`). Without the negations below, the entire persistence
+# layer -- source and tests -- is silently untracked and no amount of `git add`
+# will pick it up.
+# IDE compiler output. Anchored with a leading slash: an unanchored `out/`
+# also matches the hexagonal package hive/adapter/out/, which silently made the
+# entire outbound adapter uncommittable.
+/out/
+/backend/out/
 
 # --- Hive frontend (Node / Angular) ---
 node_modules/

@@ -33,6 +33,11 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
 
     // --- Persistence / migrations --------------------------------------------
+    // Spring Boot 4 moved Flyway's auto-configuration out of
+    // spring-boot-autoconfigure into its own module. Without it, flyway-core is
+    // on the classpath but never runs and every `spring.flyway.*` property is
+    // silently ignored -- so the migrations would be dead files.
+    implementation("org.springframework.boot:spring-boot-flyway")
     implementation("org.flywaydb:flyway-core")
     implementation("org.flywaydb:flyway-sqlserver")
     runtimeOnly("com.microsoft.sqlserver:mssql-jdbc")
