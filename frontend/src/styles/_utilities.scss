@@ -1,0 +1,86 @@
+// =============================================================================
+// Hive utilities - a deliberately tiny set. Anything that grows a variant should
+// become a component under src/app/shared/ui/ instead.
+// =============================================================================
+
+// Screen-reader-only text. Used by badges, spinners, icon-only buttons and the
+// skip link, so that meaning is never carried by colour or glyph alone.
+.hive-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+// Same, but becomes visible on focus (the skip link).
+.hive-sr-only-focusable:not(:focus):not(:active) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+// Centred page container matching the app shell's content width.
+.hive-container {
+  width: 100%;
+  max-width: var(--hive-layout-max-width);
+  margin-inline: auto;
+  padding-inline: var(--hive-layout-gutter);
+}
+
+// Vertical rhythm helper for stacking page sections.
+.hive-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hive-space-6);
+}
+
+.hive-stack--tight {
+  gap: var(--hive-space-3);
+}
+
+// Horizontal row of controls that wraps on narrow screens.
+.hive-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hive-space-3);
+}
+
+// Truncate a single line of text.
+.hive-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Text roles that are used often enough to be worth a utility.
+.hive-text-secondary {
+  color: var(--hive-color-text-secondary);
+  font-size: var(--hive-font-size-sm);
+}
+
+.hive-text-caption {
+  color: var(--hive-color-text-secondary);
+  font-size: var(--hive-font-size-xs);
+}
+
+// A thin gold rule used to accent section boundaries.
+.hive-accent-rule {
+  height: 3px;
+  width: var(--hive-space-10);
+  background-color: var(--hive-gold);
+  border-radius: var(--hive-radius-pill);
+}

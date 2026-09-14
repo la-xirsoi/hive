@@ -1,0 +1,121 @@
+// =============================================================================
+// Hive form controls - GLOBAL on purpose.
+//
+// <hive-form-field> projects the real <input>/<select>/<textarea> through
+// <ng-content>. Angular's emulated encapsulation stamps projected nodes with the
+// *declaring* component's attribute, not the wrapper's, so form-field styles can
+// never reach them. These rules therefore have to live in the global layer.
+//
+// Contrast notes:
+//   * control text  #1A1A1A on #FFFFFF -> 17.40:1
+//   * placeholder   #757575 on #FFFFFF ->  4.61:1 (passes AA; placeholders are
+//                   never the only label - <hive-form-field> always renders one)
+//   * control border #757575 on #FFFFFF -> 4.61:1, comfortably over the 3:1
+//                   non-text floor of WCAG 1.4.11
+//   * invalid border #B3261E on #FFFFFF -> 6.54:1
+// =============================================================================
+
+.hive-input,
+.hive-select,
+.hive-textarea {
+  display: block;
+  width: 100%;
+  min-height: var(--hive-control-height-md);
+  padding: var(--hive-space-2) var(--hive-space-3);
+  font-family: inherit;
+  font-size: var(--hive-font-size-md);
+  line-height: var(--hive-line-height-snug);
+  color: var(--hive-color-text);
+  background-color: var(--hive-color-surface);
+  border: 1px solid var(--hive-color-border);
+  border-radius: var(--hive-radius-md);
+  transition:
+    border-color var(--hive-duration-fast) var(--hive-ease-standard),
+    box-shadow var(--hive-duration-fast) var(--hive-ease-standard);
+}
+
+.hive-textarea {
+  min-height: calc(var(--hive-control-height-md) * 2);
+  resize: vertical;
+}
+
+.hive-select {
+  appearance: none;
+  padding-right: var(--hive-space-8);
+  // Chevron drawn as a data URI so no icon font/asset is required. The stroke is
+  // the ink token; it is decorative and duplicated by the native control's role.
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%231A1A1A' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--hive-space-3) center;
+}
+
+.hive-input::placeholder,
+.hive-textarea::placeholder {
+  color: var(--hive-color-text-muted);
+  opacity: 1; // Firefox dims placeholders by default, which would break AA
+}
+
+.hive-input:hover:not(:disabled),
+.hive-select:hover:not(:disabled),
+.hive-textarea:hover:not(:disabled) {
+  border-color: var(--hive-gray-dark);
+}
+
+// The brand focus state: gold ring, ink hairline, ink border on the control.
+.hive-input:focus-visible,
+.hive-select:focus-visible,
+.hive-textarea:focus-visible,
+.hive-input:focus,
+.hive-select:focus,
+.hive-textarea:focus {
+  outline: none;
+  border-color: var(--hive-color-border-strong);
+  box-shadow: var(--hive-focus-ring-tight);
+}
+
+.hive-input:disabled,
+.hive-select:disabled,
+.hive-textarea:disabled {
+  color: var(--hive-color-text-muted);
+  background-color: var(--hive-color-surface-sunken);
+  border-color: var(--hive-color-border-subtle);
+  cursor: not-allowed;
+}
+
+.hive-input[aria-invalid='true'],
+.hive-select[aria-invalid='true'],
+.hive-textarea[aria-invalid='true'] {
+  border-color: var(--hive-color-danger-text);
+  border-width: 2px;
+}
+
+.hive-input[readonly] {
+  background-color: var(--hive-color-surface-sunken);
+}
+
+// Native checkbox / radio: gold accent with an ink tick.
+.hive-checkbox,
+.hive-radio {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--hive-gold);
+  cursor: pointer;
+}
+
+.hive-checkbox:focus-visible,
+.hive-radio:focus-visible {
+  outline: none;
+  box-shadow: var(--hive-focus-ring-tight);
+}
+
+// A checkbox/radio row: label text sits beside the control and stays >= 44px tall.
+.hive-choice {
+  display: flex;
+  align-items: center;
+  gap: var(--hive-space-2);
+  min-height: var(--hive-tap-target-min);
+  font-size: var(--hive-font-size-md);
+  color: var(--hive-color-text);
+  cursor: pointer;
+}

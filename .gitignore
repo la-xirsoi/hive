@@ -54,3 +54,6 @@ certs/
 *.key
 *.pfx
 !containers/.env.example
+
+# Agent worktrees (transient; Windows long paths make these hard to remove)
+.claude/worktrees/

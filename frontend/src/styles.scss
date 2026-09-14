@@ -1,1 +1,17 @@
-/* You can add global styles to this file, and also import other style files */
+// =============================================================================
+// Hive global stylesheet
+// -----------------------------------------------------------------------------
+// Load order matters: tokens first (every other layer references them), then the
+// element reset/base, then the globally-scoped form controls, then utilities.
+//
+// Components under src/app/shared/ui/ carry their own encapsulated styles and
+// consume ONLY var(--hive-*) tokens - no raw hex values outside _tokens.scss.
+//
+// Contrast evidence for every text/background pair shipped here lives in
+// src/styles/CONTRAST.md.
+// =============================================================================
+
+@use './styles/tokens';
+@use './styles/base';
+@use './styles/forms';
+@use './styles/utilities';

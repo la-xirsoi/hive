@@ -1,0 +1,231 @@
+// =============================================================================
+// Hive design tokens
+// -----------------------------------------------------------------------------
+// Single source of truth for the Hive visual language, derived from
+// BRANDING_GUIDE.md. Everything is exposed as a CSS custom property on :root so
+// that components consume tokens (var(--hive-*)) and NEVER raw hex values.
+//
+// Naming: --hive-<category>-<role>[-<modifier>]
+//
+// ACCESSIBILITY CONTRACT (see ./CONTRAST.md for every measured ratio):
+//   * #FFD700 gold on white is 1.40:1 and is therefore NEVER used for text on a
+//     light surface. Gold is a FILL / ACCENT / FOCUS colour only, and whatever
+//     sits on top of a gold fill is near-black #1A1A1A (12.41:1).
+//   * Body text on light surfaces is #1A1A1A (>= 15:1) or #424242 (>= 8.8:1).
+//   * #757575 is reserved for disabled text, placeholders and control borders.
+//     On the #F5F5F5 app background it measures 4.23:1, which is BELOW the 4.5:1
+//     body-text floor, so it must not be used for meaningful text there.
+// =============================================================================
+
+:root {
+  // ---------------------------------------------------------------------------
+  // 1. Core palette (literal brand values - the only place hex codes live)
+  // ---------------------------------------------------------------------------
+
+  // Yellow / gold - CTAs, highlights, active states, accents.
+  --hive-gold: #ffd700; // Branding guide "Primary"
+  --hive-gold-bright: #ffeb3b; // Branding guide "Brighter"
+  --hive-gold-hover: #f0c800; // Derived: darkened 6% for hover on gold fills
+  --hive-gold-active: #d9b400; // Derived: darkened 15% for pressed state
+  --hive-gold-tint: #fff8d6; // Derived: 12% gold over white, for soft fills
+  --hive-gold-text-on-light: #5c4a00; // Derived: the only "gold" safe as text (8.63:1 on white)
+
+  // Black / near-black - text, backgrounds, structure, depth.
+  --hive-ink: #1a1a1a;
+  --hive-ink-soft: #212121; // Branding guide alternate
+  --hive-ink-raised: #2b2b2b; // Derived: hover surface on dark chrome
+
+  // White / off-white.
+  --hive-white: #ffffff;
+  --hive-off-white: #f5f5f5;
+
+  // Gray ramp.
+  --hive-gray-light: #f0f0f0; // backgrounds, borders
+  --hive-gray-hairline: #e0e0e0; // Derived from gray-light for 1px dividers
+  --hive-gray-medium: #757575; // secondary text (on white only), disabled, borders
+  --hive-gray-dark: #424242; // hover states, dividers, secondary text
+  --hive-gray-on-ink: #bdbdbd; // Derived: secondary text on dark chrome (9.26:1)
+  --hive-gray-border-on-ink: #3d3d3d; // Derived: hairlines on dark chrome
+
+  // Feedback.
+  --hive-error: #ff5252; // Branding guide error - used as a FILL with black text
+  --hive-error-hover: #ff3b3b; // Derived: hover on an error fill (6.15:1 with ink)
+  --hive-error-strong: #b3261e; // Derived: error as text/border on light (6.54:1 on white)
+  --hive-error-tint: #ffebee;
+  --hive-success: #1b5e20; // Interpreted: guide says "Complete: Green"
+  --hive-success-tint: #e8f5e9;
+  --hive-info: #0b4f8a; // Interpreted: neutral informational blue
+  --hive-info-tint: #e7f1fb;
+
+  // ---------------------------------------------------------------------------
+  // 2. Semantic colour roles (what components actually reference)
+  // ---------------------------------------------------------------------------
+  --hive-color-primary: var(--hive-gold);
+  --hive-color-primary-hover: var(--hive-gold-hover);
+  --hive-color-primary-active: var(--hive-gold-active);
+  --hive-color-on-primary: var(--hive-ink); // 12.41:1 on gold
+
+  --hive-color-bg: var(--hive-off-white); // app background
+  --hive-color-surface: var(--hive-white); // cards, modals, popovers
+  --hive-color-surface-sunken: var(--hive-gray-light); // wells, table headers
+  --hive-color-surface-inverse: var(--hive-ink); // app header, tooltips
+  --hive-color-surface-inverse-raised: var(--hive-ink-raised);
+
+  --hive-color-text: var(--hive-ink); // 17.40:1 on white
+  --hive-color-text-secondary: var(--hive-gray-dark); // 10.05:1 on white, 9.22:1 on off-white
+  --hive-color-text-muted: var(--hive-gray-medium); // disabled + placeholder only
+  --hive-color-text-inverse: var(--hive-white); // 17.40:1 on ink
+  --hive-color-text-inverse-secondary: var(--hive-gray-on-ink); // 9.26:1 on ink
+  --hive-color-text-on-primary: var(--hive-ink);
+  --hive-color-text-link: var(--hive-info); // 8.40:1 on white
+
+  --hive-color-border-subtle: var(--hive-gray-hairline); // decorative dividers
+  --hive-color-border: var(--hive-gray-medium); // control outlines, >= 3:1 (1.4.11)
+  --hive-color-border-strong: var(--hive-ink);
+  --hive-color-border-inverse: var(--hive-gray-border-on-ink);
+
+  --hive-color-danger: var(--hive-error);
+  --hive-color-danger-text: var(--hive-error-strong);
+  --hive-color-danger-surface: var(--hive-error-tint);
+  --hive-color-on-danger: var(--hive-ink); // 5.45:1 on #FF5252
+
+  --hive-color-success: var(--hive-success);
+  --hive-color-success-surface: var(--hive-success-tint);
+  --hive-color-info: var(--hive-info);
+  --hive-color-info-surface: var(--hive-info-tint);
+
+  --hive-color-overlay: rgb(26 26 26 / 55%); // modal scrim over the app
+
+  // ---------------------------------------------------------------------------
+  // 3. Typography - Inter first, system sans fallbacks (no npm font dependency)
+  // ---------------------------------------------------------------------------
+  --hive-font-family:
+    'Inter', 'Inter var', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+  --hive-font-family-heading: var(--hive-font-family);
+  --hive-font-family-mono:
+    ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', 'JetBrains Mono', Menlo, Consolas, monospace;
+
+  // Scale from the branding guide: 12 / 14 / 16 / 18 / 20 / 24 / 32 px.
+  // Expressed in rem so browser font-size preferences continue to work.
+  --hive-font-size-xs: 0.75rem; // 12px - captions, badges, helper text
+  --hive-font-size-sm: 0.875rem; // 14px - secondary UI text, table cells
+  --hive-font-size-md: 1rem; // 16px - body default
+  --hive-font-size-lg: 1.125rem; // 18px - lead text, card titles
+  --hive-font-size-xl: 1.25rem; // 20px - section headings (h3)
+  --hive-font-size-2xl: 1.5rem; // 24px - page sub-headings (h2)
+  --hive-font-size-3xl: 2rem; // 32px - page titles (h1)
+
+  --hive-font-weight-regular: 400;
+  --hive-font-weight-medium: 500;
+  --hive-font-weight-semibold: 600;
+  --hive-font-weight-bold: 700;
+
+  --hive-line-height-tight: 1.2; // headings
+  --hive-line-height-snug: 1.35;
+  --hive-line-height-normal: 1.55; // body copy
+  --hive-letter-spacing-tight: -0.01em;
+  --hive-letter-spacing-wide: 0.02em;
+  --hive-letter-spacing-caps: 0.06em;
+
+  // ---------------------------------------------------------------------------
+  // 4. Spacing - 4px base grid
+  // ---------------------------------------------------------------------------
+  --hive-space-0: 0;
+  --hive-space-1: 0.25rem; // 4px
+  --hive-space-2: 0.5rem; // 8px
+  --hive-space-3: 0.75rem; // 12px
+  --hive-space-4: 1rem; // 16px
+  --hive-space-5: 1.25rem; // 20px
+  --hive-space-6: 1.5rem; // 24px
+  --hive-space-8: 2rem; // 32px
+  --hive-space-10: 2.5rem; // 40px
+  --hive-space-12: 3rem; // 48px
+  --hive-space-16: 4rem; // 64px
+
+  // ---------------------------------------------------------------------------
+  // 5. Radii - "rounded corners" per the branding guide
+  // ---------------------------------------------------------------------------
+  --hive-radius-xs: 4px;
+  --hive-radius-sm: 6px;
+  --hive-radius-md: 8px;
+  --hive-radius-lg: 12px;
+  --hive-radius-xl: 16px;
+  --hive-radius-pill: 999px;
+  --hive-radius-circle: 50%;
+
+  // ---------------------------------------------------------------------------
+  // 6. Elevation - neutral ink shadows, never coloured
+  // ---------------------------------------------------------------------------
+  --hive-elevation-0: none;
+  --hive-elevation-1: 0 1px 2px rgb(26 26 26 / 8%), 0 1px 3px rgb(26 26 26 / 6%);
+  --hive-elevation-2: 0 2px 4px rgb(26 26 26 / 8%), 0 4px 12px rgb(26 26 26 / 8%);
+  --hive-elevation-3: 0 4px 8px rgb(26 26 26 / 10%), 0 12px 28px rgb(26 26 26 / 12%);
+  --hive-elevation-4: 0 8px 16px rgb(26 26 26 / 12%), 0 24px 48px rgb(26 26 26 / 16%);
+
+  // ---------------------------------------------------------------------------
+  // 7. Focus - the branding guide asks for "yellow border with shadow".
+  // Gold alone on white is 1.40:1 and would fail WCAG 1.4.11 (3:1 for non-text
+  // indicators), so the ring is a gold band with a near-black outer hairline
+  // that carries the contrast (17.40:1 against white). On dark chrome the gold
+  // already measures 12.41:1, so the dark edge is dropped there.
+  // ---------------------------------------------------------------------------
+  --hive-focus-width: 3px;
+  --hive-focus-ring:
+    0 0 0 2px var(--hive-color-surface), 0 0 0 5px var(--hive-gold), 0 0 0 6px var(--hive-ink);
+  --hive-focus-ring-tight: 0 0 0 3px var(--hive-gold), 0 0 0 4px var(--hive-ink);
+  --hive-focus-ring-inverse: 0 0 0 2px var(--hive-ink), 0 0 0 5px var(--hive-gold);
+
+  // ---------------------------------------------------------------------------
+  // 8. Motion
+  // ---------------------------------------------------------------------------
+  --hive-duration-instant: 80ms;
+  --hive-duration-fast: 140ms;
+  --hive-duration-base: 220ms;
+  --hive-duration-slow: 320ms;
+  --hive-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --hive-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --hive-ease-in: cubic-bezier(0.4, 0, 1, 1);
+
+  // ---------------------------------------------------------------------------
+  // 9. Layering
+  // ---------------------------------------------------------------------------
+  --hive-z-base: 0;
+  --hive-z-sticky: 100;
+  --hive-z-header: 200;
+  --hive-z-dropdown: 300;
+  --hive-z-overlay: 900;
+  --hive-z-modal: 1000;
+  --hive-z-toast: 1100;
+
+  // ---------------------------------------------------------------------------
+  // 10. Layout
+  // ---------------------------------------------------------------------------
+  --hive-layout-max-width: 1200px;
+  --hive-layout-gutter: var(--hive-space-6);
+  --hive-header-height: 60px;
+  --hive-control-height-sm: 32px;
+  --hive-control-height-md: 40px;
+  --hive-control-height-lg: 48px;
+  --hive-tap-target-min: 44px; // WCAG 2.5.8 target size floor
+}
+
+// Respect the user's motion preference everywhere at once.
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --hive-duration-instant: 1ms;
+    --hive-duration-fast: 1ms;
+    --hive-duration-base: 1ms;
+    --hive-duration-slow: 1ms;
+  }
+}
+
+// In Windows High Contrast / forced-colours mode, let the OS palette win but
+// keep the focus indicator visible.
+@media (forced-colors: active) {
+  :root {
+    --hive-focus-ring: 0 0 0 3px Highlight;
+    --hive-focus-ring-tight: 0 0 0 3px Highlight;
+    --hive-focus-ring-inverse: 0 0 0 3px Highlight;
+  }
+}
