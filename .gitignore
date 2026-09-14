@@ -30,3 +30,27 @@ replay_pid*
 .dolt/
 *.db
 .beads-credential-key
+
+# --- Hive backend (Gradle / Kotlin) ---
+build/
+.gradle/
+!**/gradle/wrapper/gradle-wrapper.jar
+out/
+
+# --- Hive frontend (Node / Angular) ---
+node_modules/
+dist/
+coverage/
+.angular/
+*.tsbuildinfo
+.npm/
+
+# --- Local environment & secrets ---
+.env
+.env.local
+containers/.env
+certs/
+*.pem
+*.key
+*.pfx
+!containers/.env.example
