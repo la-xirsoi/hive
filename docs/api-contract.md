@@ -236,3 +236,30 @@ fast with field-level 400 detail:
 > in spec.md. The 200-char cap on names mirrors the explicit cap the spec sets on
 > `User.Name` and `Task.Name`; 4000 chars for free text is the practical
 > `NVARCHAR` limit before switching to LOB storage on SQL Server.
+
+---
+
+## 9. Appendix: dev-profile authentication endpoint
+
+**This endpoint exists only under the `dev` Spring profile and must be provably
+absent in `prod`.** It exists because this project was built on a machine with no
+container runtime, so no real identity provider could be hosted locally (see
+`docs/toolchain.md`, "Known environment gaps"). It lets the full stack be
+demonstrated end to end without one.
+
+| Method | Path | Body | Success | Errors |
+|--------|------|------|---------|--------|
+| POST | `/api/v1/dev/token` | `{ "email": string, "name"?: string }` | 200 `{ "accessToken": string, "expiresIn": number }` | 400, 404 (prod) |
+
+- Mints a locally signed JWT whose `sub`, `email` and `name` claims identify the
+  user, signed with a dev-only key pair generated at startup, and validated by
+  the same resource-server configuration that validates real tokens. The token
+  path through the application is therefore identical in dev and prod; only the
+  issuer differs.
+- The endpoint is registered by a `@Profile("dev")` configuration. Under any
+  other profile the route does not exist and returns 404.
+- The frontend calls it only when `environment.devAuth` is true.
+
+Both sides of the stack must implement exactly this shape: the Angular dev login
+and the Spring dev issuer are written by different agents and this appendix is
+the only thing keeping them in agreement.
