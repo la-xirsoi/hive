@@ -1,0 +1,10 @@
+# Gradle build artifacts
+/build/
+/.gradle/
+/out/
+
+# The root .gitignore has a blanket `*.jar` rule. The Gradle wrapper JAR MUST be
+# committed, otherwise `./gradlew` cannot bootstrap on a fresh clone (Gradle is
+# not installed on the build machines). Rules in a nested .gitignore override
+# those in a parent, so this re-includes it.
+!gradle/wrapper/gradle-wrapper.jar
