@@ -1,4 +1,6 @@
-<!-- Minimal scaffold shell. The real Hive UI, theme and routes land in later issues. -->
-<h1>Hello, {{ title() }}</h1>
-
+<!--
+  The root template is only an outlet. The authenticated chrome lives in
+  `features/shell/shell-layout`, which is the parent route of every guarded
+  screen, so that the sign-in and OAuth-callback routes render without it.
+-->
 <router-outlet />
