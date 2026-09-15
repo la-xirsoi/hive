@@ -69,16 +69,38 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-// Kover is wired up so that `./gradlew koverHtmlReport` / `koverXmlReport` work.
-// NOTE: no coverage verification rule is configured yet -- a later issue owns
-// the 70% line-coverage gate mandated by the spec.
+// Coverage. `./gradlew check` (and therefore `build`) runs koverVerify, so a
+// drop below the mandated floor fails the build rather than being noticed later.
 kover {
     reports {
         filters {
             excludes {
-                // The Spring Boot entry point has no meaningful logic to cover.
+                // The Spring Boot entry point has no meaningful logic to cover:
+                // it is a main() that delegates to runApplication. This is the
+                // only production exclusion -- everything else, including every
+                // configuration class, is measured.
                 classes("hive.HiveApplicationKt", "hive.HiveApplication")
             }
         }
+
+        verify {
+            rule("Line coverage on production code") {
+                // spec.md, Testing: "At least 70% line coverage on all
+                // production code." The project currently sits near 99.7%, but
+                // the floor is the requirement rather than today's figure, so
+                // this fails when the mandate is breached rather than whenever
+                // coverage moves.
+                bound {
+                    aggregationForGroup =
+                        kotlinx.kover.gradle.plugin.dsl.AggregationType.COVERED_PERCENTAGE
+                    coverageUnits = kotlinx.kover.gradle.plugin.dsl.CoverageUnit.LINE
+                    minValue = 70
+                }
+            }
+        }
     }
+}
+
+tasks.named("check") {
+    dependsOn(tasks.named("koverVerify"))
 }

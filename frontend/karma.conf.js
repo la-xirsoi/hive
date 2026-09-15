@@ -56,15 +56,17 @@ module.exports = function (config) {
       dir: path.join(__dirname, 'coverage'),
       subdir: '.',
       reporters: [{ type: 'lcov' }, { type: 'text-summary' }],
-      // Coverage thresholds are wired up but intentionally NOT enforced yet.
-      // A follow-up issue raises these to the 70% quality gate; bump the numbers
-      // below (statements/branches/functions/lines) to turn the gate on.
+      // The quality gate spec.md mandates: at least 70% line coverage on all
+      // production code. The suite currently sits well above this on every
+      // metric; the floor is set at the mandated 70 rather than at today's
+      // number so that a future change is told it has fallen below the
+      // requirement, not merely that it moved.
       check: {
         global: {
-          statements: 0,
-          branches: 0,
-          functions: 0,
-          lines: 0,
+          statements: 70,
+          branches: 70,
+          functions: 70,
+          lines: 70,
         },
       },
     },
