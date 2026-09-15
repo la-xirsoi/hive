@@ -87,7 +87,11 @@ describe('TeamApi (contract section 3)', () => {
   it('surfaces the 409 when removing the current lead (TM-7)', async () => {
     const result = firstValueFrom(api.removeMember(10, 1));
     http.expectOne(`${TEST_API_BASE}/teams/10/members/1`).flush(
-      { status: 409, error: 'CONFLICT', message: 'Alice Ng leads this team and cannot be removed.' },
+      {
+        status: 409,
+        error: 'CONFLICT',
+        message: 'Alice Ng leads this team and cannot be removed.',
+      },
       { status: 409, statusText: 'Conflict' },
     );
 

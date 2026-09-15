@@ -1,6 +1,12 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom, of, throwError } from 'rxjs';
-import { ApiError, ApiErrorBody, isApiError, normalizeApiError, normalizeErrors } from './api-error';
+import {
+  ApiError,
+  ApiErrorBody,
+  isApiError,
+  normalizeApiError,
+  normalizeErrors,
+} from './api-error';
 
 /**
  * The normalizer is the only place that reads `HttpErrorResponse`, so it carries

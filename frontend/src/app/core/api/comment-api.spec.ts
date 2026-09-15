@@ -42,10 +42,12 @@ describe('CommentApi (contract section 6)', () => {
 
   it('reports an invisible task as 404, never 403 (CM-1)', async () => {
     const result = firstValueFrom(api.add(999, { content: 'hi' }));
-    http.expectOne(`${TEST_API_BASE}/tasks/999/comments`).flush(
-      { status: 404, error: 'NOT_FOUND', message: 'Task 999 was not found.' },
-      { status: 404, statusText: 'Not Found' },
-    );
+    http
+      .expectOne(`${TEST_API_BASE}/tasks/999/comments`)
+      .flush(
+        { status: 404, error: 'NOT_FOUND', message: 'Task 999 was not found.' },
+        { status: 404, statusText: 'Not Found' },
+      );
 
     await expectAsync(result).toBeRejectedWithError(ApiError, 'Task 999 was not found.');
   });

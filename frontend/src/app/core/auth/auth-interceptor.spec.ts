@@ -150,12 +150,13 @@ describe('authInterceptor', () => {
     const onUnauthorized = spyOn(auth, 'onUnauthorized').and.callThrough();
 
     const result = firstValueFrom(http.get(`${API}/tasks/42`));
-    backend
-      .expectOne(`${API}/tasks/42`)
-      .flush({ status: 401, error: 'UNAUTHORIZED', message: 'Expired.' }, {
+    backend.expectOne(`${API}/tasks/42`).flush(
+      { status: 401, error: 'UNAUTHORIZED', message: 'Expired.' },
+      {
         status: 401,
         statusText: 'Unauthorized',
-      });
+      },
+    );
 
     await expectAsync(result).toBeRejected();
     expect(onUnauthorized).toHaveBeenCalled();

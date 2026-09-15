@@ -2,7 +2,13 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { firstValueFrom } from 'rxjs';
-import { TEST_API_BASE, pageOf, provideTestConfig, taskDetail, taskSummary } from '../test-support.spec';
+import {
+  TEST_API_BASE,
+  pageOf,
+  provideTestConfig,
+  taskDetail,
+  taskSummary,
+} from '../test-support.spec';
 import { ApiError } from './api-error';
 import { TaskApi } from './task-api';
 
@@ -63,7 +69,11 @@ describe('TaskApi (contract section 5)', () => {
   it('surfaces the 409 for an illegal transition (section 2.1)', async () => {
     const result = firstValueFrom(api.updateStatus(42, { status: 'Completed' }));
     http.expectOne(`${TEST_API_BASE}/tasks/42/status`).flush(
-      { status: 409, error: 'CONFLICT', message: 'A Todo task cannot move directly to Completed.' },
+      {
+        status: 409,
+        error: 'CONFLICT',
+        message: 'A Todo task cannot move directly to Completed.',
+      },
       { status: 409, statusText: 'Conflict' },
     );
 

@@ -53,9 +53,7 @@ export class TaskApi extends ApiBase {
    * the statuses in `TaskDetail.permissions.allowedTransitions`.
    */
   updateStatus(id: number, body: UpdateTaskStatusRequest): Observable<TaskDetail> {
-    return this.http
-      .put<TaskDetail>(this.url(`/tasks/${id}/status`), body)
-      .pipe(normalizeErrors());
+    return this.http.put<TaskDetail>(this.url(`/tasks/${id}/status`), body).pipe(normalizeErrors());
   }
 
   /**

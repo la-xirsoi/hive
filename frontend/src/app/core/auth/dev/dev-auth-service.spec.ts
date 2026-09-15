@@ -3,7 +3,12 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import { FakeLocation, TEST_API_BASE, accessTokenFor, provideTestConfig } from '../../test-support.spec';
+import {
+  FakeLocation,
+  TEST_API_BASE,
+  accessTokenFor,
+  provideTestConfig,
+} from '../../test-support.spec';
 import { ApiError } from '../../api/api-error';
 import { AuthError } from '../auth-models';
 import { AUTH_STORAGE, BROWSER_LOCATION, MemoryStorage } from '../browser';
@@ -59,10 +64,12 @@ describe('DevAuthService', () => {
 
     it('normalizes a backend rejection like any other API error', async () => {
       const result = firstValueFrom(dev.login('nobody@hive.test'));
-      http.expectOne(`${TEST_API_BASE}/dev/token`).flush(
-        { status: 400, error: 'BAD_REQUEST', message: 'No such user: nobody@hive.test' },
-        { status: 400, statusText: 'Bad Request' },
-      );
+      http
+        .expectOne(`${TEST_API_BASE}/dev/token`)
+        .flush(
+          { status: 400, error: 'BAD_REQUEST', message: 'No such user: nobody@hive.test' },
+          { status: 400, statusText: 'Bad Request' },
+        );
 
       await expectAsync(result).toBeRejectedWithError(ApiError, 'No such user: nobody@hive.test');
       expect(auth.isAuthenticated()).toBeFalse();

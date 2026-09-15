@@ -53,10 +53,7 @@ export class DevAuthService {
     if (!this.enabled) {
       return throwError(
         () =>
-          new AuthError(
-            'dev_auth_disabled',
-            'Development sign-in is not available in this build.',
-          ),
+          new AuthError('dev_auth_disabled', 'Development sign-in is not available in this build.'),
       );
     }
     const url = `${this.config.apiBaseUrl.replace(/\/+$/, '')}/dev/token`;

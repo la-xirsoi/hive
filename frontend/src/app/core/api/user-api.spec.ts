@@ -82,12 +82,13 @@ describe('UserApi (contract section 2)', () => {
 
   it('rejects with a normalized ApiError, not an HttpErrorResponse', async () => {
     const result = firstValueFrom(api.getById(99));
-    http
-      .expectOne(`${TEST_API_BASE}/users/99`)
-      .flush({ status: 404, error: 'NOT_FOUND', message: 'User 99 was not found.' }, {
+    http.expectOne(`${TEST_API_BASE}/users/99`).flush(
+      { status: 404, error: 'NOT_FOUND', message: 'User 99 was not found.' },
+      {
         status: 404,
         statusText: 'Not Found',
-      });
+      },
+    );
 
     await expectAsync(result).toBeRejectedWithError(ApiError, 'User 99 was not found.');
   });

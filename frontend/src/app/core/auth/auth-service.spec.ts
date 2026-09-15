@@ -237,9 +237,10 @@ describe('AuthService', () => {
     it('falls back to a readable message when the provider sends no description', async () => {
       const { service, http } = setup();
 
-      await expectAsync(
-        service.handleCallback({ error: 'server_error' }),
-      ).toBeRejectedWithError(AuthError, /server_error/);
+      await expectAsync(service.handleCallback({ error: 'server_error' })).toBeRejectedWithError(
+        AuthError,
+        /server_error/,
+      );
       http.verify();
     });
 
@@ -257,9 +258,10 @@ describe('AuthService', () => {
     it('rejects a callback with no pending transaction (stale or replayed link)', async () => {
       const { service, http } = setup();
 
-      await expectAsync(
-        service.handleCallback({ code: 'c', state: 's' }),
-      ).toBeRejectedWithError(AuthError, /no longer valid/);
+      await expectAsync(service.handleCallback({ code: 'c', state: 's' })).toBeRejectedWithError(
+        AuthError,
+        /no longer valid/,
+      );
       http.verify();
     });
 
@@ -279,7 +281,9 @@ describe('AuthService', () => {
       const { state } = await beginLogin(service);
 
       const first = service.handleCallback({ code: 'c', state });
-      http.expectOne(TEST_TOKEN_ENDPOINT).flush({ access_token: accessTokenFor(60), expires_in: 60 });
+      http
+        .expectOne(TEST_TOKEN_ENDPOINT)
+        .flush({ access_token: accessTokenFor(60), expires_in: 60 });
       await first;
 
       await expectAsync(service.handleCallback({ code: 'c', state })).toBeRejectedWithError(
@@ -601,7 +605,9 @@ describe('AuthService', () => {
       service.onUnauthorized('/tasks/42');
 
       expect(service.isAuthenticated()).toBeFalse();
-      expect(navigate).toHaveBeenCalledWith(['/login'], { queryParams: { returnUrl: '/tasks/42' } });
+      expect(navigate).toHaveBeenCalledWith(['/login'], {
+        queryParams: { returnUrl: '/tasks/42' },
+      });
     });
 
     it('onUnauthorized omits returnUrl for the root route', () => {
@@ -632,8 +638,7 @@ describe('AuthService', () => {
       const { service } = setup({ devAuth: false });
 
       expect(() => service.acceptDevToken(accessTokenFor(3600))).toThrowMatching(
-        (error: unknown) =>
-          error instanceof AuthError && error.reason === 'dev_auth_disabled',
+        (error: unknown) => error instanceof AuthError && error.reason === 'dev_auth_disabled',
       );
       expect(service.isAuthenticated()).toBeFalse();
     });

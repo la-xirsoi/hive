@@ -141,11 +141,15 @@ export class AuthService {
     if (callback.error) {
       throw new AuthError(
         'provider_error',
-        callback.error_description ?? `The identity provider rejected the sign-in (${callback.error}).`,
+        callback.error_description ??
+          `The identity provider rejected the sign-in (${callback.error}).`,
       );
     }
     if (!callback.code) {
-      throw new AuthError('missing_code', 'The sign-in response did not include an authorization code.');
+      throw new AuthError(
+        'missing_code',
+        'The sign-in response did not include an authorization code.',
+      );
     }
 
     const transaction = this.store.takeTransaction();
@@ -274,7 +278,8 @@ export class AuthService {
         'Development sign-in is not available in this build.',
       );
     }
-    const expiresAt = jwtExpiryMs(decodeJwtPayload(accessToken)) ?? Date.now() + FALLBACK_LIFETIME_MS;
+    const expiresAt =
+      jwtExpiryMs(decodeJwtPayload(accessToken)) ?? Date.now() + FALLBACK_LIFETIME_MS;
     const tokens: TokenSet = {
       accessToken,
       refreshToken: null,
@@ -304,9 +309,13 @@ export class AuthService {
 
   private exchange(body: HttpParams): Promise<TokenEndpointResponse> {
     return firstValueFrom(
-      this.http.post<TokenEndpointResponse>(resolveTokenEndpoint(this.config.oauth), body.toString(), {
-        headers: FORM_HEADERS,
-      }),
+      this.http.post<TokenEndpointResponse>(
+        resolveTokenEndpoint(this.config.oauth),
+        body.toString(),
+        {
+          headers: FORM_HEADERS,
+        },
+      ),
     ).catch((cause: unknown) => {
       throw cause instanceof AuthError
         ? cause

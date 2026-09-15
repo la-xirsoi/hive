@@ -24,7 +24,11 @@ function documentBase(): string {
  * and the path must be the API path or a segment beneath it - so `/api/v1x` does
  * not qualify either.
  */
-export function isApiRequest(requestUrl: string, apiBaseUrl: string, base = documentBase()): boolean {
+export function isApiRequest(
+  requestUrl: string,
+  apiBaseUrl: string,
+  base = documentBase(),
+): boolean {
   let api: URL;
   let target: URL;
   try {

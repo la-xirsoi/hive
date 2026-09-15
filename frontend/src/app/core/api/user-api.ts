@@ -35,9 +35,7 @@ export class UserApi extends ApiBase {
    */
   search(query?: string, page?: PageRequest): Observable<Page<UserSummary>> {
     const params = this.pageParams(page, { query });
-    return this.http
-      .get<Page<UserSummary>>(this.url('/users'), { params })
-      .pipe(normalizeErrors());
+    return this.http.get<Page<UserSummary>>(this.url('/users'), { params }).pipe(normalizeErrors());
   }
 
   getById(id: number): Observable<UserSummary> {

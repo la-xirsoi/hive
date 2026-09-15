@@ -37,7 +37,9 @@ describe('endpoint resolution', () => {
     expect(resolveAuthorizeEndpoint(config)).toBe(
       'https://id.example.com/protocol/openid-connect/auth',
     );
-    expect(resolveTokenEndpoint(config)).toBe('https://id.example.com/protocol/openid-connect/token');
+    expect(resolveTokenEndpoint(config)).toBe(
+      'https://id.example.com/protocol/openid-connect/token',
+    );
   });
 });
 
