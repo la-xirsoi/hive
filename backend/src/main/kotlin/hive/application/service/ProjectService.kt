@@ -120,13 +120,10 @@ class ProjectService(
     ): Page<TaskSummaryView> {
         loader.requireVisibleProject(projectId, actor)
 
-        val visible = taskRepository.findVisibleInProject(projectId, actor, page)
-        val narrowed =
-            if (statuses.isNullOrEmpty()) {
-                visible
-            } else {
-                visible.copy(content = visible.content.filter { it.status in statuses })
-            }
-        return views.taskSummaries(narrowed)
+        // The status narrowing goes to the repository rather than being applied
+        // to the page it returns: filtering afterwards leaves the envelope
+        // reporting the unfiltered total and can hand back a short page.
+        val visible = taskRepository.findVisibleInProject(projectId, actor, statuses, page)
+        return views.taskSummaries(visible)
     }
 }

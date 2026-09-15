@@ -86,7 +86,7 @@ class DevDataSeederIT {
         val platformProjects = teams.findTeamsLedBy(grace!!.id!!)
             .flatMap { projects.findByTeam(it.id!!) }
         val allTasks = platformProjects.flatMap {
-            tasks.findVisibleInProject(it.id!!, ada!!.id!!, PageRequest(0, 200)).content
+            tasks.findVisibleInProject(it.id!!, ada!!.id!!, page = PageRequest(0, 200)).content
         }
         // Ada owns Apiary, so she sees its tasks in every status (VIS-2).
         assertThat(allTasks.map { it.status })
@@ -94,7 +94,7 @@ class DevDataSeederIT {
 
         // The completed and canceled ones live in Grace's project.
         val graceView = platformProjects.flatMap {
-            tasks.findVisibleInProject(it.id!!, grace.id!!, PageRequest(0, 200)).content
+            tasks.findVisibleInProject(it.id!!, grace.id!!, page = PageRequest(0, 200)).content
         }
         assertThat(graceView.map { it.status })
             .contains(TaskStatus.COMPLETED, TaskStatus.CANCELED)
@@ -111,7 +111,7 @@ class DevDataSeederIT {
         // nothing in a project she owns is assigned to her.
         val adaOwned = projects.findVisibleTo(ada!!.id!!).filter { it.projectOwner == ada.id }
         val assignedToAdaInHerOwnProjects = adaOwned.flatMap {
-            tasks.findVisibleInProject(it.id!!, ada.id!!, PageRequest(0, 200)).content
+            tasks.findVisibleInProject(it.id!!, ada.id!!, page = PageRequest(0, 200)).content
         }.filter { it.assignee == ada.id }
         assertThat(assignedToAdaInHerOwnProjects)
             .describedAs("AS-4: a project owner is never the assignee in their own project")

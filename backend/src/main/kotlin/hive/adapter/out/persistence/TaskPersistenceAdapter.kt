@@ -46,19 +46,34 @@ class TaskPersistenceAdapter(
     override fun findVisibleInProject(
         projectId: ProjectId,
         viewer: UserId,
+        statuses: Set<TaskStatus>?,
         page: PageRequest,
-    ): Page<Task> =
-        Paging.toDomainPage(
+    ): Page<Task> {
+        // The status narrowing is part of the query, so COUNT sees the same
+        // predicate the page does and the reported total is the filtered total.
+        //
+        // JPQL has no portable "IN an optionally-absent collection", so an
+        // explicit flag carries "no filter" and the collection is never empty --
+        // an empty IN list is invalid in some dialects and silently matches
+        // nothing in others. When allStatuses is true the IN arm is not
+        // evaluated, so the placeholder value is never compared against a row.
+        val noFilter = statuses.isNullOrEmpty()
+        val wireNames = if (noFilter) listOf("") else statuses!!.map { it.wireName }
+
+        return Paging.toDomainPage(
             taskRows.findVisibleInProject(
                 projectId = projectId.value,
                 viewerId = viewer.value,
                 draft = TaskStatus.DRAFT.wireName,
                 canceled = TaskStatus.CANCELED.wireName,
+                allStatuses = noFilter,
+                statuses = wireNames,
                 pageable = Paging.toPageable(page),
             ),
             page,
             PersistenceMappers::toDomain,
         )
+    }
 
     /** UQ-1: unassigned `Todo` tasks across every team this user leads. */
     override fun findUnassignedForLead(leadId: UserId, page: PageRequest): Page<Task> =

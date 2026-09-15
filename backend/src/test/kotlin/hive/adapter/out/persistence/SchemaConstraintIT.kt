@@ -235,7 +235,7 @@ class SchemaConstraintIT : PersistenceIntegrationTest() {
             }
             entityManager.flush()
 
-            assertThat(tasks.findVisibleInProject(fixture.projectId, fixture.ownerId, PageRequest.DEFAULT).content)
+            assertThat(tasks.findVisibleInProject(fixture.projectId, fixture.ownerId, page = PageRequest.DEFAULT).content)
                 .hasSize(TaskStatus.entries.size)
         }
 

@@ -5,6 +5,7 @@ import hive.domain.model.PageRequest
 import hive.domain.model.ProjectId
 import hive.domain.model.Task
 import hive.domain.model.TaskId
+import hive.domain.model.TaskStatus
 import hive.domain.model.UserId
 
 /**
@@ -28,8 +29,20 @@ interface TaskRepository {
      * everything if they own the project, non-`Draft` if they lead the team,
      * neither `Draft` nor `Canceled` if they are a member, plus their own
      * assignments regardless of status.
+     *
+     * [statuses], when non-null and non-empty, narrows the result further. It is
+     * a parameter of the query rather than a filter applied to its result
+     * because a page filtered after the fact reports the *unfiltered* total and
+     * can return fewer rows than the requested size. Narrowing can only ever
+     * remove rows the viewer was already entitled to see; it never widens
+     * visibility.
      */
-    fun findVisibleInProject(projectId: ProjectId, viewer: UserId, page: PageRequest): Page<Task>
+    fun findVisibleInProject(
+        projectId: ProjectId,
+        viewer: UserId,
+        statuses: Set<TaskStatus>? = null,
+        page: PageRequest,
+    ): Page<Task>
 
     /**
      * UQ-1: the unassigned queue -- `Todo` tasks with no assignee across the

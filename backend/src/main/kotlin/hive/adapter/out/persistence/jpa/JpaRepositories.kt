@@ -156,6 +156,8 @@ interface TaskJpaRepository : JpaRepository<TaskEntity, Long> {
         @Param("viewerId") viewerId: Long,
         @Param("draft") draft: String,
         @Param("canceled") canceled: String,
+        @Param("allStatuses") allStatuses: Boolean,
+        @Param("statuses") statuses: Collection<String>,
         pageable: Pageable,
     ): Page<TaskEntity>
 
@@ -207,6 +209,7 @@ interface TaskJpaRepository : JpaRepository<TaskEntity, Long> {
                           )
                     )
               )
+              AND (:allStatuses = TRUE OR t.status IN :statuses)
             """
 
         const val UNASSIGNED_SELECT = "SELECT t FROM TaskEntity t "

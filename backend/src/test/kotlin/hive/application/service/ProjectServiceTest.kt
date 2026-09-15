@@ -305,7 +305,7 @@ class ProjectServiceTest {
         @Test
         fun `returns the port's visible slice, resolved into summaries`() {
             harness.withTeams(TEAM).withProjects(PROJECT)
-            every { harness.taskRepository.findVisibleInProject(PROJECT_ID, MEMBER_ID, PageRequest.DEFAULT) } returns
+            every { harness.taskRepository.findVisibleInProject(PROJECT_ID, MEMBER_ID, page = PageRequest.DEFAULT) } returns
                 pageOf(todo, inProgress)
 
             val page = service.listTasks(MEMBER_ID, PROJECT_ID)
@@ -319,7 +319,7 @@ class ProjectServiceTest {
         @Test
         fun `an unassigned row carries a null assignee rather than a hole`() {
             harness.withTeams(TEAM).withProjects(PROJECT)
-            every { harness.taskRepository.findVisibleInProject(PROJECT_ID, OWNER_ID, PageRequest.DEFAULT) } returns
+            every { harness.taskRepository.findVisibleInProject(PROJECT_ID, OWNER_ID, page = PageRequest.DEFAULT) } returns
                 pageOf(canceled)
 
             val page = service.listTasks(OWNER_ID, PROJECT_ID)
@@ -328,40 +328,69 @@ class ProjectServiceTest {
         }
 
         @Test
-        fun `the optional status filter narrows the page`() {
+        fun `the status filter is handed to the port, not applied to its result`() {
             harness.withTeams(TEAM).withProjects(PROJECT)
-            every { harness.taskRepository.findVisibleInProject(PROJECT_ID, MEMBER_ID, PageRequest.DEFAULT) } returns
-                pageOf(todo, inProgress, canceled)
+            val wanted = setOf(TaskStatus.TODO)
+            every {
+                harness.taskRepository.findVisibleInProject(
+                    PROJECT_ID,
+                    MEMBER_ID,
+                    wanted,
+                    PageRequest.DEFAULT,
+                )
+            } returns pageOf(todo)
 
-            val page = service.listTasks(MEMBER_ID, PROJECT_ID, statuses = setOf(TaskStatus.TODO))
+            val page = service.listTasks(MEMBER_ID, PROJECT_ID, statuses = wanted)
 
             assertThat(page.content.map { it.task.id }).containsExactly(TaskId(31))
+            // The point of the test: the narrowing reached the query. Filtering
+            // the returned page instead would leave totalElements describing the
+            // unfiltered set and could yield a page shorter than `size`.
+            verify(exactly = 1) {
+                harness.taskRepository.findVisibleInProject(
+                    PROJECT_ID,
+                    MEMBER_ID,
+                    wanted,
+                    PageRequest.DEFAULT,
+                )
+            }
         }
 
         @Test
-        fun `an empty status set is treated as no filter at all`() {
+        fun `a filtered page reports the filtered total, not the unfiltered one`() {
             harness.withTeams(TEAM).withProjects(PROJECT)
-            every { harness.taskRepository.findVisibleInProject(PROJECT_ID, MEMBER_ID, PageRequest.DEFAULT) } returns
-                pageOf(todo, inProgress)
+            val wanted = setOf(TaskStatus.TODO)
+            every {
+                harness.taskRepository.findVisibleInProject(
+                    PROJECT_ID,
+                    MEMBER_ID,
+                    wanted,
+                    PageRequest.DEFAULT,
+                )
+            } returns Page.of(listOf(todo), PageRequest.DEFAULT, 1L)
+
+            val page = service.listTasks(MEMBER_ID, PROJECT_ID, statuses = wanted)
+
+            assertThat(page.totalElements)
+                .describedAs("the count query carries the same predicate as the page query")
+                .isEqualTo(1)
+        }
+
+        @Test
+        fun `an empty status set is passed through as no filter`() {
+            harness.withTeams(TEAM).withProjects(PROJECT)
+            every {
+                harness.taskRepository.findVisibleInProject(
+                    PROJECT_ID,
+                    MEMBER_ID,
+                    emptySet(),
+                    PageRequest.DEFAULT,
+                )
+            } returns pageOf(todo, inProgress)
 
             val page = service.listTasks(MEMBER_ID, PROJECT_ID, statuses = emptySet())
 
             assertThat(page.content).hasSize(2)
-        }
-
-        @Test
-        fun `the filter can only remove rows, never widen what the port returned`() {
-            harness.withTeams(TEAM).withProjects(PROJECT)
-            every { harness.taskRepository.findVisibleInProject(PROJECT_ID, MEMBER_ID, PageRequest.DEFAULT) } returns
-                pageOf(todo)
-
-            val page = service.listTasks(
-                MEMBER_ID,
-                PROJECT_ID,
-                statuses = setOf(TaskStatus.DRAFT, TaskStatus.CANCELED),
-            )
-
-            assertThat(page.content).isEmpty()
         }
 
         @Test
@@ -371,14 +400,16 @@ class ProjectServiceTest {
             assertThatThrownBy { service.listTasks(OUTSIDER_ID, PROJECT_ID) }
                 .isInstanceOf(NotFoundException::class.java)
 
-            verify(exactly = 0) { harness.taskRepository.findVisibleInProject(any(), any(), any()) }
+            verify(exactly = 0) {
+                harness.taskRepository.findVisibleInProject(any(), any(), any(), any())
+            }
         }
 
         @Test
         fun `honours a non-default page request`() {
             val request = PageRequest(page = 2, size = 5)
             harness.withTeams(TEAM).withProjects(PROJECT)
-            every { harness.taskRepository.findVisibleInProject(PROJECT_ID, MEMBER_ID, request) } returns
+            every { harness.taskRepository.findVisibleInProject(PROJECT_ID, MEMBER_ID, page = request) } returns
                 Page.of(listOf(todo), request, 11L)
 
             val page = service.listTasks(MEMBER_ID, PROJECT_ID, page = request)

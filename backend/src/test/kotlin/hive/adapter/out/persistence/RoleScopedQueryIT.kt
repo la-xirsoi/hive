@@ -6,6 +6,7 @@ import hive.domain.model.Project
 import hive.domain.model.ProjectId
 import hive.domain.model.Task
 import hive.domain.model.TaskId
+import hive.domain.model.TaskStatus
 import hive.domain.model.Team
 import hive.domain.model.TeamId
 import hive.domain.model.UserId
@@ -133,7 +134,7 @@ class RoleScopedQueryIT : PersistenceIntegrationTest() {
 
         @Test
         fun `the result is paged in the database, with totals over the whole visible set`() {
-            val firstPage = tasks.findVisibleInProject(g.apiary, g.owner, PageRequest(0, 3))
+            val firstPage = tasks.findVisibleInProject(g.apiary, g.owner, page = PageRequest(0, 3))
 
             assertThat(firstPage.content).hasSize(3)
             assertThat(firstPage.totalElements).isEqualTo(7)
@@ -141,22 +142,106 @@ class RoleScopedQueryIT : PersistenceIntegrationTest() {
             assertThat(firstPage.page).isEqualTo(0)
             assertThat(firstPage.size).isEqualTo(3)
 
-            val lastPage = tasks.findVisibleInProject(g.apiary, g.owner, PageRequest(2, 3))
+            val lastPage = tasks.findVisibleInProject(g.apiary, g.owner, page = PageRequest(2, 3))
 
             assertThat(lastPage.taskIds()).containsExactly(g.canceledAssigned)
             assertThat(lastPage.totalElements).isEqualTo(7)
         }
 
         @Test
+        fun `the status filter runs in SQL, so the total counts the filtered set`() {
+            // The owner sees 7 tasks in Apiary; exactly two of them are Todo.
+            val all = tasks.findVisibleInProject(g.apiary, g.owner, page = PageRequest.DEFAULT)
+            assertThat(all.totalElements).isEqualTo(7)
+
+            val todoOnly = tasks.findVisibleInProject(
+                g.apiary,
+                g.owner,
+                setOf(TaskStatus.TODO),
+                PageRequest.DEFAULT,
+            )
+
+            assertThat(todoOnly.taskIds()).containsExactly(g.todoOpen, g.todoAssigned)
+            assertThat(todoOnly.totalElements)
+                .describedAs("a filtered page must not report the unfiltered total")
+                .isEqualTo(2)
+        }
+
+        @Test
+        fun `a filtered page is a full page, not a short one`() {
+            // Filtering the result of a query instead of the query itself would
+            // return at most the Todo rows that happened to fall on page 0 of
+            // the unfiltered set -- here, a page of 2 must actually hold 2.
+            val page = tasks.findVisibleInProject(
+                g.apiary,
+                g.owner,
+                setOf(TaskStatus.TODO, TaskStatus.CANCELED),
+                PageRequest(0, 2),
+            )
+
+            assertThat(page.content).hasSize(2)
+            assertThat(page.totalElements).isEqualTo(4)
+            assertThat(page.totalPages).isEqualTo(2)
+        }
+
+        @Test
+        fun `the status filter intersects with visibility, and never widens it`() {
+            // The filter is ANDed with the visibility predicate, so asking for a
+            // status you are not entitled to see does not reveal it.
+            //
+            // The member is barred from Draft and from Canceled by VIS-4, but is
+            // the assignee of canceledAssigned, which VIS-5 keeps visible to
+            // them regardless of status. Asking for Draft and Canceled therefore
+            // yields exactly that one row: their own canceled assignment, and
+            // neither the Draft task nor anyone else's canceled task.
+            val page = tasks.findVisibleInProject(
+                g.apiary,
+                g.member,
+                setOf(TaskStatus.DRAFT, TaskStatus.CANCELED),
+                PageRequest.DEFAULT,
+            )
+
+            assertThat(page.taskIds())
+                .describedAs("filtering cannot grant visibility the viewer lacks")
+                .containsExactly(g.canceledAssigned)
+            assertThat(page.totalElements).isEqualTo(1)
+        }
+
+        @Test
+        fun `asking for a status you cannot see returns nothing`() {
+            // The unambiguous case: a viewer with no assignment among them.
+            val page = tasks.findVisibleInProject(
+                g.apiary,
+                g.lead,
+                setOf(TaskStatus.DRAFT),
+                PageRequest.DEFAULT,
+            )
+
+            assertThat(page.content)
+                .describedAs("VIS-3 bars the lead from Draft; naming it changes nothing")
+                .isEmpty()
+            assertThat(page.totalElements).isEqualTo(0)
+        }
+
+        @Test
+        fun `a null or empty status set means no filtering`() {
+            val unfiltered = tasks.findVisibleInProject(g.apiary, g.owner, null, PageRequest.DEFAULT)
+            val emptyFilter = tasks.findVisibleInProject(g.apiary, g.owner, emptySet(), PageRequest.DEFAULT)
+
+            assertThat(unfiltered.totalElements).isEqualTo(7)
+            assertThat(emptyFilter.totalElements).isEqualTo(7)
+        }
+
+        @Test
         fun `paging a restricted view counts only what that viewer may see`() {
-            val page = tasks.findVisibleInProject(g.apiary, g.assignee, PageRequest(0, 2))
+            val page = tasks.findVisibleInProject(g.apiary, g.assignee, page = PageRequest(0, 2))
 
             assertThat(page.totalElements).isEqualTo(4)
             assertThat(page.taskIds()).containsExactly(g.todoOpen, g.todoAssigned)
         }
 
         private fun assertVisible(project: ProjectId, viewer: UserId, expected: List<TaskId>) {
-            assertThat(tasks.findVisibleInProject(project, viewer, PageRequest.DEFAULT).taskIds())
+            assertThat(tasks.findVisibleInProject(project, viewer, page = PageRequest.DEFAULT).taskIds())
                 .containsExactlyElementsOf(expected)
         }
     }
