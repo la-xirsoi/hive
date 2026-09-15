@@ -143,7 +143,7 @@ together in one Spring context — but through Kotlin, not a browser.
 `spec.md` does not require it; the project plan did. springdoc has no release
 compatible with Spring Boot 4 / Spring Framework 7 — Maven Central's newest is
 Boot 3.x-only. Rather than downgrade the framework to satisfy a documentation
-tool, the issue is left open (`hive-r0f.6`). `/v3/api-docs/**` and
+tool, the issue is closed as a recorded decision, with `hive-4jc` filed to revisit when springdoc ships Boot 4 support. Hand-authoring an `openapi.yaml` was also rejected: a hand-maintained document drifts from the code silently, which is worse than having none. `/v3/api-docs/**` and
 `/swagger-ui/**` are already permitted in the security config, so adding the
 starter later requires no security change. `docs/api-contract.md` remains the
 authoritative API description meanwhile.
