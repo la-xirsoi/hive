@@ -148,11 +148,22 @@ spring:
     clean-disabled: true
   # Required from the environment: the real identity provider. Its JWKS is
   # fetched on first use and every bearer token is validated against it.
+  #
+  # `jwk-set-uri` is optional and usually absent -- leave it unset and the keys
+  # are discovered from the issuer, which is right whenever the issuer URL is
+  # reachable from this process. It exists for deployments where it is not:
+  # behind a gateway the `iss` claim is the address the *browser* used, and
+  # resolving it from inside the network either fails or, worse, reaches
+  # something else. Setting it keeps issuer validation strict (the claim is
+  # still compared against `issuer-uri`, character for character) while the
+  # keys come from an address this process can actually reach. `#{null}` rather
+  # than an empty default because Spring treats "" as a URI and fails on it.
   security:
     oauth2:
       resourceserver:
         jwt:
           issuer-uri: ${HIVE_JWT_ISSUER_URI}
+          jwk-set-uri: ${HIVE_JWT_JWK_SET_URI:#{null}}
 
 # AU-3 enforces HTTPS in prod (HttpsEnforcementConfig). TLS is terminated at the
 # reverse proxy, so the client's original scheme arrives in `X-Forwarded-Proto`;

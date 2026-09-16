@@ -46,6 +46,16 @@ ENV SPRING_PROFILES_ACTIVE=prod \
     SERVER_PORT=8443 \
     JAVA_OPTS="-XX:MaxRAMPercentage=75 -XX:+UseContainerSupport"
 
+# The JWKS endpoint the backend fetches is served with a certificate from the
+# local development CA, which no JVM trusts out of the box -- the fetch would
+# fail with a PKIX path error and every request would 401. The CA arrives at
+# run time on the mounted certs volume, not at build time, so the truststore is
+# assembled at startup: a copy of the JDK's own cacerts (so public CAs keep
+# working) plus the local CA. When no CA is mounted, the JVM default is used
+# unchanged.
+COPY --chown=hive:hive containers/backend/entrypoint.sh /app/entrypoint.sh
+RUN chmod 0755 /app/entrypoint.sh
+
 EXPOSE 8443
 
 USER hive:hive
@@ -55,4 +65,4 @@ USER hive:hive
 HEALTHCHECK --interval=30s --timeout=5s --start-period=90s --retries=3 \
     CMD curl --fail --silent --insecure https://localhost:${SERVER_PORT}/actuator/health || exit 1
 
-ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -jar /app/hive.jar"]
+ENTRYPOINT ["/app/entrypoint.sh"]

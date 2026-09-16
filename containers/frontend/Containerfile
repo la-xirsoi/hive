@@ -30,6 +30,10 @@ RUN rm -rf /usr/share/nginx/html/* \
 COPY --from=build /build/dist/hive-web/browser /usr/share/nginx/html
 COPY containers/frontend/nginx.conf /etc/nginx/conf.d/hive.conf
 
+# Runs before nginx starts; writes the resolver the proxied upstreams need.
+COPY containers/frontend/resolver.sh /docker-entrypoint.d/20-resolver.sh
+RUN chmod 0755 /docker-entrypoint.d/20-resolver.sh
+
 # Certificates are MOUNTED at run time, never baked into the image. The compose
 # stack mounts containers/certs read-only at this path.
 VOLUME ["/etc/nginx/certs"]

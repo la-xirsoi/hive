@@ -75,12 +75,23 @@ podman compose ps
 podman compose logs -f backend
 ```
 
+The whole stack answers on **one origin**, `https://localhost:8444`. nginx
+serves the SPA and proxies the two upstreams, so the browser never sees a second
+host — which is what keeps the OAuth issuer, the `iss` claim in the token and
+the value the backend validates identical without anyone maintaining three
+copies of a hostname.
+
 | Service | URL | Notes |
 |---------|-----|-------|
 | Frontend | https://localhost:8444 | plain HTTP on 8080 redirects here |
-| Backend | https://localhost:8443 | |
-| Identity provider | https://localhost:8543 | Keycloak admin console |
+| API | https://localhost:8444/api/v1 | proxied to the backend |
+| Identity provider | https://localhost:8444/idp | realm `hive`; admin console at `/idp/admin` |
+| Backend (direct) | https://localhost:8443 | published for debugging; the app does not use it |
 | SQL Server | localhost:1433 | `sa` + `MSSQL_SA_PASSWORD` |
+
+The identity provider has no published port of its own. Reaching it on a second
+origin would mint tokens whose `iss` is that origin, and the backend would
+reject every one of them.
 
 Shut down with `podman compose down`, or `podman compose down -v` to discard the
 database volume as well.
@@ -163,6 +174,8 @@ Nothing secret is committed. Every credential is read from the environment.
 | `SPRING_PROFILES_ACTIVE` | backend | `dev`, `test` or `prod` |
 | `SERVER_SSL_KEY_STORE` / `_PASSWORD` / `_TYPE` | backend | PKCS#12 keystore for HTTPS |
 | `HIVE_JWT_ISSUER_URI` | backend | OAuth2 issuer; must exactly match the `iss` claim the IdP mints. Required in `prod`, defaults to a local value in `dev`. |
+| `HIVE_JWT_JWK_SET_URI` | backend | Optional. Where to fetch signing keys when the issuer URL is not reachable from the backend itself — behind a gateway it is the browser's address, not one this process can resolve. Issuer validation stays strict either way. |
+| `OAUTH_PUBLIC_ORIGIN` | compose | The origin you type in the browser. Settles the issuer for the SPA, Keycloak and the backend at once. |
 | `MSSQL_SA_PASSWORD` | compose | must satisfy SQL Server's password policy or the container refuses to start |
 | `KEYCLOAK_ADMIN` / `_PASSWORD` | compose | IdP bootstrap admin |
 | `CERT_PASSWORD` | compose, cert script | protects the PKCS#12 keystore |
@@ -180,9 +193,25 @@ The profile matrix:
 ## 6. Troubleshooting
 
 **Every request returns 401.** Almost always the issuer. The `iss` claim in the
-token must match `HIVE_JWT_ISSUER_URI` character for character, and the URI must
-be resolvable *from inside the backend container* — `localhost` there is the
-backend itself, not your machine.
+token must match `HIVE_JWT_ISSUER_URI` character for character. Note that the
+claim is *compared*, never fetched, so it is the browser's address; the URL that
+must be resolvable from inside the backend container is `HIVE_JWT_JWK_SET_URI`,
+where the signing keys come from. Conflating the two is the classic version of
+this bug — `localhost` inside that container is the backend itself, not your
+machine.
+
+If the keys are fetched over HTTPS from a certificate signed by the development
+CA, the backend has to trust it: the container's entrypoint builds a truststore
+from `/app/certs/hive-ca.crt` at startup and logs `entrypoint: trusting ...`. No
+CA on the certs volume means a PKIX path error on the first token, which also
+surfaces as a 401.
+
+**Everything proxied returns 502 after restarting a single service.** nginx
+pins an upstream's IP at startup, and a recreated container comes back on a new
+one. The image writes a `resolver` from the container's own DNS at startup
+(`hive: nginx resolver set to ...` in the frontend log) and proxies through
+variables so names are re-resolved; if that line is missing from the log, the
+resolver was not written and every upstream name is stale.
 
 **The backend starts but the schema is empty.** Check that
 `spring-boot-flyway` is on the classpath. Spring Boot 4 moved Flyway's

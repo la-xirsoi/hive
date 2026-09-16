@@ -24,13 +24,28 @@ import type { AppConfig } from '../app/core/config/app-config';
 
 const origin = typeof window === 'undefined' ? '' : window.location.origin;
 
+// The identity provider is served from this same origin, under /idp, by the
+// gateway in front of the app (see containers/frontend/nginx.conf). Deriving
+// the issuer from the origin rather than naming a host keeps the bundle free of
+// any deployment's addresses -- the same build serves localhost and production
+// -- and it guarantees the property that actually matters: the issuer the SPA
+// asks for is the origin the browser is already on, so the `iss` claim that
+// comes back is the string the backend is configured to require.
+const issuer = `${origin}/idp/realms/hive`;
+
 export const environment: AppConfig = {
   apiBaseUrl: '/api/v1',
   oauth: {
-    issuer: 'https://id.hive.example.com/realms/hive',
+    issuer,
     clientId: 'hive-web',
     redirectUri: `${origin}/auth/callback`,
     scope: 'openid profile email offline_access',
+    // Keycloak does not use the RFC 6749 conventional paths that
+    // `resolveAuthorizeEndpoint` and `resolveTokenEndpoint` fall back to, so
+    // both are given explicitly. Without these the SPA would call
+    // `<issuer>/authorize` and get a 404 from the realm.
+    authorizeEndpoint: `${issuer}/protocol/openid-connect/auth`,
+    tokenEndpoint: `${issuer}/protocol/openid-connect/token`,
   },
   devAuth: isDevMode(),
 };

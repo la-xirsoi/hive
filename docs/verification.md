@@ -64,17 +64,25 @@ last by `DomainHasNoJpaAnnotationsTest`. Convention is not relied upon.
 | JUnit 5 + MockK | **met** |
 | Jasmine + Karma | **met** — Angular 22 defaults to Vitest; Karma was selected explicitly |
 | >= 70% line coverage | **met and enforced** — 99.68% / 97.74% |
-| MS SQL Server 2022 | **partially** — see 4.1 |
-| Containerized, Podman | **not verified** — see 4.2 |
-| OAuth-compatible login, JWT, HTTPS | **partially** — see 4.3 |
+| MS SQL Server 2022 | **met** — the migration has now run against SQL Server 2022; see 4.1 and section 7 |
+| Containerized, Podman | **met** — the stack builds and runs under Podman; see 4.2 and section 7 |
+| OAuth-compatible login, JWT, HTTPS | **met** — a Keycloak token from a real PKCE login is accepted; see 4.3 and section 7 |
 
 ---
 
 ## 4. What could NOT be verified
 
-This machine has **no container runtime**: neither Podman nor Docker is
-installed. Everything below follows from that single fact. None of it is a
-design gap; all of it is unexecuted code.
+This machine had **no container runtime** when this report was written:
+neither Podman nor Docker was installed. Everything in this section followed
+from that single fact. None of it was a design gap; all of it was unexecuted
+code.
+
+> **Superseded in part on 2026-09-15.** Podman was installed and the stack was
+> run. Sections 4.1 through 4.4 below are kept as written — they are the honest
+> record of what was and was not known then — and **section 7 records what the
+> first real execution proved and what it cost**. Read them together: the
+> predictions in 4.2 about what an unrun stack might hide were, in substance,
+> correct.
 
 ### 4.1 The migration has never been run by SQL Server
 
@@ -188,3 +196,66 @@ Containerfiles, the compose stack and the identity provider integration are
 plausible and reviewed, and I would expect them to need a round of fixes the
 first time anyone has a container runtime to point at them. **Do not treat the
 green build as evidence that the stack comes up.**
+
+> **2026-09-15:** it needed exactly that round of fixes — four of them, listed
+> in section 7.2 — and now comes up. The warning stands as written for anything
+> else in this repository that has never been executed.
+
+---
+
+## 7. Addendum — 2026-09-15: the stack has been run
+
+Podman 5 on Windows 11. `podman compose up -d` from `containers/`, after
+`generate-certs.sh` and trusting the CA.
+
+### 7.1 What is now proven
+
+| Claim | Evidence |
+|-------|----------|
+| Both images build | `podman compose build` succeeds; the Gradle and npm dependency layers cache across source-only edits as intended |
+| The stack comes up | `db`, `db-init`, `idp`, `backend`, `frontend` all reach their terminal state; four healthchecks report healthy |
+| nginx accepts the configuration | the frontend container serves the SPA, and both proxied upstreams answer |
+| The migration runs on real SQL Server | Flyway reports `Successfully validated 1 migration` against `Microsoft SQL Server 16.0`, and `ddl-auto: validate` passes on the schema it produced — retiring most of 4.1 |
+| HTTPS end to end | browser to nginx, nginx to backend and nginx to Keycloak are all TLS, each verified against the development CA rather than skipped |
+| A real Keycloak token is accepted | the full authorization-code + PKCE flow was driven through the gateway as user `ada`; the resulting token carries `iss: https://localhost:8444/idp/realms/hive` and `GET /api/v1/projects/mine` with it returns `200 []`, where the same request without it returns `401` — retiring 4.3 |
+
+### 7.2 What it cost — four bugs no parser could have found
+
+1. **The IdP healthcheck could never pass.** Setting `KC_HTTPS_*` makes
+   Keycloak's management interface serve HTTPS as well, and the image ships no
+   TLS-capable client, so a plaintext probe of `/health/ready` read an empty
+   reply forever. Keycloak itself was fine and served the login screen the whole
+   time; compose reported the service as failed, and the backend — gated on
+   `condition: service_healthy` — never started at all. **A healthcheck that
+   cannot pass is indistinguishable, from the outside, from a service that
+   cannot start.**
+2. **No application database existed.** The mssql image creates none, so Flyway
+   failed with `Cannot open database "hive" requested by the login`. Fixed with
+   an idempotent `db-init` service.
+3. **The SPA had no route to the API.** `environment.ts` asks for `/api/v1` on
+   its own origin; nginx had no proxy for it, so every API call fell through the
+   SPA fallback and returned `index.html` with a `200`. The worst possible
+   failure shape: success status, wrong content type, no error anywhere.
+4. **The issuer could not have matched.** The compose issuer was
+   `https://idp:8443/realms/hive`, a name no browser can resolve, while the
+   bundle still held the placeholder `id.hive.example.com`. Exactly the
+   issuer/audience mismatch 4.3 predicted would not be caught. Fixed
+   structurally rather than by editing three values into agreement: the gateway
+   now serves the IdP under `/idp` on the app's own origin, the SPA derives the
+   issuer from `window.location.origin`, and the backend fetches signing keys
+   from an internal URL while validating the public `iss` string. There is no
+   longer a hostname in the bundle to get wrong.
+
+### 7.3 What remains unproven
+
+- **4.5 stands.** There is still no browser-driven end-to-end test. The PKCE
+  flow above was driven with `curl`, which proves the protocol and the token,
+  not the application's screens.
+- **SQL Server dialect differences.** The migration runs and the mappings
+  validate, but the test suite still executes against H2; paging syntax,
+  collation and `DATETIME2` rounding remain exercised only in compatibility
+  mode. `docs/testing.md` section 4 gives the procedure for running the suite
+  against the `dev` profile, which is now possible and has not been done.
+- **Nothing here says anything about a deployed environment.** The certificates
+  are from a CA that exists on one machine, `start-dev` is not a production
+  Keycloak mode, and the database holds a single SA credential.

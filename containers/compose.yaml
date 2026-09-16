@@ -10,9 +10,10 @@
 # Build contexts are the REPOSITORY ROOT (..) because each Containerfile copies
 # from backend/ or frontend/.
 #
-# NOTE: this stack has not been executed. Podman is not installed on the machine
-# where Hive was built, so the compose file and both Containerfiles are authored
-# and reviewed but unverified. See docs/verification.md.
+# This stack has been run: Podman 5 on Windows 11, 2026-09-15. Everything here
+# is executed rather than merely reviewed -- images build, healthchecks pass, and
+# a real authorization-code + PKCE login yields a token the backend accepts.
+# docs/verification.md section 7 records what that first run cost.
 
 services:
   db:
@@ -56,8 +57,28 @@ services:
       KC_HTTPS_CERTIFICATE_FILE: /opt/keycloak/certs/hive-idp.crt
       KC_HTTPS_CERTIFICATE_KEY_FILE: /opt/keycloak/certs/hive-idp.key
       KC_HEALTH_ENABLED: "true"
-    ports:
-      - "127.0.0.1:8543:8443"
+      # The browser reaches Keycloak only through the frontend gateway, at
+      # https://localhost:8444/idp. One origin for the whole stack means the
+      # issuer the SPA uses, the `iss` claim Keycloak mints and the URL the
+      # login page redirects to are all the same string, derived at runtime
+      # from window.location.origin rather than baked into the bundle.
+      # The path matters: KC_HTTP_RELATIVE_PATH decides where Keycloak serves
+      # itself, but the frontend URL it advertises comes from KC_HOSTNAME
+      # alone. With the origin by itself it mints an issuer of
+      # https://localhost:8444/realms/hive -- no /idp, so every URL in the
+      # discovery document points at the SPA instead of at Keycloak.
+      KC_HOSTNAME: ${OAUTH_PUBLIC_ORIGIN:?set OAUTH_PUBLIC_ORIGIN in .env}/idp
+      # Keycloak serves itself under this prefix, so nginx proxies /idp/
+      # straight through with no path rewriting to get wrong.
+      KC_HTTP_RELATIVE_PATH: /idp
+      # Trust the gateway's X-Forwarded-* headers; without this Keycloak builds
+      # its redirect URLs from the internal hop and sends the browser to
+      # https://idp:8443, which does not resolve outside the pod network.
+      KC_PROXY_HEADERS: xforwarded
+    # No published port. Keycloak is reached at https://localhost:8444/idp,
+    # through the frontend gateway -- publishing 8543 as well would offer a
+    # second origin that mints tokens the backend then rejects, which is the
+    # exact failure this arrangement exists to prevent.
     volumes:
       - ./certs:/opt/keycloak/certs:ro,z
       - ./idp/realm-hive.json:/opt/keycloak/data/import/realm-hive.json:ro,z
@@ -72,7 +93,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "exec 3<>/dev/tcp/127.0.0.1/8080 && printf 'GET /realms/hive/.well-known/openid-configuration HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3 && head -n 1 <&3 | grep -q '200 OK'",
+          "exec 3<>/dev/tcp/127.0.0.1/8080 && printf 'GET /idp/realms/hive/.well-known/openid-configuration HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3 && head -n 1 <&3 | grep -q '200 OK'",
         ]
       interval: 15s
       timeout: 5s
@@ -131,7 +152,16 @@ services:
       # Setting the fully-expanded Spring property name here would also work by
       # relaxed binding, but only by silently outranking the placeholder -- using
       # the name the file actually reads keeps the wiring legible.
-      HIVE_JWT_ISSUER_URI: ${OAUTH_ISSUER_URI:?set OAUTH_ISSUER_URI in .env}
+      #
+      # These two are deliberately different URLs for the same server. The
+      # issuer is the string in the token's `iss` claim, which is whatever the
+      # browser used -- it is compared, never fetched. The JWKS URL is fetched,
+      # so it has to be one this container can actually reach: the gateway
+      # address resolves to the browser's loopback, not to anything visible
+      # from in here. Pointing the issuer at an internal name instead would
+      # reject every real token; pointing JWKS at the gateway would hang.
+      HIVE_JWT_ISSUER_URI: ${OAUTH_PUBLIC_ORIGIN:?set OAUTH_PUBLIC_ORIGIN in .env}/idp/realms/hive
+      HIVE_JWT_JWK_SET_URI: https://idp:8443/idp/realms/hive/protocol/openid-connect/certs
     ports:
       - "127.0.0.1:8443:8443"
     volumes:

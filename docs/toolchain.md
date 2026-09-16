@@ -43,7 +43,10 @@ confined to configuration only.
 ## Known environment gaps
 
 These are limitations of the machine this project was built on, not of the
-design:
+design. **All three were lifted on 2026-09-15**, when Podman was installed and
+the compose stack — which brings its own SQL Server and Keycloak — was run for
+the first time; see `docs/verification.md` section 7. They are kept here because
+they explain why parts of this codebase are shaped the way they are:
 
 1. **No container runtime.** Podman is not installed and neither is Docker.
    Containerfiles and the compose stack are authored and syntax-reviewed but
