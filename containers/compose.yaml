@@ -62,10 +62,17 @@ services:
       - ./certs:/opt/keycloak/certs:ro,z
       - ./idp/realm-hive.json:/opt/keycloak/data/import/realm-hive.json:ro,z
     healthcheck:
+      # NOT /health/ready on 9000: setting KC_HTTPS_* makes the management
+      # interface inherit TLS ("Management interface listening on
+      # https://0.0.0.0:9000" in the startup log), and this image ships no curl,
+      # wget or openssl to speak it -- a plaintext probe there reads an empty
+      # reply and fails forever. Realm discovery on the plaintext main port is
+      # reachable with bash's /dev/tcp alone, and a 200 there proves the thing
+      # the backend is actually waiting for: the realm imported.
       test:
         [
           "CMD-SHELL",
-          "exec 3<>/dev/tcp/127.0.0.1/9000 && echo -e 'GET /health/ready HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && cat <&3 | grep -q '\"status\": \"UP\"'",
+          "exec 3<>/dev/tcp/127.0.0.1/8080 && printf 'GET /realms/hive/.well-known/openid-configuration HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3 && head -n 1 <&3 | grep -q '200 OK'",
         ]
       interval: 15s
       timeout: 5s
@@ -73,6 +80,24 @@ services:
       start_period: 45s
     networks: [hive]
     restart: unless-stopped
+
+  db-init:
+    # SQL Server creates no application database on its own, and the backend's
+    # JDBC URL names one (databaseName=hive). Without this the first thing
+    # Flyway does is fail with 'Cannot open database "hive" requested by the
+    # login'. Idempotent, so it is a no-op on every run after the first.
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: hive-db-init
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:?set MSSQL_SA_PASSWORD in .env}
+    entrypoint: ["/bin/bash", "-c"]
+    command:
+      - /opt/mssql-tools18/bin/sqlcmd -S db,1433 -U sa -P "$$MSSQL_SA_PASSWORD" -C -b -Q "IF DB_ID('hive') IS NULL CREATE DATABASE hive"
+    networks: [hive]
+    restart: "no"
 
   backend:
     build:
@@ -83,6 +108,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      db-init:
+        condition: service_completed_successfully
       idp:
         condition: service_healthy
     environment:
