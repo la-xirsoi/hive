@@ -85,7 +85,7 @@ therefore **promotes secondary text to `#424242`** and restricts `#757575` to:
 | `#F0F0F0`      | `#2B2B2B` raised  | **12.42:1** | AAA   | nav link on hover background       |
 | `#FFD700` gold | `#2B2B2B` raised  | **10.09:1** | AAA   | active nav link on hover           |
 | `#BDBDBD`      | `#1A1A1A`         | **9.26:1**  | AAA   | secondary chip text on dark        |
-| `#FFFFFF`      | `#2B2B2B` raised  | **14.15:1** | AAA   | ghost button hover in the header   |
+| `#FFFFFF`      | `#2B2B2B` raised  | **14.16:1** | AAA   | ghost button hover in the header   |
 | `#FFFFFF`      | `#3D3D3D` pressed | **10.86:1** | AAA   | ghost button pressed in the header |
 
 Everything in this table below the wordmark row is reached through the

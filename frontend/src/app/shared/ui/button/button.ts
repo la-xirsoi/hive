@@ -184,7 +184,7 @@ export type HiveButtonType = 'button' | 'submit' | 'reset';
       border-color: transparent;
     }
     .hive-btn--tertiary:not(:disabled):hover {
-      background-color: var(--hive-color-surface-hover); /* 15.27:1 light, 14.15:1 dark */
+      background-color: var(--hive-color-surface-hover); /* 15.27:1 light, 14.16:1 dark */
     }
     .hive-btn--tertiary:not(:disabled):active {
       background-color: var(--hive-color-surface-pressed); /* 16.29:1 light, 10.86:1 dark */
