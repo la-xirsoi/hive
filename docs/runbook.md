@@ -121,6 +121,29 @@ symptom and how to clear it.
 > backend accepts. What that first run cost, and what is still unproven, is in
 > [verification.md](verification.md) section 7.
 
+### Browser-driven end-to-end tests
+
+The stack above is what the end-to-end suite runs against. It drives the built
+SPA through a real authorization-code + PKCE sign-in against the compose
+Keycloak, so the request under test is the one the shipped bundle issues rather
+than one the test rebuilt:
+
+```bash
+cd frontend
+npm run e2e:install   # once: downloads the Playwright Chromium build
+npm run e2e           # requires the stack above to be up
+```
+
+Point it at a stack published elsewhere with `HIVE_E2E_BASE_URL`. There is no
+`webServer` entry in `playwright.config.ts` on purpose: a stack Playwright
+started would be a stack configured by the test suite, not the one that ships.
+Failures leave a trace in `frontend/test-results/`; open one with
+`npx playwright show-trace <path>`.
+
+This is the gap [verification.md](verification.md) 4.5 recorded, and closing it
+is why `hive-m50` — a sign-in broken for everyone while a curl-driven PKCE
+verification passed — could not happen unnoticed again.
+
 ---
 
 ## 4. Running without containers

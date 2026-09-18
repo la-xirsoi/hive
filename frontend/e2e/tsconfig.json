@@ -1,0 +1,13 @@
+/* Type-checking context for the browser-driven end-to-end suite.
+   Kept out of tsconfig.app.json / tsconfig.spec.json on purpose: these files
+   are never bundled and never run under Karma. */
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "types": ["node"],
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "noEmit": true
+  },
+  "include": ["**/*.ts", "../playwright.config.ts"]
+}

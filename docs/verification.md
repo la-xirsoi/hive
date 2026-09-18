@@ -146,6 +146,10 @@ browser against a running backend. The closest thing is `DevDataSeederIT`, which
 exercises policy, transition machine, mappers, JPA and the migrated schema
 together in one Spring context — but through Kotlin, not a browser.
 
+> **Closed on 2026-09-18.** `frontend/e2e/` now drives the built SPA through a
+> real authorization-code + PKCE sign-in against the compose Keycloak. Section 8
+> records what it proves and what it still does not. Tracked as `hive-nfv`.
+
 ### 4.6 OpenAPI documentation is not implemented
 
 `spec.md` does not require it; the project plan did. springdoc has no release
@@ -391,13 +395,12 @@ Podman 5 on Windows 11. `podman compose up -d` from `containers/`, after
 
 ### 7.3 What remains unproven
 
-- **4.5 stands, and item 7 is what it costs.** There is still no
-  browser-driven end-to-end test. The PKCE flow above was driven with `curl`,
-  which proves the protocol and the token, not the application's screens — and
-  item 7 is a sign-in that was broken for everyone while that flow passed,
-  found by a person clicking the button. The gap is no longer hypothetical.
-  Until a test drives the SPA's own request, every claim in this report about
-  authentication is a claim about the protocol only. Tracked as `hive-nfv`.
+- **4.5 stood, and item 7 is what it cost.** The PKCE flow above was driven
+  with `curl`, which proves the protocol and the token, not the application's
+  screens — and item 7 is a sign-in that was broken for everyone while that
+  flow passed, found by a person clicking the button. Until a test drove the
+  SPA's own request, every claim in this report about authentication was a
+  claim about the protocol only. **Closed on 2026-09-18 — see section 8.**
 - **SQL Server dialect differences.** The migration runs and the mappings
   validate, but the test suite still executes against H2; paging syntax,
   collation and `DATETIME2` rounding remain exercised only in compatibility
@@ -406,3 +409,50 @@ Podman 5 on Windows 11. `podman compose up -d` from `containers/`, after
 - **Nothing here says anything about a deployed environment.** The certificates
   are from a CA that exists on one machine, `start-dev` is not a production
   Keycloak mode, and the database holds a single SA credential.
+
+---
+
+## 8. Addendum — 2026-09-18: the sign-in is now driven by a browser
+
+`frontend/e2e/`, run with `npm run e2e` against the compose stack. Playwright
+driving Chromium; three tests, all passing, 1.9s wall clock.
+
+### 8.1 What it does
+
+`sign-in.e2e.ts` loads `https://localhost:8444`, is redirected to the sign-in
+screen by the auth guard, clicks the button the bundle renders, types a seeded
+realm user's password into **Keycloak's own login form**, and asserts the
+authenticated shell and a dashboard card render. Nothing in the flow is
+reconstructed by the test: the authorization request asserted on — `scope`,
+`client_id`, `redirect_uri`, `code_challenge_method`, `state`, `nonce` — is read
+off the request Chromium actually sent, and the granted scopes are read off the
+token endpoint's response to the bundle's own exchange.
+
+That is the distinction 7.2 item 7 turned on. A verification that rebuilds the
+request proves the protocol; this one proves the product, because the value
+under test is the one the shipped bundle ships.
+
+### 8.2 The assertion has been seen to fail
+
+Two ways, both deliberately:
+
+- A third test replays the bundle's own authorization request with one extra
+  scope the realm does not grant this client. Keycloak refuses it and renders an
+  error page, so the login form never appears — which is exactly the shape of
+  `hive-m50`, and exactly what the acceptance criterion asks the suite to catch.
+- The sign-in test was re-run with a wrong password and failed, confirming that
+  the authenticated assertions are reached and load-bearing rather than
+  vacuously satisfied.
+
+### 8.3 What it still does not prove
+
+- **It covers sign-in, not the application.** Three tests; the teams, projects
+  and task screens are still exercised only at component level with mocked HTTP.
+  A browser-driven pass over the task lifecycle is the obvious next piece.
+- **It needs the stack.** `playwright.config.ts` has no `webServer` entry, by
+  choice — a stack Playwright started would be one the test suite configured
+  rather than the one that ships — so the suite is skipped-by-absence on any
+  machine without a container runtime, which is how 4.5 came to stand for as
+  long as it did. It is not part of `npm run test:ci`.
+- **It accepts the development certificates.** `ignoreHTTPSErrors` is on, so
+  nothing here is evidence about certificate trust.

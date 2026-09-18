@@ -48,7 +48,7 @@ docs/       The documents listed above
 - JDK 21 (`JAVA_HOME` must point at it)
 - Node 24 and npm 11
 - Google Chrome (for the headless Karma test run)
-- Podman (only needed to build and run containers)
+- Podman (needed to build and run containers, and for the end-to-end suite)
 
 Gradle itself is not required: the repository ships a Gradle wrapper.
 
@@ -62,6 +62,11 @@ cd backend && ./gradlew build
 cd frontend && npm ci
 npm run test:ci
 npm run build
+
+# End-to-end: drives the real SPA through a real sign-in.
+# Needs the containerized stack up first (see the runbook).
+npm run e2e:install   # once
+npm run e2e
 ```
 
 See [docs/runbook.md](docs/runbook.md) for running the full containerized stack.
