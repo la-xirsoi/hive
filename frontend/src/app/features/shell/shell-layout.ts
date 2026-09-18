@@ -11,6 +11,10 @@ import { CurrentUser } from '../shared/current-user';
  * the parent and the chrome is created once for the whole session rather than
  * re-mounting on each navigation.
  *
+ * The chip and the sign-out button need no on-dark styling of their own: the
+ * shell header carries `hive-surface-inverse`, so the colour roles they read are
+ * already the on-ink ones inside it.
+ *
  * The displayed name prefers `GET /users/me` (the Hive record, which the user
  * controls under US-5) and falls back to the token's `name` claim while that
  * request is in flight, so the header is never blank.
@@ -40,11 +44,6 @@ import { CurrentUser } from '../shared/current-user';
   styles: `
     :host {
       display: block;
-    }
-
-    /* The chip sits on the near-black header bar, so its text must invert. */
-    hive-user-chip {
-      color: var(--hive-color-text-inverse);
     }
   `,
 })

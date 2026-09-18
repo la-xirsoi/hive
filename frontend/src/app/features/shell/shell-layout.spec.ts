@@ -83,6 +83,21 @@ describe('ShellLayout', () => {
     expect(text(fixture)).toContain('Signed in');
   });
 
+  it('renders the user chip and sign-out button inside the header inverse context', async () => {
+    http.expectOne(`${API}/users/me`).flush(alice);
+    await fixture.whenStable();
+
+    // The header re-points the colour roles to their on-ink values for its
+    // subtree; both controls are readable only because they sit inside it.
+    const chip = query<HTMLElement>(fixture, 'hive-user-chip')!;
+    const signOut = byTestId<HTMLElement>(fixture, 'sign-out')!;
+    const header = query<HTMLElement>(fixture, 'header[role="banner"]')!;
+
+    expect(header.classList).toContain('hive-surface-inverse');
+    expect(chip.closest('.hive-surface-inverse')).toBe(header);
+    expect(signOut.closest('.hive-surface-inverse')).toBe(header);
+  });
+
   it('forgets the cached identity on sign-out, so the next session re-reads it', async () => {
     http.expectOne(`${API}/users/me`).flush(alice);
     await fixture.whenStable();

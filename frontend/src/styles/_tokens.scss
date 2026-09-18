@@ -71,6 +71,12 @@
   --hive-color-surface-inverse: var(--hive-ink); // app header, tooltips
   --hive-color-surface-inverse-raised: var(--hive-ink-raised);
 
+  // Interaction fills for ghost/outlined controls, which paint no surface of
+  // their own. Named roles rather than raw palette values so that an inverse
+  // surface context can re-point them (see section 11).
+  --hive-color-surface-hover: var(--hive-color-surface-sunken); // #F0F0F0
+  --hive-color-surface-pressed: var(--hive-gold-tint); // #FFF8D6, 16.29:1 with ink
+
   --hive-color-text: var(--hive-ink); // 17.40:1 on white
   --hive-color-text-secondary: var(--hive-gray-dark); // 10.05:1 on white, 9.22:1 on off-white
   --hive-color-text-muted: var(--hive-gray-medium); // disabled + placeholder only
@@ -208,6 +214,38 @@
   --hive-control-height-md: 40px;
   --hive-control-height-lg: 48px;
   --hive-tap-target-min: 44px; // WCAG 2.5.8 target size floor
+}
+
+// =============================================================================
+// 11. Inverse surface context
+// -----------------------------------------------------------------------------
+// Put this class on any element painted --hive-color-surface-inverse (#1A1A1A):
+// today that is the app-shell header, tomorrow a tooltip or a dark hero. It
+// re-points the light-surface colour roles at their on-ink equivalents for the
+// whole subtree, so a component dropped into dark chrome inherits readable
+// colours without knowing where it was placed, and without every call site
+// growing an "on dark" modifier. Ratios are from ./CONTRAST.md.
+// =============================================================================
+.hive-surface-inverse {
+  --hive-color-surface: var(--hive-color-surface-inverse);
+  --hive-color-surface-sunken: var(--hive-color-surface-inverse-raised);
+  --hive-color-surface-hover: var(
+    --hive-color-surface-inverse-raised
+  ); // #2B2B2B, 14.15:1 with white
+  --hive-color-surface-pressed: var(--hive-gray-border-on-ink); // #3D3D3D, 10.86:1 with white
+
+  --hive-color-text: var(--hive-color-text-inverse); // 17.40:1 on #1A1A1A
+  --hive-color-text-secondary: var(--hive-color-text-inverse-secondary); // 9.26:1 on #1A1A1A
+  --hive-color-text-link: var(--hive-gold); // 12.41:1 on #1A1A1A - blue links vanish here
+  // --hive-color-text-muted stays #757575 (3.78:1 on ink): disabled text only,
+  // which WCAG 1.4.3 exempts, and it must still read as inactive.
+
+  --hive-color-border-subtle: var(--hive-color-border-inverse); // #3D3D3D hairlines
+  --hive-color-border-strong: var(--hive-color-text-inverse);
+  // --hive-color-border stays #757575: 3.78:1 on ink still clears the 3:1
+  // non-text floor (1.4.11).
+
+  --hive-focus-ring: var(--hive-focus-ring-inverse);
 }
 
 // Respect the user's motion preference everywhere at once.

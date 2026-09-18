@@ -23,6 +23,11 @@ export interface HiveChipUser {
  * visible text beside it - otherwise every chip would be announced twice. The
  * remove button carries an explicit, name-bearing label ("Remove Ada Lovelace")
  * so it is unambiguous in a list of identical-looking buttons.
+ *
+ * Colours come entirely from the semantic text/surface roles, so the chip needs
+ * no "on dark" variant: inside a `.hive-surface-inverse` subtree (the app-shell
+ * header) those roles already resolve to #FFFFFF (17.40:1 on #1A1A1A) and
+ * #BDBDBD (9.26:1).
  */
 @Component({
   selector: 'hive-user-chip',
@@ -119,16 +124,6 @@ export interface HiveChipUser {
     .hive-chip__remove:focus-visible {
       outline: none;
       box-shadow: var(--hive-focus-ring-tight);
-    }
-
-    :host(.hive-user-chip--on-dark) .hive-chip__name {
-      color: var(--hive-color-text-inverse); /* 17.40:1 on #1A1A1A */
-    }
-    :host(.hive-user-chip--on-dark) .hive-chip__secondary {
-      color: var(--hive-color-text-inverse-secondary); /* 9.26:1 on #1A1A1A */
-    }
-    :host(.hive-user-chip--on-dark) .hive-chip__remove {
-      color: var(--hive-color-text-inverse-secondary);
     }
   `,
 })

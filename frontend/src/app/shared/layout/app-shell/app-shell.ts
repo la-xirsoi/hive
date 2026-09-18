@@ -33,6 +33,11 @@ export interface HiveNavLink {
  *   * nav text is #F0F0F0 on #1A1A1A (15.27:1) and the active item is
  *     #FFD700 on #1A1A1A (12.41:1) - gold is only ever used as text on the
  *     near-black chrome, never on a light surface
+ *   * the header carries `hive-surface-inverse` (see styles/_tokens.scss), which
+ *     re-points the colour roles at their on-ink values for everything slotted
+ *     into it. Projected content - the user chip, the action buttons - is
+ *     readable because of that context, not because each component was told it
+ *     is sitting on dark chrome.
  */
 @Component({
   selector: 'hive-app-shell',
@@ -41,7 +46,7 @@ export interface HiveNavLink {
   template: `
     <a class="hive-shell__skip hive-sr-only-focusable" href="#hive-main">Skip to main content</a>
 
-    <header class="hive-shell__header" role="banner">
+    <header class="hive-shell__header hive-surface-inverse" role="banner">
       <div class="hive-shell__bar">
         <a class="hive-shell__brand" [routerLink]="homeLink()">
           <span class="hive-shell__mark" aria-hidden="true"></span>
@@ -109,6 +114,9 @@ export interface HiveNavLink {
     }
 
     /* ---- header ---- */
+    /* Painted --hive-color-surface-inverse; the matching .hive-surface-inverse
+       class on the same element re-points the text/surface roles for the
+       subtree, so slotted controls inherit on-ink colours. */
     .hive-shell__header {
       position: sticky;
       top: 0;

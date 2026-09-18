@@ -84,6 +84,16 @@ describe('HiveAppShell', () => {
     expect(root().querySelector('nav')).toBeNull();
   });
 
+  it('marks the dark header as an inverse surface, so slotted controls invert', () => {
+    // Without this class the header paints #1A1A1A while its content keeps the
+    // light-surface text roles - ink on ink, which is how hive-0lu happened.
+    const header = root().querySelector('header[role="banner"]') as HTMLElement;
+    expect(header.classList).toContain('hive-surface-inverse');
+
+    const aside = root().querySelector('.hive-shell__aside') as HTMLElement;
+    expect(aside.closest('.hive-surface-inverse')).toBe(header);
+  });
+
   it('projects the user slot, the actions slot and the page content', () => {
     expect(root().querySelector('.hive-shell__aside')?.textContent).toContain('Ada Lovelace');
     expect(root().querySelector('.hive-shell__aside')?.textContent).toContain('New task');

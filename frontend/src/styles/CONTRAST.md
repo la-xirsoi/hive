@@ -77,14 +77,24 @@ therefore **promotes secondary text to `#424242`** and restricts `#757575` to:
 
 ## 4. Text on the near-black chrome (app header)
 
-| Foreground     | Background       | Ratio       | Level | Where it ships                 |
-| -------------- | ---------------- | ----------- | ----- | ------------------------------ |
-| `#FFFFFF`      | `#1A1A1A`        | **17.40:1** | AAA   | wordmark, nav hover, user slot |
-| `#F0F0F0`      | `#1A1A1A`        | **15.27:1** | AAA   | inactive nav links             |
-| `#FFD700` gold | `#1A1A1A`        | **12.41:1** | AAA   | **active** nav link            |
-| `#F0F0F0`      | `#2B2B2B` raised | **12.42:1** | AAA   | nav link on hover background   |
-| `#FFD700` gold | `#2B2B2B` raised | **10.09:1** | AAA   | active nav link on hover       |
-| `#BDBDBD`      | `#1A1A1A`        | **9.26:1**  | AAA   | secondary chip text on dark    |
+| Foreground     | Background        | Ratio       | Level | Where it ships                     |
+| -------------- | ----------------- | ----------- | ----- | ---------------------------------- |
+| `#FFFFFF`      | `#1A1A1A`         | **17.40:1** | AAA   | wordmark, nav hover, user slot     |
+| `#F0F0F0`      | `#1A1A1A`         | **15.27:1** | AAA   | inactive nav links                 |
+| `#FFD700` gold | `#1A1A1A`         | **12.41:1** | AAA   | **active** nav link                |
+| `#F0F0F0`      | `#2B2B2B` raised  | **12.42:1** | AAA   | nav link on hover background       |
+| `#FFD700` gold | `#2B2B2B` raised  | **10.09:1** | AAA   | active nav link on hover           |
+| `#BDBDBD`      | `#1A1A1A`         | **9.26:1**  | AAA   | secondary chip text on dark        |
+| `#FFFFFF`      | `#2B2B2B` raised  | **14.15:1** | AAA   | ghost button hover in the header   |
+| `#FFFFFF`      | `#3D3D3D` pressed | **10.86:1** | AAA   | ghost button pressed in the header |
+
+Everything in this table below the wordmark row is reached through the
+`.hive-surface-inverse` context class (`_tokens.scss`, section 11) rather than a
+per-component "on dark" modifier: the class re-points `--hive-color-text`,
+`--hive-color-text-secondary`, `--hive-color-surface`, the two ghost-interaction
+fills and the focus ring at their on-ink values for the whole subtree, so the
+user chip and the sign-out button in the header inherit these ratios without
+knowing where they were placed.
 
 ## 5. Status badges (all five contract statuses)
 

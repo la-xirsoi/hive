@@ -69,6 +69,20 @@ export class OAuthTraffic {
   }
 }
 
+/**
+ * Drives the real sign-in: the app's own button, the realm's own form. Tests
+ * that are about something *after* authentication use this rather than
+ * re-asserting the flow `sign-in.e2e.ts` already owns.
+ */
+export async function signIn(page: Page, user: RealmUser = ADA): Promise<void> {
+  await page.goto('/');
+  await page.getByTestId('oauth-sign-in').click();
+  await page.locator('#username').fill(user.username);
+  await page.locator('#password').fill(user.password);
+  await page.locator('#kc-login').click();
+  await page.getByTestId('sign-out').waitFor({ state: 'visible' });
+}
+
 /** `test` with the OAuth recorder already attached to the page. */
 export const test = base.extend<{ oauth: OAuthTraffic }>({
   oauth: async ({ page }, use) => {

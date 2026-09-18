@@ -18,7 +18,9 @@ export type HiveButtonType = 'button' | 'submit' | 'reset';
  * Variants follow BRANDING_GUIDE.md:
  *   primary   - gold fill with black text (12.41:1)
  *   secondary - transparent fill, ink border and ink text (17.40:1 on white)
- *   tertiary  - ghost, ink text, tinted hover
+ *   tertiary  - ghost, ink text, tinted hover (17.40:1 on white); on an
+ *               inverse surface context it inherits the on-ink roles and
+ *               becomes white text on the near-black chrome (17.40:1)
  *   danger    - #FF5252 fill with black text (5.45:1); the guide specifies
  *               "Error states: Red (#FF5252) with black text"
  *
@@ -154,12 +156,17 @@ export type HiveButtonType = 'button' | 'submit' | 'reset';
       color: var(--hive-color-text);
       border-color: var(--hive-color-border-strong);
     }
+    /* Both interaction states paint a gold fill, and the one colour that ever
+       sits on gold is ink - 16.29:1 on the tint, 12.41:1 on the fill - so they
+       pin their own text colour instead of inheriting the surface context. */
     .hive-btn--secondary:not(:disabled):hover {
       background-color: var(--hive-gold-tint);
+      color: var(--hive-color-on-primary);
       border-color: var(--hive-color-border-strong);
     }
     .hive-btn--secondary:not(:disabled):active {
       background-color: var(--hive-gold);
+      color: var(--hive-color-on-primary);
     }
     .hive-btn--secondary:disabled {
       background-color: transparent;
@@ -167,17 +174,20 @@ export type HiveButtonType = 'button' | 'submit' | 'reset';
       color: var(--hive-color-text-muted);
     }
 
-    /* ---- tertiary: ghost ---- */
+    /* ---- tertiary: ghost ----
+       Paints no surface of its own, so it reads the surface roles rather than
+       raw palette values: inside .hive-surface-inverse those resolve to the
+       on-ink set and the button turns white-on-near-black by itself. */
     .hive-btn--tertiary {
       background-color: transparent;
-      color: var(--hive-color-text);
+      color: var(--hive-color-text); /* 17.40:1 on white, 17.40:1 on #1A1A1A */
       border-color: transparent;
     }
     .hive-btn--tertiary:not(:disabled):hover {
-      background-color: var(--hive-color-surface-sunken);
+      background-color: var(--hive-color-surface-hover); /* 15.27:1 light, 14.15:1 dark */
     }
     .hive-btn--tertiary:not(:disabled):active {
-      background-color: var(--hive-gold-tint);
+      background-color: var(--hive-color-surface-pressed); /* 16.29:1 light, 10.86:1 dark */
     }
     .hive-btn--tertiary:disabled {
       color: var(--hive-color-text-muted);
