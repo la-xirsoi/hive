@@ -39,7 +39,16 @@ export const environment: AppConfig = {
     issuer,
     clientId: 'hive-web',
     redirectUri: `${origin}/auth/callback`,
-    scope: 'openid profile email offline_access',
+    // No `offline_access`. It is not needed: Keycloak issues a refresh token to
+    // this client from the plain authorization-code flow, bound to the SSO
+    // session, which is what `scheduleRefresh` arms the silent refresh on.
+    // `offline_access` would instead mint a token that outlives the session --
+    // pointless here, since the token set lives in `sessionStorage` and dies
+    // with the tab, and a longer-lived credential in a public browser client
+    // for no gain. Requesting it also has to be granted: a scope the client
+    // does not hold fails the whole authorization request with
+    // `invalid_scope`, before the login form is ever shown.
+    scope: 'openid profile email',
     // Keycloak does not use the RFC 6749 conventional paths that
     // `resolveAuthorizeEndpoint` and `resolveTokenEndpoint` fall back to, so
     // both are given explicitly. Without these the SPA would call

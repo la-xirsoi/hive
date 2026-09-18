@@ -26,7 +26,9 @@ export const environment: AppConfig = {
     issuer: 'http://localhost:8081/realms/hive',
     clientId: 'hive-web',
     redirectUri: `${origin}/auth/callback`,
-    scope: 'openid profile email offline_access',
+    // See environment.ts: the refresh token comes with the code flow, and
+    // asking for a scope the client does not hold fails the whole request.
+    scope: 'openid profile email',
   },
   // No container runtime is available locally to host a real identity provider,
   // so development logs in through the backend's dev token endpoint instead.

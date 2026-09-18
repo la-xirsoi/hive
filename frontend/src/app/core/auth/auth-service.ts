@@ -371,10 +371,10 @@ export class AuthService {
    * Arms the silent refresh.
    *
    * With a refresh token the timer fires {@link REFRESH_SKEW_MS} before expiry so
-   * the new token is in hand before the old one lapses. Without one (a dev
-   * session, or a provider issuing no `offline_access`) the timer instead fires
-   * at expiry and ends the session, so `isAuthenticated` never reports a token
-   * the API would reject.
+   * the new token is in hand before the old one lapses. Without one -- a dev
+   * session, or an issuer that returns none for this grant -- the timer instead
+   * fires at expiry and ends the session, so `isAuthenticated` never reports a
+   * token the API would reject.
    */
   private scheduleRefresh(): void {
     this.cancelRefresh();

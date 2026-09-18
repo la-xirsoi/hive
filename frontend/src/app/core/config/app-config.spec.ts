@@ -54,11 +54,19 @@ describe('environment files', () => {
     expect(devEnvironment.oauth.redirectUri.endsWith('/auth/callback')).toBeTrue();
   });
 
-  it('requests the scopes the flow depends on', () => {
-    // `openid` is what produces the id_token the nonce check validates;
-    // `offline_access` is what produces the refresh token silent refresh needs.
+  it('requests the scopes the flow depends on, and none the client lacks', () => {
+    // `openid` is what produces the id_token the nonce check validates.
     expect(environment.oauth.scope).toContain('openid');
-    expect(environment.oauth.scope).toContain('offline_access');
+
+    // NOT `offline_access`. The refresh token silent refresh needs comes with
+    // the authorization-code flow regardless; `offline_access` only asks that
+    // it outlive the SSO session, which is useless to a token set held in
+    // sessionStorage. It has to be granted, too -- the realm's hive-web client
+    // does not hold it, and an issuer rejects the whole authorization request
+    // over one unknown scope rather than ignoring it. Asserted as an absence
+    // because requesting it broke sign-in entirely (hive-m50).
+    expect(environment.oauth.scope).not.toContain('offline_access');
+    expect(devEnvironment.oauth.scope).not.toContain('offline_access');
   });
 
   it('derives devAuth from the build mode rather than hard-coding it on', () => {

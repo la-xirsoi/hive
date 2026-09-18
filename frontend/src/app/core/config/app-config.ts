@@ -16,7 +16,13 @@ export interface OAuthConfig {
   readonly clientId: string;
   /** Absolute URL the issuer redirects back to after authorization. */
   readonly redirectUri: string;
-  /** Space-delimited scope string. Include `offline_access` to get a refresh token. */
+  /**
+   * Space-delimited scope string. Every scope named here must be one the client
+   * is registered to hold -- an issuer rejects the entire authorization request
+   * over a single unknown one. Note a refresh token does not need
+   * `offline_access`: the authorization-code flow issues one regardless, and
+   * `offline_access` only asks that it outlive the SSO session.
+   */
   readonly scope: string;
   /** Optional explicit authorization endpoint; derived from `issuer` when absent. */
   readonly authorizeEndpoint?: string;
