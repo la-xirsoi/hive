@@ -197,7 +197,7 @@ plausible and reviewed, and I would expect them to need a round of fixes the
 first time anyone has a container runtime to point at them. **Do not treat the
 green build as evidence that the stack comes up.**
 
-> **2026-09-15:** it needed exactly that round of fixes — four of them, listed
+> **2026-09-15:** it needed exactly that round of fixes — five of them, listed
 > in section 7.2 — and now comes up. The warning stands as written for anything
 > else in this repository that has never been executed.
 
@@ -217,9 +217,10 @@ Podman 5 on Windows 11. `podman compose up -d` from `containers/`, after
 | nginx accepts the configuration | the frontend container serves the SPA, and both proxied upstreams answer |
 | The migration runs on real SQL Server | Flyway reports `Successfully validated 1 migration` against `Microsoft SQL Server 16.0`, and `ddl-auto: validate` passes on the schema it produced — retiring most of 4.1 |
 | HTTPS end to end | browser to nginx, nginx to backend and nginx to Keycloak are all TLS, each verified against the development CA rather than skipped |
+| Plaintext redirects to the right place | `http://localhost:8080/projects/7?tab=tasks` answers `301` to `https://localhost:8444/projects/7?tab=tasks`, path and query intact; the frontend logs `hive: plaintext redirects to https://localhost:8444` at startup. `/healthz` still answers `200` over plaintext, by design, so probes need no certificate |
 | A real Keycloak token is accepted | the full authorization-code + PKCE flow was driven through the gateway as user `ada`; the resulting token carries `iss: https://localhost:8444/idp/realms/hive` and `GET /api/v1/projects/mine` with it returns `200 []`, where the same request without it returns `401` — retiring 4.3 |
 
-### 7.2 What it cost — four bugs no parser could have found
+### 7.2 What it cost — five bugs no parser could have found
 
 1. **The IdP healthcheck could never pass.** Setting `KC_HTTPS_*` makes
    Keycloak's management interface serve HTTPS as well, and the image ships no
@@ -246,6 +247,40 @@ Podman 5 on Windows 11. `podman compose up -d` from `containers/`, after
    from an internal URL while validating the public `iss` string. There is no
    longer a hostname in the bundle to get wrong.
 
+5. **The plaintext listener redirected to a port nothing listens on, and a
+   browser could not have reached it anyway.** Reported as
+   `ERR_SSL_PROTOCOL_ERROR` on `http://localhost:8080/`, which is two
+   independent failures wearing one error message.
+
+   *Server side:* the redirect was `return 301 https://$host$request_uri`, and
+   `$host` is the Host header with the port **stripped** — so the answer was
+   `Location: https://localhost/`, port 443, where nothing in this stack
+   listens. The published port is a fact of the compose file rather than of the
+   container, so it is now passed in as `HIVE_PUBLIC_ORIGIN` and written into
+   the configuration at startup beside the resolver, and the redirect preserves
+   path and query.
+
+   *Browser side, and the reason the error said TLS:* **HSTS is scoped to a
+   host and has no concept of a port.** Once any response from
+   `https://localhost:8444` has carried the header — in practice the identity
+   provider's, for the reason in 7.3 — `http://localhost:` is pinned on *every*
+   port, so the browser upgraded the request to HTTPS and spoke TLS to a
+   listener that answers plaintext. Nothing was sent to port 8080 in cleartext
+   and no redirect was ever requested — **no server-side change can reach that
+   request.** The escape hatch is `chrome://net-internals/#hsts` → *Delete
+   domain security policies* → `localhost`; the standing advice is to use
+   `https://localhost:8444` and leave 8080 to probes and `curl`.
+
+   The blast radius is wider than this project: that header pins `localhost`
+   itself, so it breaks every unrelated plain-HTTP dev server on the machine,
+   on any port, for two years. `hive-ild` asks whether publishing 8080 at all
+   is worth the trap. The runbook now carries the warning and the escape hatch.
+
+   **This is the bug this report exists to predict and could not have.** Both
+   halves are invisible to a parser: one is a redirect target that is
+   syntactically perfect and semantically wrong, the other is browser state
+   accumulated across visits, held outside the stack entirely.
+
 ### 7.3 What remains unproven
 
 - **4.5 stands.** There is still no browser-driven end-to-end test. The PKCE
@@ -256,6 +291,20 @@ Podman 5 on Windows 11. `podman compose up -d` from `containers/`, after
   collation and `DATETIME2` rounding remain exercised only in compatibility
   mode. `docs/testing.md` section 4 gives the procedure for running the suite
   against the `dev` profile, which is now possible and has not been done.
+- **The SPA's own responses carry no security headers at all.** Found while
+  confirming where the HSTS pin above came from: `GET https://localhost:8444/`
+  returns no `Strict-Transport-Security`, no `Content-Security-Policy`, no
+  `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy` or
+  `Permissions-Policy`, and neither do the fingerprinted assets. The cause is an
+  nginx rule rather than a missing directive: `add_header` in a `location`
+  **replaces** the inherited set instead of extending it, and both
+  `location = /index.html` and the asset regex declare their own
+  `add_header Cache-Control`, which silently discards every header the server
+  block sets. The headers are only observably present on `/idp`, which declares
+  its own. So the browser's HSTS pin for `localhost` came from the identity
+  provider's responses, not from the application's — and the CSP that section
+  7.2 item 4 describes as enforcing a single origin is, on the document that
+  matters, not being sent. Tracked as `hive-scn`; not fixed here.
 - **Nothing here says anything about a deployed environment.** The certificates
   are from a CA that exists on one machine, `start-dev` is not a production
   Keycloak mode, and the database holds a single SA credential.
