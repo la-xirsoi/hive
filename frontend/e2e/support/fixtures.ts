@@ -1,4 +1,4 @@
-import { test as base, type Page } from '@playwright/test';
+import { test as base, type Browser, type Page } from '@playwright/test';
 
 /** A realm user seeded by `containers/idp/realm-hive.json`. */
 export interface RealmUser {
@@ -13,6 +13,13 @@ export const ADA: RealmUser = {
   password: 'hive',
   email: 'ada@hive.example',
   fullName: 'Ada Lovelace',
+};
+
+export const GRACE: RealmUser = {
+  username: 'grace',
+  password: 'hive',
+  email: 'grace@hive.example',
+  fullName: 'Grace Hopper',
 };
 
 /** The shape of the token endpoint's success response, as far as tests read it. */
@@ -81,6 +88,69 @@ export async function signIn(page: Page, user: RealmUser = ADA): Promise<void> {
   await page.locator('#password').fill(user.password);
   await page.locator('#kc-login').click();
   await page.getByTestId('sign-out').waitFor({ state: 'visible' });
+}
+
+/**
+ * Every `/api/v1` call the backend refused, in the order the responses arrived.
+ *
+ * `hive-onj` asks for a lifecycle test that "fails if any step's server call is
+ * rejected", and a screen assertion alone does not give that: a control whose
+ * write 403s can leave the previous render on screen, so the next
+ * `toBeVisible()` passes and the test is green over a broken step. Watching the
+ * wire turns every refusal into a failure with the method, path and status on
+ * it, whatever the UI decided to show.
+ *
+ * Only the application's own API is watched. The realm's endpoints are not:
+ * `sign-in.e2e.ts` owns those, and one of its tests provokes a rejection there
+ * on purpose.
+ */
+export class ApiRejections {
+  private readonly entries: string[] = [];
+
+  /** Start recording `page`'s rejected API calls. Returns `this` so it chains. */
+  watch(page: Page): this {
+    page.on('response', (response) => {
+      if (response.status() < 400 || !response.url().includes('/api/v1/')) {
+        return;
+      }
+      this.entries.push(
+        `${response.request().method()} ${new URL(response.url()).pathname} -> ${response.status()}`,
+      );
+    });
+    return this;
+  }
+
+  /** What has been refused so far, for an `expect(...).toEqual([])`. */
+  all(): readonly string[] {
+    return [...this.entries];
+  }
+}
+
+/**
+ * A second signed-in browser session, for the parts of a flow that another
+ * person has to perform.
+ *
+ * The task lifecycle needs two: `TaskTransitions` gives `Draft -> Todo` to the
+ * project owner and `Todo -> In Progress` to the assignee, and AS-4 forbids the
+ * project owner from being the assignee of their own project's task. One person
+ * therefore *cannot* drive a task to Completed, and a test that used a single
+ * session could only ever cover half of it.
+ *
+ * `browser.newContext()` does not inherit `use` from the config, so the origin
+ * and the stack's self-signed certificate are passed in explicitly. Close the
+ * returned page's context when the test is done with it.
+ */
+export async function openSession(
+  browser: Browser,
+  user: RealmUser,
+  baseURL: string,
+  rejections?: ApiRejections,
+): Promise<Page> {
+  const context = await browser.newContext({ baseURL, ignoreHTTPSErrors: true });
+  const page = await context.newPage();
+  rejections?.watch(page);
+  await signIn(page, user);
+  return page;
 }
 
 /** `test` with the OAuth recorder already attached to the page. */

@@ -455,6 +455,7 @@ Two ways, both deliberately:
 - **It covers sign-in, not the application.** Three tests; the teams, projects
   and task screens are still exercised only at component level with mocked HTTP.
   A browser-driven pass over the task lifecycle is the obvious next piece.
+  **Closed on 2026-09-18 — see section 12.**
 - **It needs the stack.** `playwright.config.ts` has no `webServer` entry, by
   choice — a stack Playwright started would be one the test suite configured
   rather than the one that ships — so the suite is skipped-by-absence on any
@@ -705,3 +706,90 @@ passed**, from 477 in section 10. The new tests are:
 - **`npm run lint` reports two pre-existing formatting failures**
   (`src/app/core/auth/auth-service.ts`, `src/environments/environment.ts`) that
   are untouched by this work and were already failing before it.
+
+---
+
+## 12. Addendum — 2026-09-18: the task lifecycle is now driven by a browser
+
+`hive-onj`, closing the first bullet of 8.3. `frontend/e2e/task-lifecycle.e2e.ts`
+takes one task from the sentence that creates it to `Completed`, against the
+compose stack, through the browser.
+
+### 12.1 What it does
+
+It builds its own graph and then works it, as two people:
+
+1. **Grace signs in.** The stack runs the `prod` profile, so `DevDataSeeder`
+   never runs and a Hive user exists only once a token has been presented.
+   Until Grace has signed in she is not in the directory Ada is about to search,
+   so this is a step of the test rather than setup around it.
+2. **Ada signs in, creates a team** and becomes its lead, then **adds Grace**
+   through the directory search (TM-6) — not a fixed list.
+3. **Ada creates a project** on that team, choosing the team by its name from
+   the picker, which is populated from `GET /teams/mine`.
+4. **Ada creates a task.** The row asserts TK-2: `Draft`, unassigned.
+5. **Ada publishes it to `Todo`**, the project owner's transition.
+6. **Ada assigns it to Grace.** The candidate list is asserted to be exactly
+   `[Choose a member, Grace Hopper]` — AS-2 and AS-4 together: Ada leads this
+   team and is a member of it, and is still absent from her own candidate list.
+   Ada is then asserted to hold no `In Progress` button at all (TR-1).
+7. **Grace opens the project**, sees the task as `Todo` and assigned to her,
+   clicks through to it, and is asserted to have no assignment panel.
+8. **Grace starts it, comments, and completes it.** The posted comment is
+   asserted to carry Grace as its author and a machine-readable UTC `datetime`
+   (CM-4/CM-5). The finished task shows the terminal notice, has no transition
+   button and no edit card (TE-2/TK-4) — and still has a comment form (TE-4).
+9. **Ada reloads.** Her tab has sat on the pre-assignment render throughout, so
+   this re-reads the task, its assignee and its permissions from the backend and
+   asserts the whole outcome once more against a document that never saw any of
+   it happen.
+
+Two sessions are not a stylistic choice. `TaskTransitions.TABLE` gives
+`Draft -> Todo` to the project owner and `Todo -> In Progress` and
+`In Progress -> Completed` to the assignee, while AS-4 forbids the project owner
+from being the assignee of a task in their own project. **A single user cannot
+take a task to `Completed`**, so a one-session test could only ever have covered
+half the lifecycle.
+
+### 12.2 Every step's server call is watched, not just its screen
+
+The acceptance criterion asks that the test fail if any step's server call is
+rejected, and screen assertions alone do not give that: a refused write can
+leave the previous render in place, so the next `toBeVisible()` passes over a
+step the server never performed. `ApiRejections` (in `e2e/support/fixtures.ts`)
+records every `/api/v1` response with a status of 400 or more, on **both**
+sessions, and each step asserts the list is still empty — so a refusal fails the
+test with its method, path and status on it, whatever the UI decided to show.
+
+Only the application's API is watched. The realm's endpoints are not:
+`sign-in.e2e.ts` owns those, and one of its tests provokes a rejection there on
+purpose.
+
+### 12.3 What is now proven
+
+`npm run e2e` is **8 tests passing**, 8.7s wall clock, from 7 in section 10. The
+lifecycle test itself runs in ~2.4s and was run four times without flaking. The
+rows it writes were read back out of SQL Server directly to confirm the graph is
+real and the task ends `Completed`.
+
+The recorder was watched catch a genuine refusal: a probe navigated a signed-in
+session to a task id that does not exist and `ApiRejections` reported
+`GET /api/v1/tasks/99999999 -> 404`, failing the same assertion each step makes.
+
+### 12.4 What it still does not prove
+
+- **It is one path through the state machine.** `Canceled` is never reached from
+  any state, the 409 that a stale permission produces is never provoked in a
+  browser, and no step is attempted by a user who should be refused — the test
+  asserts that forbidden controls are *absent*, which is a claim about the
+  rendering of `allowedTransitions`, not about enforcement. The server tests
+  make the enforcement claims.
+- **It reaches Grace's task through the project, not her queue.** "My tasks" is
+  paginated at 20 and the stack is long-lived, so a freshly created task is not
+  reliably on its first page; a fresh project holds exactly one task and is. The
+  `GET /tasks/mine` listing therefore remains browser-unproven.
+- **It leaves its graph behind.** Every run adds a team, a project, a task and a
+  comment, all stamped with the run's timestamp. Nothing cleans up, because the
+  stack has no fixture reset and a test that deleted rows would need delete
+  endpoints the contract does not have.
+- **It needs the stack**, with everything 8.3 says about that.
