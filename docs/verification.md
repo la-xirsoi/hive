@@ -304,7 +304,16 @@ Podman 5 on Windows 11. `podman compose up -d` from `containers/`, after
   its own. So the browser's HSTS pin for `localhost` came from the identity
   provider's responses, not from the application's — and the CSP that section
   7.2 item 4 describes as enforcing a single origin is, on the document that
-  matters, not being sent. Tracked as `hive-scn`; not fixed here.
+  matters, not being sent. Tracked as `hive-scn`.
+
+  **Fixed.** The set moved into `containers/frontend/security-headers.conf`,
+  included by the server block and again by each location that declares an
+  `add_header` of its own; `/healthz` now sets its type with `default_type`, so
+  it no longer declares one at all. Re-verified against the running stack: `/`,
+  `/index.html`, a deep link, a fingerprinted asset, `/favicon.ico` and
+  `/healthz` all return the full six. `/idp` still carries only HSTS by design,
+  and now carries it once — Keycloak's own shorter-lived header is dropped with
+  `proxy_hide_header`, since a browser reads only the first one it sees.
 - **Nothing here says anything about a deployed environment.** The certificates
   are from a CA that exists on one machine, `start-dev` is not a production
   Keycloak mode, and the database holds a single SA credential.
