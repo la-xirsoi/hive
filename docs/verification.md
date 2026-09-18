@@ -220,7 +220,7 @@ Podman 5 on Windows 11. `podman compose up -d` from `containers/`, after
 | Plaintext redirects to the right place | `http://localhost:8080/projects/7?tab=tasks` answers `301` to `https://localhost:8444/projects/7?tab=tasks`, path and query intact; the frontend logs `hive: plaintext redirects to https://localhost:8444` at startup. `/healthz` still answers `200` over plaintext, by design, so probes need no certificate |
 | A real Keycloak token is accepted | the full authorization-code + PKCE flow was driven through the gateway as user `ada`; the resulting token carries `iss: https://localhost:8444/idp/realms/hive` and `GET /api/v1/projects/mine` with it returns `200 []`, where the same request without it returns `401` — retiring 4.3 |
 
-### 7.2 What it cost — six bugs no parser could have found
+### 7.2 What it cost — seven bugs no parser could have found
 
 1. **The IdP healthcheck could never pass.** Setting `KC_HTTPS_*` makes
    Keycloak's management interface serve HTTPS as well, and the image ships no
@@ -333,11 +333,71 @@ Podman 5 on Windows 11. `podman compose up -d` from `containers/`, after
    directive fifty lines below does to them. It is only observable in a
    response. Tracked and closed as `hive-scn`.
 
+7. **Sign-in was broken outright, and every earlier verification had missed
+   it.** Clicking *Sign in with your organization account* on the running stack
+   produced `Sign-in failed — Invalid scopes: openid profile email
+   offline_access`. Not a degraded login: the authorization endpoint answered
+   `302` back to the callback with `error=invalid_scope` **before drawing a
+   login form**, so no credential was ever collected.
+
+   *The cause is an unasked-for scope meeting a client that cannot grant it.*
+   The SPA requested `openid profile email offline_access`; the realm's
+   `hive-web` client declared `defaultClientScopes` and **no**
+   `optionalClientScopes`, so `offline_access` was not assignable to it. An
+   issuer rejects the entire authorization request over one unknown scope
+   rather than dropping it and continuing — the failure is total and arrives
+   before authentication.
+
+   Underneath it sat a wrong belief, written into a comment and *asserted by a
+   test*: that `offline_access` is what produces the refresh token the silent
+   refresh needs. It is not. The authorization-code flow issues a refresh token
+   regardless — measured here at `refresh_expires_in: 1800` with
+   `offline_access` absent — and `offline_access` only asks that the token
+   outlive the SSO session. That is worthless to this application, whose token
+   set lives in `sessionStorage` and dies with the tab, and it is a
+   longer-lived credential in a public browser client for no gain. So the scope
+   was dropped rather than granted, and `app-config.spec.ts` now asserts its
+   **absence**, with the reason.
+
+   *The realm file was wrong in two further ways, both invisible until
+   queried.* It listed `openid` among `defaultClientScopes`, but Keycloak has
+   no client scope by that name — `openid` is an OIDC request value — so the
+   entry was silently discarded at import. And by naming the default list
+   explicitly it lost `basic`, which is what puts `sub` in a token: the access
+   tokens this realm minted **had no subject claim at all**. Nothing failed,
+   because `CurrentUser` matches on `email` and falls back to it for the
+   subject, so a non-conformant token was being tolerated by a fallback written
+   for a different reason. The client now carries `basic` and `acr` among its
+   defaults and the standard optional set, which is what Keycloak would have
+   created had the list never been overridden.
+
+   Re-verified by recreating the identity provider from the corrected file —
+   `Import finished successfully`, and the live client's scope lists now read
+   back as intended. A full authorization-code + PKCE run then yields a token
+   carrying `sub` and `aud: hive-api`, a refresh token, and a `200` from
+   `GET /api/v1/users/me`. Recreating the IdP also proved something the design
+   claims: the realm's users are minted fresh with new subject UUIDs, and `ada`
+   still resolves to the same Hive user, because `UserService` matches on email
+   and the domain stores no subject.
+
+   **This is the first bug found by using the application rather than testing
+   it,** and it is the one 4.5 predicted in the abstract. The PKCE run recorded
+   in 7.1 passed while sign-in was completely broken, because that run built
+   its own authorization URL with its own scope string and therefore never
+   exercised the value the bundle actually ships. A verification that
+   reconstructs the request instead of making the application issue it proves
+   the protocol and nothing about the product. Tracked and closed as
+   `hive-m50`.
+
 ### 7.3 What remains unproven
 
-- **4.5 stands.** There is still no browser-driven end-to-end test. The PKCE
-  flow above was driven with `curl`, which proves the protocol and the token,
-  not the application's screens.
+- **4.5 stands, and item 7 is what it costs.** There is still no
+  browser-driven end-to-end test. The PKCE flow above was driven with `curl`,
+  which proves the protocol and the token, not the application's screens — and
+  item 7 is a sign-in that was broken for everyone while that flow passed,
+  found by a person clicking the button. The gap is no longer hypothetical.
+  Until a test drives the SPA's own request, every claim in this report about
+  authentication is a claim about the protocol only. Tracked as `hive-nfv`.
 - **SQL Server dialect differences.** The migration runs and the mappings
   validate, but the test suite still executes against H2; paging syntax,
   collation and `DATETIME2` rounding remain exercised only in compatibility

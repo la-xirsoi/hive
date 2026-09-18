@@ -27,12 +27,14 @@
       ],
       "webOrigins": ["https://localhost:8444", "https://localhost:4200"],
       "defaultClientScopes": [
-        "openid",
+        "basic",
+        "acr",
         "profile",
         "email",
         "web-origins",
         "roles"
       ],
+      "optionalClientScopes": ["address", "phone", "offline_access", "microprofile-jwt"],
       "protocolMappers": [
         {
           "name": "audience-hive-api",
