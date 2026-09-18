@@ -111,11 +111,15 @@ This matters more than usual: nginx sends HSTS with a two-year `max-age`, and
 once a browser has seen that header for a host it will not accept a
 click-through exception for it.
 
-> **This stack has never been executed.** Podman was not available on the
-> machine where Hive was built. The compose file, both Containerfiles and the
-> nginx configuration are authored and reviewed but unverified; the certificate
-> script *was* run and its output verified. See
-> [verification.md](verification.md).
+That header has a cost worth knowing before you load the app: HSTS is scoped to
+the host and ignores the port, so it forces HTTPS on `http://localhost:<any
+port>` in that browser — other projects of yours included. Section 6 has the
+symptom and how to clear it.
+
+> **Verified on 2026-09-15.** The stack builds and runs under Podman 5 on
+> Windows 11, and a real authorization-code + PKCE login yields a token the
+> backend accepts. What that first run cost, and what is still unproven, is in
+> [verification.md](verification.md) section 7.
 
 ---
 
@@ -191,6 +195,25 @@ The profile matrix:
 ---
 
 ## 6. Troubleshooting
+
+**`ERR_SSL_PROTOCOL_ERROR` on http://localhost:8080.** The browser is speaking
+TLS to the plaintext listener, because it upgraded the request before sending
+it. HSTS is the cause and it is working as designed: the header this stack sends
+from `https://localhost:8444` is scoped to the *host*, and HSTS has no concept
+of a port, so it applies to `localhost` on **every** port — including ports
+served by unrelated projects on your machine. Once a browser has seen it, no URL
+of the form `http://localhost:<anything>` will leave that browser as plaintext
+for two years.
+
+Use **https://localhost:8444**. Port 8080 still exists for probes and for
+clients without an HSTS store (`curl -i http://localhost:8080/` returns a 301 to
+the HTTPS origin, port included), but it is no longer reachable from a browser
+that has loaded this app, and no server-side change can make it reachable.
+
+To undo it in Chrome: `chrome://net-internals/#hsts` → *Delete domain security
+policies* → `localhost`. That is also worth knowing if this stack's HSTS header
+starts interfering with some other `http://localhost` service you run. Removing
+the CA (see above) does **not** clear HSTS; the two are independent.
 
 **Every request returns 401.** Almost always the issuer. The `iss` claim in the
 token must match `HIVE_JWT_ISSUER_URI` character for character. Note that the

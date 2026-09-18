@@ -177,6 +177,10 @@ services:
     container_name: hive-frontend
     depends_on:
       - backend
+    environment:
+      # Where the browser reaches this stack. The plaintext listener redirects
+      # here; without it the redirect would drop the published port.
+      HIVE_PUBLIC_ORIGIN: ${OAUTH_PUBLIC_ORIGIN:?set OAUTH_PUBLIC_ORIGIN in .env}
     ports:
       - "127.0.0.1:8080:8080"
       - "127.0.0.1:8444:8443"
