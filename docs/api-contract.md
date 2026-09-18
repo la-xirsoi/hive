@@ -52,10 +52,18 @@ TeamSummary   { "id": number, "name": string, "teamLead": UserSummary,
                 "memberCount": number }
 
 TeamDetail    { "id": number, "name": string, "teamLead": UserSummary,
-                "members": UserSummary[] }
+                "members": UserSummary[],
+                "permissions": TeamPermissions }
+
+TeamPermissions { "canRename": boolean, "canAddMember": boolean,
+                  "canRemoveMember": boolean, "canTransferLead": boolean }
 
 ProjectSummary{ "id": number, "name": string, "team": TeamSummary,
-                "projectOwner": UserSummary }
+                "projectOwner": UserSummary,
+                "permissions": ProjectPermissions }
+
+ProjectPermissions { "canRename": boolean, "canTransferOwnership": boolean,
+                     "canCreateTask": boolean }
 
 TaskStatus    "Draft" | "Todo" | "In Progress" | "Completed" | "Canceled"
 
@@ -78,12 +86,24 @@ Comment       { "id": number, "taskId": number, "author": UserSummary,
                 "content": string }
 ```
 
-`TaskPermissions` is computed server-side from the same domain policy that
-enforces the rules, and tells the UI which controls to render. The UI must use
-it rather than re-deriving roles client-side; the server still enforces
-independently (the field is a convenience, never the enforcement point).
-`allowedTransitions` lists the statuses this actor may move the task to right
-now -- empty for terminal tasks and for actors with no transition rights.
+`TaskPermissions`, `TeamPermissions` and `ProjectPermissions` are computed
+server-side from the same domain policy that enforces the rules, and tell the UI
+which controls to render. The UI must use them rather than re-deriving roles
+client-side; the server still enforces independently (the fields are a
+convenience, never the enforcement point).
+
+- `allowedTransitions` lists the statuses this actor may move the task to right
+  now -- empty for terminal tasks and for actors with no transition rights.
+- `TeamPermissions` answers TM-5, TM-6, TM-7 and TM-9. `canRemoveMember` and
+  `canTransferLead` ask whether *some* such operation is open right now, so a
+  team whose only member is its lead reports `false` for both: INV-1 makes the
+  lead unremovable (TM-7) and there is nobody to hand the team to.
+- `ProjectPermissions` answers PR-5, PR-6 and TK-1. `canTransferOwnership`
+  reports only whether the actor may transfer at all; PR-8's 409 -- the incoming
+  owner still holds live tasks here -- is a fact about the candidate and is
+  reported by the transfer request itself.
+- `TeamSummary` carries no permission block: it is a list row, and the detail
+  endpoint is where the controls live.
 
 ### 1.3 Pagination
 

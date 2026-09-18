@@ -91,11 +91,12 @@ grows.
    the viewer and returns only what they may see. Fetching then filtering would
    be both slow and a place for a leak to hide.
 
-3. **The frontend receives its permissions from the server.** `TaskDetail`
-   carries a `permissions` object computed by the same policy that enforces the
-   rules, so the UI shows exactly the controls the user can actually use. The UI
-   still cannot be trusted -- every request is independently authorized -- but
-   the user never sees a button that will 403.
+3. **The frontend receives its permissions from the server.** `TaskDetail`,
+   `TeamDetail` and `ProjectSummary` each carry a `permissions` object computed
+   by the same policy that enforces the rules, so the UI shows exactly the
+   controls the user can actually use and never re-derives a role from an id.
+   The UI still cannot be trusted -- every request is independently authorized
+   -- but the user never sees a button that will 403.
 
 ## Frontend structure
 

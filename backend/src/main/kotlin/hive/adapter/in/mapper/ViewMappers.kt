@@ -2,19 +2,23 @@ package hive.adapter.`in`.mapper
 
 import hive.adapter.`in`.dto.CommentDto
 import hive.adapter.`in`.dto.PageResponse
+import hive.adapter.`in`.dto.ProjectPermissionsDto
 import hive.adapter.`in`.dto.ProjectSummaryDto
 import hive.adapter.`in`.dto.TaskDetailDto
 import hive.adapter.`in`.dto.TaskPermissionsDto
 import hive.adapter.`in`.dto.TaskSummaryDto
 import hive.adapter.`in`.dto.TeamDetailDto
+import hive.adapter.`in`.dto.TeamPermissionsDto
 import hive.adapter.`in`.dto.TeamSummaryDto
 import hive.adapter.`in`.dto.UserSummaryDto
 import hive.adapter.`in`.dto.toApiTimestamp
 import hive.application.view.CommentView
+import hive.application.view.ProjectPermissions
 import hive.application.view.ProjectView
 import hive.application.view.TaskDetailView
 import hive.application.view.TaskPermissions
 import hive.application.view.TaskSummaryView
+import hive.application.view.TeamPermissions
 import hive.application.view.TeamView
 import hive.domain.model.Page
 import hive.domain.model.TaskStatus
@@ -54,13 +58,23 @@ fun TeamView.toSummaryDto(): TeamSummaryDto =
         memberCount = memberCount,
     )
 
-/** `TeamDetail` -- the same team with its members listed in full. */
+/** `TeamDetail` -- the same team with its members listed in full, and the caller's permissions. */
 fun TeamView.toDetailDto(): TeamDetailDto =
     TeamDetailDto(
         id = idOf(team.id, "team").value,
         name = team.name.value,
         teamLead = lead.toSummaryDto(),
         members = members.map { it.toSummaryDto() },
+        permissions = permissions.toDto(),
+    )
+
+/** `TeamPermissions`. */
+fun TeamPermissions.toDto(): TeamPermissionsDto =
+    TeamPermissionsDto(
+        canRename = canRename,
+        canAddMember = canAddMember,
+        canRemoveMember = canRemoveMember,
+        canTransferLead = canTransferLead,
     )
 
 /** `ProjectSummary`. */
@@ -70,6 +84,15 @@ fun ProjectView.toDto(): ProjectSummaryDto =
         name = project.name.value,
         team = team.toSummaryDto(),
         projectOwner = owner.toSummaryDto(),
+        permissions = permissions.toDto(),
+    )
+
+/** `ProjectPermissions`. */
+fun ProjectPermissions.toDto(): ProjectPermissionsDto =
+    ProjectPermissionsDto(
+        canRename = canRename,
+        canTransferOwnership = canTransferOwnership,
+        canCreateTask = canCreateTask,
     )
 
 /** `TaskSummary`. */

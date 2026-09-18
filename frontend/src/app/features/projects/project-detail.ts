@@ -39,13 +39,11 @@ import { HiveUserSearch } from '../shared/user-search';
  * One project: its team, its owner, its tasks, and - for its owner - the
  * controls that change them.
  *
- * WHICH CONTROLS APPEAR. Like `TeamDetail`, `ProjectSummary` carries no
- * server-computed permission block (the contract defines `TaskPermissions` for
- * tasks only), so ownership is established by comparing the acting user's id
- * with the `projectOwner.id` the **server** returned. Creating a task (TK-1),
- * renaming (PR-5) and transferring ownership (PR-6) are all owner-only and all
- * enforced server-side; the id comparison decides only whether the affordance
- * is offered.
+ * WHICH CONTROLS APPEAR. Every control here is gated on
+ * `ProjectSummary.permissions`, computed by the same domain policy that
+ * enforces TK-1, PR-5 and PR-6, exactly as the task screens are gated on
+ * `TaskPermissions`. Nothing on this screen re-derives a rule or compares ids
+ * to decide what may be done.
  *
  * Transfer of ownership can fail with a **409** when the incoming owner is the
  * assignee of live tasks here (PR-8) - completing it would break AS-4. That
@@ -105,74 +103,82 @@ import { HiveUserSearch } from '../shared/user-search';
         }
 
         <div class="project">
-          @if (isOwner()) {
+          @if (showOwnerControls()) {
             <hive-card padding="lg" accent data-testid="owner-controls">
               <h2 hive-card-header class="project__title">Owner controls</h2>
 
-              <section class="project__section" aria-labelledby="project-task-heading">
-                <h3 class="project__subtitle" id="project-task-heading">Create a task</h3>
-                <p class="hive-text-secondary">
-                  New tasks start as Draft with no assignee. Publish one to Todo to make it visible
-                  to the team and available for assignment.
-                </p>
-                <form class="project__form project__form--stacked" (submit)="createTask($event)">
-                  <hive-form-field label="Task name" required>
-                    <input
-                      class="hive-input"
-                      name="taskName"
-                      data-testid="task-name"
-                      [value]="taskName()"
-                      (input)="taskName.set(value($event))"
-                    />
-                  </hive-form-field>
-                  <hive-form-field label="Description" required>
-                    <textarea
-                      class="hive-textarea"
-                      name="taskDescription"
-                      rows="3"
-                      data-testid="task-description"
-                      [value]="taskDescription()"
-                      (input)="taskDescription.set(value($event))"
-                    ></textarea>
-                  </hive-form-field>
-                  <hive-button type="submit" [loading]="save.busy()" data-testid="create-task">
-                    Create task
-                  </hive-button>
-                </form>
-              </section>
+              @if (canCreateTask()) {
+                <section class="project__section" aria-labelledby="project-task-heading">
+                  <h3 class="project__subtitle" id="project-task-heading">Create a task</h3>
+                  <p class="hive-text-secondary">
+                    New tasks start as Draft with no assignee. Publish one to Todo to make it
+                    visible to the team and available for assignment.
+                  </p>
+                  <form class="project__form project__form--stacked" (submit)="createTask($event)">
+                    <hive-form-field label="Task name" required>
+                      <input
+                        class="hive-input"
+                        name="taskName"
+                        data-testid="task-name"
+                        [value]="taskName()"
+                        (input)="taskName.set(value($event))"
+                      />
+                    </hive-form-field>
+                    <hive-form-field label="Description" required>
+                      <textarea
+                        class="hive-textarea"
+                        name="taskDescription"
+                        rows="3"
+                        data-testid="task-description"
+                        [value]="taskDescription()"
+                        (input)="taskDescription.set(value($event))"
+                      ></textarea>
+                    </hive-form-field>
+                    <hive-button type="submit" [loading]="save.busy()" data-testid="create-task">
+                      Create task
+                    </hive-button>
+                  </form>
+                </section>
+              }
 
-              <section class="project__section" aria-labelledby="project-rename-heading">
-                <h3 class="project__subtitle" id="project-rename-heading">Rename the project</h3>
-                <form class="project__form" (submit)="rename($event)">
-                  <hive-form-field label="Project name" required>
-                    <input
-                      class="hive-input"
-                      name="name"
-                      data-testid="rename-input"
-                      [value]="name()"
-                      (input)="name.set(value($event))"
-                    />
-                  </hive-form-field>
-                  <hive-button type="submit" variant="secondary" [loading]="save.busy()">
-                    Rename
-                  </hive-button>
-                </form>
-              </section>
+              @if (canRename()) {
+                <section class="project__section" aria-labelledby="project-rename-heading">
+                  <h3 class="project__subtitle" id="project-rename-heading">Rename the project</h3>
+                  <form class="project__form" (submit)="rename($event)">
+                    <hive-form-field label="Project name" required>
+                      <input
+                        class="hive-input"
+                        name="name"
+                        data-testid="rename-input"
+                        [value]="name()"
+                        (input)="name.set(value($event))"
+                      />
+                    </hive-form-field>
+                    <hive-button type="submit" variant="secondary" [loading]="save.busy()">
+                      Rename
+                    </hive-button>
+                  </form>
+                </section>
+              }
 
-              <section class="project__section" aria-labelledby="project-transfer-heading">
-                <h3 class="project__subtitle" id="project-transfer-heading">Transfer ownership</h3>
-                <p class="hive-text-secondary">
-                  The new owner may be any Hive user; they do not have to be on
-                  {{ detail.team.name }}. You keep your team membership.
-                </p>
-                <hive-user-search
-                  label="Find the new owner"
-                  selectLabel="Make owner"
-                  [excludeIds]="[detail.projectOwner.id]"
-                  [busy]="save.busy()"
-                  (picked)="transferOwner($event)"
-                />
-              </section>
+              @if (canTransferOwnership()) {
+                <section class="project__section" aria-labelledby="project-transfer-heading">
+                  <h3 class="project__subtitle" id="project-transfer-heading">
+                    Transfer ownership
+                  </h3>
+                  <p class="hive-text-secondary">
+                    The new owner may be any Hive user; they do not have to be on
+                    {{ detail.team.name }}. You keep your team membership.
+                  </p>
+                  <hive-user-search
+                    label="Find the new owner"
+                    selectLabel="Make owner"
+                    [excludeIds]="[detail.projectOwner.id]"
+                    [busy]="save.busy()"
+                    (picked)="transferOwner($event)"
+                  />
+                </section>
+              }
             </hive-card>
           }
 
@@ -315,9 +321,20 @@ export class ProjectDetailPage {
 
   protected readonly taskList = computed(() => this.tasks.value()?.content ?? []);
 
-  /** Server-supplied `projectOwner.id` compared with the acting user's own id. */
-  protected readonly isOwner = computed(() =>
-    this.currentUser.isMe(this.project.value()?.projectOwner.id ?? null),
+  /** TK-1, PR-5 and PR-6, as computed by the server for this caller. */
+  protected readonly canCreateTask = computed(
+    () => this.project.value()?.permissions.canCreateTask ?? false,
+  );
+  protected readonly canRename = computed(
+    () => this.project.value()?.permissions.canRename ?? false,
+  );
+  protected readonly canTransferOwnership = computed(
+    () => this.project.value()?.permissions.canTransferOwnership ?? false,
+  );
+
+  /** The card exists only if at least one of the controls inside it does. */
+  protected readonly showOwnerControls = computed(
+    () => this.canCreateTask() || this.canRename() || this.canTransferOwnership(),
   );
 
   protected readonly emptyTaskMessage = computed(() =>
@@ -344,6 +361,9 @@ export class ProjectDetailPage {
         this.loadTasks();
       });
     });
+    // Not for gating - every control here is gated on the server's
+    // `permissions` block. This is the US-3 provisioning call, which any screen
+    // may be the first to make.
     this.currentUser.load().subscribe({ error: () => undefined });
   }
 

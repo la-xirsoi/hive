@@ -1,10 +1,12 @@
 package hive.application.support
 
 import hive.application.view.CommentView
+import hive.application.view.ProjectPermissions
 import hive.application.view.ProjectView
 import hive.application.view.TaskDetailView
 import hive.application.view.TaskPermissions
 import hive.application.view.TaskSummaryView
+import hive.application.view.TeamPermissions
 import hive.application.view.TeamView
 import hive.domain.error.DomainException
 import hive.domain.error.NotFoundException
@@ -48,30 +50,30 @@ class ViewAssembler(
 
     // ---------------------------------------------------------------- teams
 
-    /** One team with its lead and members resolved. */
-    fun teamView(team: Team): TeamView = teamView(team, usersOf(team.memberIds))
+    /** One team with its lead and members resolved, as [actor] sees it. */
+    fun teamView(team: Team, actor: UserId): TeamView = teamView(team, usersOf(team.memberIds), actor)
 
     /** Many teams, resolving every member across all of them in a single lookup. */
-    fun teamViews(teams: List<Team>): List<TeamView> {
+    fun teamViews(teams: List<Team>, actor: UserId): List<TeamView> {
         val users = usersOf(teams.flatMapTo(mutableSetOf()) { it.memberIds })
-        return teams.map { teamView(it, users) }
+        return teams.map { teamView(it, users, actor) }
     }
 
     // ------------------------------------------------------------- projects
 
     /** One project whose team has already been loaded by the caller's authorization step. */
-    fun projectView(project: Project, team: Team): ProjectView {
+    fun projectView(project: Project, team: Team, actor: UserId): ProjectView {
         val users = usersOf(team.memberIds + project.projectOwner)
-        return projectView(project, team, users)
+        return projectView(project, team, users, actor)
     }
 
     /** Many projects, loading each distinct team once and every referenced user once. */
-    fun projectViews(projects: List<Project>): List<ProjectView> {
+    fun projectViews(projects: List<Project>, actor: UserId): List<ProjectView> {
         val teams = teamsOf(projects.mapTo(mutableSetOf()) { it.teamId })
         val userIds = projects.mapTo(mutableSetOf()) { it.projectOwner }
         teams.values.forEach { userIds += it.memberIds }
         val users = usersOf(userIds)
-        return projects.map { projectView(it, teams.getValue(it.teamId), users) }
+        return projects.map { projectView(it, teams.getValue(it.teamId), users, actor) }
     }
 
     // ---------------------------------------------------------------- tasks
@@ -90,7 +92,7 @@ class ViewAssembler(
         val users = usersOf(userIds)
         return TaskDetailView(
             task = context.task,
-            project = projectView(context.project, context.team, users),
+            project = projectView(context.project, context.team, users, context.actor),
             creator = users.getValue(context.task.creator),
             assignee = context.task.assignee?.let(users::getValue),
             permissions = permissions(context),
@@ -125,6 +127,57 @@ class ViewAssembler(
             canAssign = canChangeAssignment(context),
             canComment = AuthorizationPolicy.canCommentOnTask(context),
             allowedTransitions = TaskTransitions.allowedTransitions(context),
+        )
+
+    /**
+     * What [actor] may do with this team **right now**, answered by the same
+     * [AuthorizationPolicy] functions that enforce TM-5 to TM-9.
+     *
+     * Three of these name an operation that needs a target, while a flag has
+     * room for only one answer, so each is asked about a probe. `canAddMember`
+     * is asked about the actor themselves, since TM-6 judges only who is asking
+     * and adding an existing member is a no-op. `canRemoveMember` and
+     * `canTransferLead` are asked about the first member who is not the lead.
+     * Which one does not matter -- the policy gives the same answer for every member -- and
+     * the lead is deliberately not the probe, since INV-1 makes removing them a
+     * 409 for everybody (TM-7) and handing the team to its own lead is not a
+     * transfer. A team whose only member is its lead therefore reports `false`
+     * for both: there is nobody to remove and nobody to hand it to.
+     */
+    fun teamPermissions(team: Team, actor: UserId): TeamPermissions {
+        val probe = team.memberIds.firstOrNull { it != team.teamLead }
+        return TeamPermissions(
+            canRename = permitted { AuthorizationPolicy.checkRenameTeam(team, actor) },
+            canAddMember = permitted { AuthorizationPolicy.checkAddMember(team, actor, actor) },
+            canRemoveMember = probe != null &&
+                permitted { AuthorizationPolicy.checkRemoveMember(team, actor, probe) },
+            canTransferLead = probe != null &&
+                permitted { AuthorizationPolicy.checkTransferLead(team, actor, probe) },
+        )
+    }
+
+    /**
+     * What [actor] may do with this project **right now**, answered by the same
+     * [AuthorizationPolicy] functions that enforce PR-5, PR-6 and TK-1.
+     *
+     * `canTransferOwnership` asks only PR-6 -- whether the actor may hand the
+     * project on at all -- so it is asked with no live tasks. PR-8's 409 is a
+     * fact about the *candidate* (they still hold live work here), not about the
+     * actor, and it is answered by the request that names one; discovering it
+     * here would mean a query per project for a flag that cannot express it.
+     */
+    fun projectPermissions(project: Project, actor: UserId): ProjectPermissions =
+        ProjectPermissions(
+            canRename = permitted { AuthorizationPolicy.checkRenameProject(project, actor) },
+            canTransferOwnership = permitted {
+                AuthorizationPolicy.checkTransferProjectOwner(
+                    project = project,
+                    actor = actor,
+                    newOwner = actor,
+                    liveTasksAssignedToNewOwner = emptyList(),
+                )
+            },
+            canCreateTask = permitted { AuthorizationPolicy.checkCreateTask(project, actor) },
         )
 
     // ------------------------------------------------------------- comments
@@ -175,18 +228,25 @@ class ViewAssembler(
             refused.let { false }
         }
 
-    private fun teamView(team: Team, users: Map<UserId, User>): TeamView =
+    private fun teamView(team: Team, users: Map<UserId, User>, actor: UserId): TeamView =
         TeamView(
             team = team,
             lead = users.getValue(team.teamLead),
             members = team.memberIds.map(users::getValue).sortedWith(BY_DISPLAY_ORDER),
+            permissions = teamPermissions(team, actor),
         )
 
-    private fun projectView(project: Project, team: Team, users: Map<UserId, User>): ProjectView =
+    private fun projectView(
+        project: Project,
+        team: Team,
+        users: Map<UserId, User>,
+        actor: UserId,
+    ): ProjectView =
         ProjectView(
             project = project,
             owner = users.getValue(project.projectOwner),
-            team = teamView(team, users),
+            team = teamView(team, users, actor),
+            permissions = projectPermissions(project, actor),
         )
 
     /**

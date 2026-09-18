@@ -30,18 +30,17 @@ import { HiveUserSearch } from '../shared/user-search';
  * One team: who is on it, what it works on, and - for its lead - the controls
  * that change that.
  *
- * WHICH CONTROLS APPEAR. The contract exposes server-computed permissions for
- * tasks only (`TaskPermissions`); `TeamDetail` carries no permission block. The
- * question "may I manage this team?" is therefore answered the only way the
- * contract allows: by comparing the acting user's id to `teamLead.id`, a field
- * the **server** put in the response. That is an identity comparison against
- * server-supplied data, not a re-derivation of policy - and every one of these
- * operations is independently enforced server-side (TM-5 to TM-9), so a stale
- * or wrong render can only ever produce a 403, never an unauthorized change.
+ * WHICH CONTROLS APPEAR. Every control on this screen is gated on
+ * `TeamDetail.permissions`, computed by the same domain policy that enforces
+ * TM-5 to TM-9, exactly as the task screens are gated on `TaskPermissions`.
+ * Nothing here re-derives a rule or compares ids to decide what may be done;
+ * the acting user's id is used only to word the subtitle.
  *
  * The lead is deliberately given **no remove button on their own row**: INV-1
  * makes the lead a member for as long as they lead, so removing them is a 409
- * (TM-7). Transferring the lead is the operation that moves that role.
+ * (TM-7). Transferring the lead is the operation that moves that role. That is
+ * also why `canRemoveMember` and `canTransferLead` are false for a lead who is
+ * alone on their team - there is nobody to remove and nobody to hand it to.
  */
 @Component({
   selector: 'app-team-detail',
@@ -96,7 +95,7 @@ import { HiveUserSearch } from '../shared/user-search';
                   @if (isTheLead(detail, member)) {
                     <span class="team__badge" data-testid="lead-badge">Team lead</span>
                   }
-                  @if (isLead() && !isTheLead(detail, member)) {
+                  @if (canRemoveMember() && !isTheLead(detail, member)) {
                     <hive-button
                       size="sm"
                       variant="tertiary"
@@ -114,70 +113,76 @@ import { HiveUserSearch } from '../shared/user-search';
             </ul>
           </hive-card>
 
-          @if (isLead()) {
+          @if (showLeadControls()) {
             <hive-card padding="lg" accent data-testid="lead-controls">
               <h2 hive-card-header class="team__title">Lead controls</h2>
 
-              <section class="team__section" aria-labelledby="team-rename-heading">
-                <h3 class="team__subtitle" id="team-rename-heading">Rename the team</h3>
-                <form class="team__form" (submit)="rename($event)">
-                  <hive-form-field label="Team name" required>
-                    <input
-                      class="hive-input"
-                      name="name"
-                      data-testid="rename-input"
-                      [value]="name()"
-                      (input)="name.set(value($event))"
-                    />
-                  </hive-form-field>
-                  <hive-button type="submit" variant="secondary" [loading]="save.busy()">
-                    Rename
-                  </hive-button>
-                </form>
-              </section>
+              @if (canRename()) {
+                <section class="team__section" aria-labelledby="team-rename-heading">
+                  <h3 class="team__subtitle" id="team-rename-heading">Rename the team</h3>
+                  <form class="team__form" (submit)="rename($event)">
+                    <hive-form-field label="Team name" required>
+                      <input
+                        class="hive-input"
+                        name="name"
+                        data-testid="rename-input"
+                        [value]="name()"
+                        (input)="name.set(value($event))"
+                      />
+                    </hive-form-field>
+                    <hive-button type="submit" variant="secondary" [loading]="save.busy()">
+                      Rename
+                    </hive-button>
+                  </form>
+                </section>
+              }
 
-              <section class="team__section" aria-labelledby="team-add-heading">
-                <h3 class="team__subtitle" id="team-add-heading">Add a member</h3>
-                <hive-user-search
-                  label="Find a person to add"
-                  selectLabel="Add to team"
-                  [excludeIds]="memberIds()"
-                  [busy]="save.busy()"
-                  (picked)="addMember($event)"
-                />
-              </section>
+              @if (canAddMember()) {
+                <section class="team__section" aria-labelledby="team-add-heading">
+                  <h3 class="team__subtitle" id="team-add-heading">Add a member</h3>
+                  <hive-user-search
+                    label="Find a person to add"
+                    selectLabel="Add to team"
+                    [excludeIds]="memberIds()"
+                    [busy]="save.busy()"
+                    (picked)="addMember($event)"
+                  />
+                </section>
+              }
 
-              <section class="team__section" aria-labelledby="team-transfer-heading">
-                <h3 class="team__subtitle" id="team-transfer-heading">Transfer the lead role</h3>
-                <p class="hive-text-secondary">
-                  The new lead keeps their membership and you remain a member of the team.
-                </p>
-                <form class="team__form" (submit)="transferLead($event)">
-                  <hive-form-field label="New team lead" required>
-                    <select
-                      class="hive-select"
-                      name="lead"
-                      data-testid="lead-select"
-                      [value]="newLeadId()"
-                      (change)="newLeadId.set(value($event))"
+              @if (canTransferLead()) {
+                <section class="team__section" aria-labelledby="team-transfer-heading">
+                  <h3 class="team__subtitle" id="team-transfer-heading">Transfer the lead role</h3>
+                  <p class="hive-text-secondary">
+                    The new lead keeps their membership and you remain a member of the team.
+                  </p>
+                  <form class="team__form" (submit)="transferLead($event)">
+                    <hive-form-field label="New team lead" required>
+                      <select
+                        class="hive-select"
+                        name="lead"
+                        data-testid="lead-select"
+                        [value]="newLeadId()"
+                        (change)="newLeadId.set(value($event))"
+                      >
+                        <option value="">Choose a member</option>
+                        @for (member of transferable(); track member.id) {
+                          <option [value]="member.id">{{ member.name }}</option>
+                        }
+                      </select>
+                    </hive-form-field>
+                    <hive-button
+                      type="submit"
+                      variant="secondary"
+                      [loading]="save.busy()"
+                      [disabled]="!newLeadId()"
+                      data-testid="transfer-lead"
                     >
-                      <option value="">Choose a member</option>
-                      @for (member of transferable(); track member.id) {
-                        <option [value]="member.id">{{ member.name }}</option>
-                      }
-                    </select>
-                  </hive-form-field>
-                  <hive-button
-                    type="submit"
-                    variant="secondary"
-                    [loading]="save.busy()"
-                    [disabled]="!newLeadId()"
-                    data-testid="transfer-lead"
-                  >
-                    Transfer lead
-                  </hive-button>
-                </form>
-              </section>
+                      Transfer lead
+                    </hive-button>
+                  </form>
+                </section>
+              }
             </hive-card>
           }
 
@@ -350,9 +355,29 @@ export class TeamDetailPage {
     (this.team.value()?.members ?? []).map((m) => m.id),
   );
 
-  /** Server-supplied `teamLead.id` compared with the acting user's own id. */
+  /**
+   * Identity, not authorization: this only decides how the subtitle is worded.
+   * Every control is gated on the server's `permissions` block below.
+   */
   protected readonly isLead = computed(() =>
     this.currentUser.isMe(this.team.value()?.teamLead.id ?? null),
+  );
+
+  /** TM-5 to TM-9, as computed by the server for this caller. */
+  protected readonly canRename = computed(() => this.team.value()?.permissions.canRename ?? false);
+  protected readonly canAddMember = computed(
+    () => this.team.value()?.permissions.canAddMember ?? false,
+  );
+  protected readonly canRemoveMember = computed(
+    () => this.team.value()?.permissions.canRemoveMember ?? false,
+  );
+  protected readonly canTransferLead = computed(
+    () => this.team.value()?.permissions.canTransferLead ?? false,
+  );
+
+  /** The card exists only if at least one of the controls inside it does. */
+  protected readonly showLeadControls = computed(
+    () => this.canRename() || this.canAddMember() || this.canTransferLead(),
   );
 
   /** Candidates for the lead role: the current members, minus the current lead. */

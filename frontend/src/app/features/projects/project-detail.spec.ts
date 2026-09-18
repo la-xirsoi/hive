@@ -4,6 +4,7 @@ import { ProjectSummary, UserSummary } from '../../core/api/models';
 import {
   alice,
   bob,
+  noProjectPermissions,
   pageOf,
   projectSummary,
   taskDetail,
@@ -22,7 +23,11 @@ import { CONFLICT_HEADING } from '../shared/mutation';
 import { ProjectDetailPage } from './project-detail';
 
 /** The same project seen by someone who does not own it. */
-const ownedByBob: ProjectSummary = { ...projectSummary, projectOwner: bob };
+const ownedByBob: ProjectSummary = {
+  ...projectSummary,
+  projectOwner: bob,
+  permissions: noProjectPermissions,
+};
 
 describe('ProjectDetailPage', () => {
   let fixture: ComponentFixture<ProjectDetailPage>;
@@ -123,6 +128,19 @@ describe('ProjectDetailPage', () => {
     expect(query(fixture, 'hive-user-search')).toBeNull();
     // The tasks are still listed: visibility and authority are different things.
     expect(text(fixture)).toContain('Wire the API client');
+  });
+
+  it('gates each control on its own flag, not on one blanket role', async () => {
+    await load({
+      ...projectSummary,
+      permissions: { ...noProjectPermissions, canCreateTask: true },
+    });
+
+    // The card is there for the one control the server allowed, and nothing else.
+    expect(byTestId(fixture, 'owner-controls')).not.toBeNull();
+    expect(byTestId(fixture, 'create-task')).not.toBeNull();
+    expect(byTestId(fixture, 'rename-input')).toBeNull();
+    expect(query(fixture, 'hive-user-search')).toBeNull();
   });
 
   it('shows the owner controls to the owner', async () => {

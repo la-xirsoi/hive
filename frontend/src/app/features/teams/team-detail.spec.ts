@@ -1,7 +1,15 @@
 import { HttpTestingController } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TeamDetail, UserSummary } from '../../core/api/models';
-import { alice, bob, pageOf, projectSummary, teamDetail } from '../../core/test-support.spec';
+import {
+  alice,
+  bob,
+  noTeamPermissions,
+  pageOf,
+  projectSummary,
+  teamDetail,
+  teamPermissions,
+} from '../../core/test-support.spec';
 import {
   API,
   byTestId,
@@ -18,7 +26,7 @@ import { TeamDetailPage } from './team-detail';
 const carol: UserSummary = { id: 3, name: 'Carol Diaz', email: 'carol@hive.test' };
 
 /** The same team seen by a plain member: bob leads it, alice is acting. */
-const ledByBob: TeamDetail = { ...teamDetail, teamLead: bob };
+const ledByBob: TeamDetail = { ...teamDetail, teamLead: bob, permissions: noTeamPermissions };
 
 describe('TeamDetailPage', () => {
   let fixture: ComponentFixture<TeamDetailPage>;
@@ -106,6 +114,32 @@ describe('TeamDetailPage', () => {
     expect(query(fixture, 'hive-user-search')).toBeNull();
     expect(removeButtons().length).toBe(0);
     expect(text(fixture)).toContain('Led by Bob Ito');
+  });
+
+  it('gates each control on its own flag, not on one blanket role', async () => {
+    await load({
+      ...teamDetail,
+      permissions: { ...noTeamPermissions, canRename: true },
+    });
+
+    // The card is there for the one control the server allowed, and nothing else.
+    expect(byTestId(fixture, 'lead-controls')).not.toBeNull();
+    expect(byTestId(fixture, 'rename-input')).not.toBeNull();
+    expect(query(fixture, 'hive-user-search')).toBeNull();
+    expect(byTestId(fixture, 'lead-select')).toBeNull();
+    expect(removeButtons().length).toBe(0);
+  });
+
+  it('offers no removal or transfer to a lead who is alone on their team', async () => {
+    await load({
+      ...teamDetail,
+      members: [alice],
+      permissions: { ...teamPermissions, canRemoveMember: false, canTransferLead: false },
+    });
+
+    expect(removeButtons().length).toBe(0);
+    expect(byTestId(fixture, 'lead-select')).toBeNull();
+    expect(byTestId(fixture, 'rename-input')).not.toBeNull();
   });
 
   it('shows the management controls to the lead', async () => {

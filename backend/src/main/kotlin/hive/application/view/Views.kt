@@ -42,20 +42,61 @@ data class TaskPermissions(
     val allowedTransitions: Set<TaskStatus>,
 )
 
-/** A team with its lead and members resolved. Feeds both `TeamSummary` and `TeamDetail`. */
+/**
+ * What the acting user may do with one team, computed by the same
+ * [hive.domain.policy.AuthorizationPolicy] that enforces the rules.
+ *
+ * Published on `TeamDetail` for the same reason [TaskPermissions] is published
+ * on `TaskDetail`: so the UI renders exactly the controls that will work. Like
+ * that block, it is a convenience for the client and never an enforcement
+ * point.
+ */
+data class TeamPermissions(
+    /** TM-5: may the actor rename this team? */
+    val canRename: Boolean,
+    /** TM-6: may the actor add a member to this team? */
+    val canAddMember: Boolean,
+    /** TM-7: may the actor remove *some* member of this team right now? */
+    val canRemoveMember: Boolean,
+    /** TM-9: may the actor hand this team on to another member? */
+    val canTransferLead: Boolean,
+)
+
+/**
+ * What the acting user may do with one project, computed by the same
+ * [hive.domain.policy.AuthorizationPolicy] that enforces the rules.
+ *
+ * Published on `ProjectSummary`; a convenience for the client, never an
+ * enforcement point.
+ */
+data class ProjectPermissions(
+    /** PR-5: may the actor rename this project? */
+    val canRename: Boolean,
+    /** PR-6: may the actor hand this project's ownership on? */
+    val canTransferOwnership: Boolean,
+    /** TK-1: may the actor create a task in this project? */
+    val canCreateTask: Boolean,
+)
+
+/**
+ * A team with its lead and members resolved, and what [permissions] the acting
+ * user holds over it. Feeds both `TeamSummary` and `TeamDetail`.
+ */
 data class TeamView(
     val team: Team,
     val lead: User,
     val members: List<User>,
+    val permissions: TeamPermissions,
 ) {
     val memberCount: Int get() = members.size
 }
 
-/** A project with its owner and team resolved. Feeds `ProjectSummary`. */
+/** A project with its owner and team resolved, plus the acting user's [permissions]. Feeds `ProjectSummary`. */
 data class ProjectView(
     val project: Project,
     val owner: User,
     val team: TeamView,
+    val permissions: ProjectPermissions,
 )
 
 /** One row of a task list. Feeds `TaskSummary`. */

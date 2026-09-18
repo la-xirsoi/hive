@@ -625,3 +625,83 @@ go red for the real reason, not a contrived one.
   The value is derived in code from the registered `redirectUri`, so nothing
   user-supplied reaches it, but there is no test that a crafted one is refused.
 - **It needs the stack**, with everything 8.3 says about that.
+
+---
+
+## 11. Addendum — 2026-09-18: team and project controls are now server-computed
+
+### 11.1 What was wrong
+
+`TaskDetail` has always carried a `TaskPermissions` block, so every task control
+is rendered from an answer the server computed with the same policy that
+enforces it. `TeamDetail` and `ProjectSummary` carried no such block, so the two
+management screens answered "may I do this?" for themselves, by comparing the
+acting user's id with the `teamLead.id` / `projectOwner.id` in the response.
+
+That was never an authorization hole — every one of those operations is checked
+server-side, so the worst case was a control that appeared and then returned 403
+— but it was a second place where "who may do what" was decided, and it could
+only ever express one blanket role per screen.
+
+### 11.2 What replaced it
+
+`TeamPermissions` (`canRename`, `canAddMember`, `canRemoveMember`,
+`canTransferLead`) and `ProjectPermissions` (`canRename`,
+`canTransferOwnership`, `canCreateTask`) are published on `TeamDetail` and
+`ProjectSummary`, and `docs/api-contract.md` section 1.2 was amended first.
+
+They are computed in `ViewAssembler` by running the very `checkX` functions that
+enforce TM-5 to TM-9, PR-5, PR-6 and TK-1 and reporting whether they passed —
+the same `permitted { }` device `TaskPermissions` already used, so there is no
+second copy of any rule. The actor is threaded through `teamView`/`projectView`,
+which is why every call site gained an `actor` argument.
+
+Two decisions are worth naming:
+
+- `canRemoveMember` and `canTransferLead` need a target, and a flag has room for
+  one answer, so each is asked about the first member who is not the lead. A
+  lead alone on their team therefore gets `false` for both, which is exactly
+  right: INV-1 makes them unremovable (TM-7) and there is nobody to hand the
+  team to.
+- `canTransferOwnership` reports PR-6 only. PR-8's 409 — the incoming owner
+  still holds live tasks in this project — is a fact about the *candidate*, not
+  about the actor, and discovering it here would mean a task query per project
+  row for a flag that cannot express it. It stays with the request that names a
+  candidate, and the UI already renders that 409 verbatim.
+
+`TeamSummary` deliberately gained nothing: it is a list row, and the detail
+endpoint is where the controls live.
+
+On the frontend, `TeamDetailPage` and `ProjectDetailPage` gate every control on
+its own flag, and each controls card appears only if at least one control inside
+it does. `CurrentUser` is now used for wording alone — "You lead this team"
+rather than "Led by Bob Ito" — and its doc comment says so.
+
+### 11.3 What is now proven
+
+`./gradlew clean build --rerun-tasks` passes. `npm run test:ci` is **480
+passed**, from 477 in section 10. The new tests are:
+
+- `TeamServiceTest` / `ProjectServiceTest`: the lead and the owner hold every
+  control; a plain member and a TM-3 project-owner viewer hold none; a solo lead
+  may rename and add but has nobody to remove or hand the team to; each row of a
+  project list carries the caller's own permissions; the response to a transfer
+  already reports the outgoing holder's lost controls; and `canTransferOwnership`
+  costs no task query.
+- `TeamControllerTest` / `ProjectControllerTest`: the JSON carries the block with
+  the contract's field names, and `TeamSummary` still does not.
+- `team-detail.spec.ts` / `project-detail.spec.ts`: with one flag true and the
+  rest false, exactly one control renders — so the screens are gated per
+  operation, not per role.
+
+### 11.4 What it still does not prove
+
+- **Nothing here is an enforcement point**, and the tests do not pretend
+  otherwise: they assert what is rendered, while the server tests assert what is
+  allowed. A client that ignores the block still gets a 403.
+- **The flags are a snapshot.** A permission that changes in another session is
+  seen on the next read; the screens re-read after a 409, which is when it
+  matters most, but there is no push.
+- **`npm run lint` reports two pre-existing formatting failures**
+  (`src/app/core/auth/auth-service.ts`, `src/environments/environment.ts`) that
+  are untouched by this work and were already failing before it.

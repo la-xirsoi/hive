@@ -37,7 +37,7 @@ class ViewAssemblerTest {
         every { harness.userRepository.findAllById(any()) } returns
             listOf(LEAD, ASSIGNEE, MEMBER.copy(id = null))
 
-        assertThatThrownBy { harness.views.teamView(TEAM) }
+        assertThatThrownBy { harness.views.teamView(TEAM, LEAD_ID) }
             .isInstanceOf(NotFoundException::class.java)
             .hasMessageContaining("User")
     }
@@ -51,7 +51,7 @@ class ViewAssemblerTest {
         )
         every { harness.userRepository.findAllById(any()) } returns twins
 
-        val view = harness.views.teamView(TEAM)
+        val view = harness.views.teamView(TEAM, LEAD_ID)
 
         assertThat(view.members.map { it.email.normalized })
             .containsExactly("abe@hive.test", "mira@hive.test", "zoe@hive.test")
@@ -69,7 +69,7 @@ class ViewAssemblerTest {
 
     @Test
     fun `projectView resolves the owner even though they are not a member of the team (INV-2)`() {
-        val view = harness.views.projectView(PROJECT, TEAM)
+        val view = harness.views.projectView(PROJECT, TEAM, OWNER_ID)
 
         assertThat(view.owner.id).isEqualTo(OWNER_ID)
         assertThat(view.team.members.map { it.id }).doesNotContain(OWNER_ID)

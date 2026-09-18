@@ -12,6 +12,14 @@ data class ProjectSummaryDto(
     val name: String,
     val team: TeamSummaryDto,
     val projectOwner: UserSummaryDto,
+    val permissions: ProjectPermissionsDto,
+)
+
+/** `ProjectPermissions` (contract section 1.2) -- what the caller may do with this project. */
+data class ProjectPermissionsDto(
+    val canRename: Boolean,
+    val canTransferOwnership: Boolean,
+    val canCreateTask: Boolean,
 )
 
 /** `POST /projects`. The creator becomes the owner (PR-1); it is never in the body. */

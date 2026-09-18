@@ -44,24 +44,24 @@ class TeamService(
     @Transactional
     override fun create(actor: UserId, command: CreateTeamCommand): TeamView {
         val team = Team(id = null, name = TeamName(command.name), teamLead = actor)
-        return views.teamView(teamRepository.save(team))
+        return views.teamView(teamRepository.save(team), actor)
     }
 
     /** TM-4: `findTeamsForMember` already includes teams [actor] leads, by INV-1. */
     @Transactional(readOnly = true)
     override fun listMine(actor: UserId): List<TeamView> =
-        views.teamViews(teamRepository.findTeamsForMember(actor))
+        views.teamViews(teamRepository.findTeamsForMember(actor), actor)
 
     @Transactional(readOnly = true)
     override fun get(actor: UserId, teamId: TeamId): TeamView =
-        views.teamView(loader.requireVisibleTeam(teamId, actor))
+        views.teamView(loader.requireVisibleTeam(teamId, actor), actor)
 
     /** TM-5. */
     @Transactional
     override fun rename(actor: UserId, teamId: TeamId, command: RenameTeamCommand): TeamView {
         val team = loader.requireVisibleTeam(teamId, actor)
         AuthorizationPolicy.checkRenameTeam(team, actor)
-        return views.teamView(teamRepository.save(team.rename(TeamName(command.name))))
+        return views.teamView(teamRepository.save(team.rename(TeamName(command.name))), actor)
     }
 
     /**
@@ -74,7 +74,7 @@ class TeamService(
         val team = loader.requireVisibleTeam(teamId, actor)
         AuthorizationPolicy.checkAddMember(team, actor, member)
         requireExistingUser(member)
-        return views.teamView(teamRepository.save(team.addMember(member)))
+        return views.teamView(teamRepository.save(team.addMember(member)), actor)
     }
 
     /**
@@ -95,7 +95,7 @@ class TeamService(
         AuthorizationPolicy.checkRemoveMember(team, actor, member)
 
         unassignLiveTasksOf(member, teamId)
-        return views.teamView(teamRepository.save(team.removeMember(member)))
+        return views.teamView(teamRepository.save(team.removeMember(member)), actor)
     }
 
     /** TM-9/TM-10: [Team.transferLeadTo] enrols the new lead and keeps the old one a member. */
@@ -104,7 +104,7 @@ class TeamService(
         val team = loader.requireVisibleTeam(teamId, actor)
         AuthorizationPolicy.checkTransferLead(team, actor, newLead)
         requireExistingUser(newLead)
-        return views.teamView(teamRepository.save(team.transferLeadTo(newLead)))
+        return views.teamView(teamRepository.save(team.transferLeadTo(newLead)), actor)
     }
 
     /**
@@ -122,7 +122,7 @@ class TeamService(
         val team = loader.requireVisibleTeam(teamId, actor)
         val visible = projectRepository.findByTeam(teamId)
             .filter { AuthorizationPolicy.canViewProject(it, team, actor) }
-        return views.projectViews(visible)
+        return views.projectViews(visible, actor)
     }
 
     /**

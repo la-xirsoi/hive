@@ -3,10 +3,12 @@ import { AppConfig, APP_CONFIG } from './config/app-config';
 import {
   Comment,
   Page,
+  ProjectPermissions,
   ProjectSummary,
   TaskDetail,
   TaskSummary,
   TeamDetail,
+  TeamPermissions,
   TeamSummary,
   UserSummary,
 } from './api/models';
@@ -88,11 +90,42 @@ export const teamSummary: TeamSummary = {
   memberCount: 2,
 };
 
+/** What the server computes for a lead looking at their own team. */
+export const teamPermissions: TeamPermissions = {
+  canRename: true,
+  canAddMember: true,
+  canRemoveMember: true,
+  canTransferLead: true,
+};
+
+/** What it computes for everybody else. */
+export const noTeamPermissions: TeamPermissions = {
+  canRename: false,
+  canAddMember: false,
+  canRemoveMember: false,
+  canTransferLead: false,
+};
+
 export const teamDetail: TeamDetail = {
   id: 10,
   name: 'Platform',
   teamLead: alice,
   members: [alice, bob],
+  permissions: teamPermissions,
+};
+
+/** What the server computes for an owner looking at their own project. */
+export const projectPermissions: ProjectPermissions = {
+  canRename: true,
+  canTransferOwnership: true,
+  canCreateTask: true,
+};
+
+/** What it computes for everybody else. */
+export const noProjectPermissions: ProjectPermissions = {
+  canRename: false,
+  canTransferOwnership: false,
+  canCreateTask: false,
 };
 
 export const projectSummary: ProjectSummary = {
@@ -100,6 +133,7 @@ export const projectSummary: ProjectSummary = {
   name: 'Hive Core',
   team: teamSummary,
   projectOwner: alice,
+  permissions: projectPermissions,
 };
 
 export const taskSummary: TaskSummary = {

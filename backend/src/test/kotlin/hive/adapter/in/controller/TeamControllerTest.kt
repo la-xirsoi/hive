@@ -3,6 +3,7 @@ package hive.adapter.`in`.controller
 import hive.adapter.`in`.ApiWebTestBase
 import hive.adapter.`in`.WebFixtures
 import hive.application.AppFixtures
+import hive.application.view.TeamPermissions
 import hive.domain.error.AuthorizationException
 import hive.domain.error.ConflictException
 import hive.domain.error.NotFoundException
@@ -84,6 +85,41 @@ class TeamControllerTest : ApiWebTestBase() {
             .andExpect {
                 status { isOk() }
                 jsonPath("$.members[0].name") { value("Lena Lead") }
+            }
+    }
+
+    @Test
+    fun `GET teams by id publishes the caller's permissions`() {
+        every { teamUseCases.get(any(), TeamId(10)) } returns
+            WebFixtures.teamView(
+                TeamPermissions(
+                    canRename = true,
+                    canAddMember = true,
+                    canRemoveMember = false,
+                    canTransferLead = false,
+                ),
+            )
+
+        mvc
+            .get("/api/v1/teams/10") { with(callerIs()) }
+            .andExpect {
+                status { isOk() }
+                jsonPath("$.permissions.canRename") { value(true) }
+                jsonPath("$.permissions.canAddMember") { value(true) }
+                jsonPath("$.permissions.canRemoveMember") { value(false) }
+                jsonPath("$.permissions.canTransferLead") { value(false) }
+            }
+    }
+
+    @Test
+    fun `GET teams mine leaves permissions off the summaries`() {
+        every { teamUseCases.listMine(any()) } returns listOf(WebFixtures.TEAM_VIEW)
+
+        mvc
+            .get("/api/v1/teams/mine") { with(callerIs()) }
+            .andExpect {
+                status { isOk() }
+                jsonPath("$[0].permissions") { doesNotExist() }
             }
     }
 

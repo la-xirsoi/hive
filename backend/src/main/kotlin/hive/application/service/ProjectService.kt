@@ -52,18 +52,18 @@ class ProjectService(
             teamId = command.teamId,
             projectOwner = actor,
         )
-        return views.projectView(projectRepository.save(project), team)
+        return views.projectView(projectRepository.save(project), team, actor)
     }
 
     /** PR-4: the union of owned projects and the projects of teams [actor] leads or belongs to, resolved in SQL. */
     @Transactional(readOnly = true)
     override fun listMine(actor: UserId): List<ProjectView> =
-        views.projectViews(projectRepository.findVisibleTo(actor))
+        views.projectViews(projectRepository.findVisibleTo(actor), actor)
 
     @Transactional(readOnly = true)
     override fun get(actor: UserId, projectId: ProjectId): ProjectView {
         val (project, team) = loader.requireVisibleProject(projectId, actor)
-        return views.projectView(project, team)
+        return views.projectView(project, team, actor)
     }
 
     /** PR-5. */
@@ -71,7 +71,7 @@ class ProjectService(
     override fun rename(actor: UserId, projectId: ProjectId, command: RenameProjectCommand): ProjectView {
         val (project, team) = loader.requireVisibleProject(projectId, actor)
         AuthorizationPolicy.checkRenameProject(project, actor)
-        return views.projectView(projectRepository.save(project.rename(ProjectName(command.name))), team)
+        return views.projectView(projectRepository.save(project.rename(ProjectName(command.name))), team, actor)
     }
 
     /**
@@ -93,7 +93,7 @@ class ProjectService(
         if (userRepository.findById(newOwner) == null) { // PR-7
             throw ValidationException("userId", "must be an existing user.")
         }
-        return views.projectView(projectRepository.save(project.transferOwnershipTo(newOwner)), team)
+        return views.projectView(projectRepository.save(project.transferOwnershipTo(newOwner)), team, actor)
     }
 
     /**

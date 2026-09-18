@@ -3,6 +3,7 @@ package hive.adapter.`in`.controller
 import hive.adapter.`in`.ApiWebTestBase
 import hive.adapter.`in`.WebFixtures
 import hive.application.AppFixtures
+import hive.application.view.ProjectPermissions
 import hive.domain.error.AuthorizationException
 import hive.domain.error.ConflictException
 import hive.domain.error.NotFoundException
@@ -107,6 +108,27 @@ class ProjectControllerTest : ApiWebTestBase() {
             .andExpect {
                 status { isOk() }
                 jsonPath("$.name") { value("Apiary") }
+            }
+    }
+
+    @Test
+    fun `GET projects by id publishes the caller's permissions`() {
+        every { projectUseCases.get(any(), ProjectId(20)) } returns
+            WebFixtures.projectView(
+                ProjectPermissions(
+                    canRename = false,
+                    canTransferOwnership = false,
+                    canCreateTask = false,
+                ),
+            )
+
+        mvc
+            .get("/api/v1/projects/20") { with(callerIs()) }
+            .andExpect {
+                status { isOk() }
+                jsonPath("$.permissions.canRename") { value(false) }
+                jsonPath("$.permissions.canTransferOwnership") { value(false) }
+                jsonPath("$.permissions.canCreateTask") { value(false) }
             }
     }
 

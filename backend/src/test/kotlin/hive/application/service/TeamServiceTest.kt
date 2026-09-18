@@ -431,6 +431,73 @@ class TeamServiceTest {
     }
 
     @Nested
+    @DisplayName("permissions (TM-5, TM-6, TM-7, TM-9)")
+    inner class Permissions {
+
+        @Test
+        fun `the lead holds every control`() {
+            harness.withStandardWorld()
+
+            val permissions = service.get(LEAD_ID, TEAM_ID).permissions
+
+            assertThat(permissions.canRename).isTrue()
+            assertThat(permissions.canAddMember).isTrue()
+            assertThat(permissions.canRemoveMember).isTrue()
+            assertThat(permissions.canTransferLead).isTrue()
+        }
+
+        @Test
+        fun `a plain member holds none of them`() {
+            harness.withStandardWorld()
+
+            val permissions = service.get(MEMBER_ID, TEAM_ID).permissions
+
+            assertThat(permissions.canRename).isFalse()
+            assertThat(permissions.canAddMember).isFalse()
+            assertThat(permissions.canRemoveMember).isFalse()
+            assertThat(permissions.canTransferLead).isFalse()
+        }
+
+        @Test
+        fun `a TM-3 project owner sees the team but holds none of its controls`() {
+            harness.withStandardWorld()
+
+            val permissions = service.get(OWNER_ID, TEAM_ID).permissions
+
+            assertThat(permissions.canRename).isFalse()
+            assertThat(permissions.canAddMember).isFalse()
+            assertThat(permissions.canRemoveMember).isFalse()
+            assertThat(permissions.canTransferLead).isFalse()
+        }
+
+        @Test
+        fun `a lead alone on their team may rename and add, but has nobody to remove or hand it to`() {
+            val solo = Team(OTHER_TEAM_ID, TEAM.name, LEAD_ID)
+            harness.withTeams(solo).withProjects()
+
+            val permissions = service.get(LEAD_ID, OTHER_TEAM_ID).permissions
+
+            assertThat(permissions.canRename).isTrue()
+            assertThat(permissions.canAddMember).isTrue()
+            assertThat(permissions.canRemoveMember).isFalse()
+            assertThat(permissions.canTransferLead).isFalse()
+        }
+
+        @Test
+        fun `the response to a lead transfer already reports the outgoing lead's lost controls`() {
+            harness.withStandardWorld().echoTeamSaves()
+
+            val view = service.transferLead(LEAD_ID, TEAM_ID, MEMBER_ID)
+
+            assertThat(view.permissions.canRename).isFalse()
+            assertThat(view.permissions.canTransferLead).isFalse()
+
+            harness.withTeams(TEAM.transferLeadTo(MEMBER_ID))
+            assertThat(service.get(MEMBER_ID, TEAM_ID).permissions.canRename).isTrue()
+        }
+    }
+
+    @Nested
     @DisplayName("membership bookkeeping")
     inner class Bookkeeping {
 

@@ -13,10 +13,12 @@ import hive.application.usecase.TaskUseCases
 import hive.application.usecase.TeamUseCases
 import hive.application.usecase.UserUseCases
 import hive.application.view.CommentView
+import hive.application.view.ProjectPermissions
 import hive.application.view.ProjectView
 import hive.application.view.TaskDetailView
 import hive.application.view.TaskPermissions
 import hive.application.view.TaskSummaryView
+import hive.application.view.TeamPermissions
 import hive.application.view.TeamView
 import hive.domain.model.Task
 import hive.domain.model.TaskStatus
@@ -151,15 +153,38 @@ abstract class ApiWebTestBase {
 /** Views built from the shared cast of characters, so the JSON assertions read the same everywhere. */
 object WebFixtures {
 
-    val TEAM_VIEW =
+    /** The lead's view of the team: every control open. */
+    val TEAM_PERMISSIONS =
+        TeamPermissions(
+            canRename = true,
+            canAddMember = true,
+            canRemoveMember = true,
+            canTransferLead = true,
+        )
+
+    /** The owner's view of the project: every control open. */
+    val PROJECT_PERMISSIONS =
+        ProjectPermissions(canRename = true, canTransferOwnership = true, canCreateTask = true)
+
+    val TEAM_VIEW = teamView()
+
+    val PROJECT_VIEW = projectView()
+
+    fun teamView(permissions: TeamPermissions = TEAM_PERMISSIONS): TeamView =
         TeamView(
             team = AppFixtures.TEAM,
             lead = AppFixtures.LEAD,
             members = listOf(AppFixtures.LEAD, AppFixtures.ASSIGNEE, AppFixtures.MEMBER),
+            permissions = permissions,
         )
 
-    val PROJECT_VIEW =
-        ProjectView(project = AppFixtures.PROJECT, owner = AppFixtures.OWNER, team = TEAM_VIEW)
+    fun projectView(permissions: ProjectPermissions = PROJECT_PERMISSIONS): ProjectView =
+        ProjectView(
+            project = AppFixtures.PROJECT,
+            owner = AppFixtures.OWNER,
+            team = TEAM_VIEW,
+            permissions = permissions,
+        )
 
     fun summaryView(task: Task = AppFixtures.task(TaskStatus.TODO)): TaskSummaryView =
         TaskSummaryView(

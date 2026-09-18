@@ -421,6 +421,78 @@ class ProjectServiceTest {
     }
 
     @Nested
+    @DisplayName("permissions (PR-5, PR-6, TK-1)")
+    inner class Permissions {
+
+        @Test
+        fun `the owner holds every control`() {
+            harness.withTeams(TEAM).withProjects(PROJECT)
+
+            val permissions = service.get(OWNER_ID, PROJECT_ID).permissions
+
+            assertThat(permissions.canRename).isTrue()
+            assertThat(permissions.canTransferOwnership).isTrue()
+            assertThat(permissions.canCreateTask).isTrue()
+        }
+
+        @Test
+        fun `the team lead sees the project but holds none of its controls`() {
+            harness.withTeams(TEAM).withProjects(PROJECT)
+
+            val permissions = service.get(LEAD_ID, PROJECT_ID).permissions
+
+            assertThat(permissions.canRename).isFalse()
+            assertThat(permissions.canTransferOwnership).isFalse()
+            assertThat(permissions.canCreateTask).isFalse()
+        }
+
+        @Test
+        fun `a plain member holds none of them either`() {
+            harness.withTeams(TEAM).withProjects(PROJECT)
+
+            val permissions = service.get(MEMBER_ID, PROJECT_ID).permissions
+
+            assertThat(permissions.canRename).isFalse()
+            assertThat(permissions.canTransferOwnership).isFalse()
+            assertThat(permissions.canCreateTask).isFalse()
+        }
+
+        @Test
+        fun `every row of a list carries the caller's own permissions`() {
+            every { harness.projectRepository.findVisibleTo(LEAD_ID) } returns
+                listOf(PROJECT, SIBLING_PROJECT)
+            harness.withTeams(TEAM)
+
+            val views = service.listMine(LEAD_ID)
+
+            // PROJECT is OWNER_ID's, SIBLING_PROJECT is the lead's own (INV-2).
+            assertThat(views.map { it.permissions.canRename }).containsExactly(false, true)
+        }
+
+        @Test
+        fun `the response to a transfer already reports the outgoing owner's lost controls`() {
+            harness.withTeams(TEAM).withProjects(PROJECT).echoProjectSaves()
+            every { harness.taskRepository.findLiveTasksAssignedTo(MEMBER_ID, PROJECT_ID) } returns emptyList()
+
+            val view = service.transferOwner(OWNER_ID, PROJECT_ID, MEMBER_ID)
+
+            assertThat(view.permissions.canRename).isFalse()
+            assertThat(view.permissions.canCreateTask).isFalse()
+        }
+
+        @Test
+        fun `PR-8 is left to the request that names a candidate, so the flag stays true`() {
+            // The owner may transfer (PR-6); whether a *particular* incoming
+            // owner still holds live work here (PR-8) is a fact about them, and
+            // is answered by the transfer request itself with a 409.
+            harness.withTeams(TEAM).withProjects(PROJECT)
+
+            assertThat(service.get(OWNER_ID, PROJECT_ID).permissions.canTransferOwnership).isTrue()
+            verify(exactly = 0) { harness.taskRepository.findLiveTasksAssignedTo(any(), any()) }
+        }
+    }
+
+    @Nested
     @DisplayName("the unsupported operations")
     inner class Unsupported {
 

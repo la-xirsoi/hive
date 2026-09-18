@@ -23,11 +23,42 @@ export interface TeamSummary {
   readonly memberCount: number;
 }
 
+/**
+ * Server-computed capability flags for the acting user on one team (TM-5, TM-6,
+ * TM-7, TM-9).
+ *
+ * `canRemoveMember` and `canTransferLead` answer "is *some* such operation open
+ * to me right now", so a team whose only member is its lead reports `false` for
+ * both: INV-1 makes the lead unremovable and there is nobody to hand the team
+ * to.
+ */
+export interface TeamPermissions {
+  readonly canRename: boolean;
+  readonly canAddMember: boolean;
+  readonly canRemoveMember: boolean;
+  readonly canTransferLead: boolean;
+}
+
 export interface TeamDetail {
   readonly id: number;
   readonly name: string;
   readonly teamLead: UserSummary;
   readonly members: readonly UserSummary[];
+  readonly permissions: TeamPermissions;
+}
+
+/**
+ * Server-computed capability flags for the acting user on one project (PR-5,
+ * PR-6, TK-1).
+ *
+ * `canTransferOwnership` reports only whether the actor may transfer at all;
+ * PR-8's 409 - the incoming owner still holds live tasks here - is a fact about
+ * the candidate and is reported by the transfer request itself.
+ */
+export interface ProjectPermissions {
+  readonly canRename: boolean;
+  readonly canTransferOwnership: boolean;
+  readonly canCreateTask: boolean;
 }
 
 export interface ProjectSummary {
@@ -35,6 +66,7 @@ export interface ProjectSummary {
   readonly name: string;
   readonly team: TeamSummary;
   readonly projectOwner: UserSummary;
+  readonly permissions: ProjectPermissions;
 }
 
 export type TaskStatus = 'Draft' | 'Todo' | 'In Progress' | 'Completed' | 'Canceled';

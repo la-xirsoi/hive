@@ -11,13 +11,13 @@ import { UserSummary } from '../../core/api/models';
  * is cached with `shareReplay` because several sibling components ask for it
  * during the same render.
  *
- * WHAT THIS IS FOR, and what it is NOT for: identity, not authorization. Task
- * controls are rendered from `TaskPermissions` computed by the server and are
- * never derived from this id. It answers only the questions the contract leaves
- * to the client because it exposes no permission flags for them - "am I the lead
- * of this team?" (`TeamDetail.teamLead.id`) and "do I own this project?"
- * (`ProjectSummary.projectOwner.id`) - both of which are an id comparison
- * against a field the server already returned, not a re-derivation of policy.
+ * WHAT THIS IS FOR, and what it is NOT for: identity, not authorization. Every
+ * control in the application is rendered from the server-computed permission
+ * block on the record it acts on - `TaskPermissions`, `TeamPermissions`,
+ * `ProjectPermissions` - and never from this id. What is left for this service
+ * is wording and labelling: "You lead this team" rather than "Led by Bob Ito",
+ * the `Owner` / `Team project` badge on a list row. Nothing gated on those
+ * answers changes what may be done, only how it reads.
  */
 @Injectable({ providedIn: 'root' })
 export class CurrentUser {

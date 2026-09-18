@@ -20,6 +20,15 @@ data class TeamDetailDto(
     val name: String,
     val teamLead: UserSummaryDto,
     val members: List<UserSummaryDto>,
+    val permissions: TeamPermissionsDto,
+)
+
+/** `TeamPermissions` (contract section 1.2) -- what the caller may do with this team. */
+data class TeamPermissionsDto(
+    val canRename: Boolean,
+    val canAddMember: Boolean,
+    val canRemoveMember: Boolean,
+    val canTransferLead: Boolean,
 )
 
 /** `POST /teams` and `PATCH /teams/{id}` -- both take `{ "name": string }`. */
