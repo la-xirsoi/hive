@@ -1,0 +1,2024 @@
+ ▐▛███▛█   Claude Code v2.1.272
+▝▜██████▀  Opus 5 · Claude Pro
+  ▝▝ ▝▝    C:\src\hive
+
+
+❯ /clear                                                                        
+
+❯ claim and complete bead hive-scn                                              
+
+● I'll start by looking at the bead.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(bd update hive-scn --claim 2>&1 | tail -3; find . -name "*.conf" -path
+      "*nginx*" -o -name "nginx.conf*" -o -name "default.conf*" | grep -v
+      node_modules)
+  ⎿  ✓ Updated issue: hive-scn — SPA responses carry no security headers: a
+     dd_header in a location discards the inherited set
+     ./containers/frontend/nginx.conf
+  ⎿  Updated .beads\issues.jsonl (+1 -1)
+      12  {"_type":"issue","id":"hive-dgq.2","title":"Backend Gradle buil
+          d with Kotlin 2.4 and Spring Boot 4.0","description":"Create ba
+          ckend/ as a Gradle project: Gradle 9.7.1 wrapper (wrapper jar a
+          lready fetched to the scratchpad), Kotlin 2.4.20 JVM toolchain 
+          21, Spring Boot 4.0.8, spring-dependency-management, kotlin-spr
+          ing and kotlin-jpa plugins, JUnit 5, Mockk, and Kotlinx Kover f
+          or coverage. Source layout must follow the hexagonal package ta
+          ble in spec.md. Include a trivial application class and context
+          -load test so the build has something to prove.","acceptance_cr
+          iteria":"'./gradlew build' completes offline-safe and green fro
+          m a clean clone; kover report task exists; package dirs hive/do
+          main, hive/application, hive/adapter/in, hive/adapter/out exist
+          .","status":"closed","priority":0,"issue_type":"task","assignee
+          ":"agent-backend-scaffold","owner":"chevalierAdam2@gmail.com","
+          created_at":"2026-09-13T23:55:24Z","created_by":"Adam \u003cla-
+          xirsoi\u003e Chevalier","updated_at":"2026-09-14T00:05:23Z","st
+          arted_at":"2026-09-13T23:58:50Z","closed_at":"2026-09-14T00:05:
+          23Z","close_reason":"Both scaffolds build and test green with a
+          ll pinned versions","dependencies":[{"issue_id":"hive-dgq.2","d
+          epends_on_id":"hive-dgq","type":"parent-child","created_at":"20
+          26-09-13T18:55:24Z","created_by":"Adam \u003cla-xirsoi\u003e Ch
+          evalier","metadata":"{}"},{"issue_id":"hive-dgq.2","depends_on_
+          id":"hive-dgq.1","type":"blocks","created_at":"2026-09-13T18:55
+          :25Z","created_by":"Adam \u003cla-xirsoi\u003e Chevalier","meta
+          data":"{}"}],"dependency_count":1,"dependent_count":3,"comment_
+          count":0}
+      13  {"_type":"issue","id":"hive-4wc","title":"EPIC: Domain layer (h
+          ive/domain)","description":"Pure Kotlin domain: entities, value
+           objects, status transition rules, authorization policy, reposi
+          tory port interfaces, and domain exceptions. No Spring, no JPA,
+           no framework imports in this package.","acceptance_criteria":"
+          All spec rules encoded as domain code with unit tests; zero fra
+          mework dependencies in hive/domain; \u003e=70% line coverage on
+           the package.","status":"closed","priority":0,"issue_type":"epi
+          c","owner":"chevalierAdam2@gmail.com","created_at":"2026-09-13T
+          23:55:01Z","created_by":"Adam \u003cla-xirsoi\u003e Chevalier",
+          "updated_at":"2026-09-15T00:41:02Z","closed_at":"2026-09-15T00:
+          41:02Z","close_reason":"All child issues complete","dependency_
+          count":0,"dependent_count":0,"comment_count":0}
+      14  {"_type":"issue","id":"hive-dgq","title":"EPIC: Repository scaf
+          folding and build toolchain","description":"Establish the monor
+          epo layout, Gradle/Kotlin backend build, Angular frontend works
+          pace, and the shared contract documents that every downstream a
+          gent codes against. Nothing else can start until builds are gre
+          en and the API contract is frozen.","acceptance_criteria":"Back
+          end 'gradlew build' succeeds; frontend 'npm test' succeeds head
+          less; docs/api-contract.md and docs/authorization.md exist and 
+          are reviewed.","status":"closed","priority":0,"issue_type":"epi
+          c","owner":"chevalierAdam2@gmail.com","created_at":"2026-09-13T
+          23:55:01Z","created_by":"Adam \u003cla-xirsoi\u003e Chevalier",
+          "updated_at":"2026-09-15T00:41:02Z","closed_at":"2026-09-15T00:
+          41:02Z","close_reason":"All child issues complete","dependency_
+          count":0,"dependent_count":0,"comment_count":0}
+      15 -{"_type":"issue","id":"hive-scn","title":"SPA responses carry n
+         -o security headers: add_header in a location discards the inher
+         -ited set","description":"nginx add_header replaces rather than 
+         -extends the inherited set. location = /index.html and the asset
+         - regex location each declare add_header Cache-Control, which si
+         -lently drops every header the server block sets. Verified again
+         -st the running stack: GET https://localhost:8444/ returns no St
+         -rict-Transport-Security, Content-Security-Policy, X-Frame-Optio
+         -ns, X-Content-Type-Options, Referrer-Policy or Permissions-Poli
+         -cy; the same is true of fingerprinted assets. Only /idp, which 
+         -declares its own, is observably covered -- so the CSP that pins
+         - the app to a single origin is not being sent on the document i
+         -t is meant to protect. Fix by repeating the header set in each 
+         -location that declares one, or by hoisting cache control out of
+         - add_header (expires / map).","acceptance_criteria":"curl -k -D
+         - - https://localhost:8444/ shows the full security header set, 
+         -and so does a fingerprinted asset; no location silently drops i
+         -t.","status":"open","priority":1,"issue_type":"bug","owner":"ch
+         -evalierAdam2@gmail.com","created_at":"2026-09-18T14:30:46Z","cr
+         -eated_by":"Adam \u003cla-xirsoi\u003e Chevalier","updated_at":"
+         -2026-09-18T14:30:46Z","dependency_count":0,"dependent_count":0,
+         -"comment_count":0}                                             
+      15 +{"_type":"issue","id":"hive-scn","title":"SPA responses carry n
+         +o security headers: add_header in a location discards the inher
+         +ited set","description":"nginx add_header replaces rather than 
+         +extends the inherited set. location = /index.html and the asset
+         + regex location each declare add_header Cache-Control, which si
+         +lently drops every header the server block sets. Verified again
+         +st the running stack: GET https://localhost:8444/ returns no St
+         +rict-Transport-Security, Content-Security-Policy, X-Frame-Optio
+         +ns, X-Content-Type-Options, Referrer-Policy or Permissions-Poli
+         +cy; the same is true of fingerprinted assets. Only /idp, which 
+         +declares its own, is observably covered -- so the CSP that pins
+         + the app to a single origin is not being sent on the document i
+         +t is meant to protect. Fix by repeating the header set in each 
+         +location that declares one, or by hoisting cache control out of
+         + add_header (expires / map).","acceptance_criteria":"curl -k -D
+         + - https://localhost:8444/ shows the full security header set, 
+         +and so does a fingerprinted asset; no location silently drops i
+         +t.","status":"in_progress","priority":1,"issue_type":"bug","ass
+         +ignee":"Adam \u003cla-xirsoi\u003e Chevalier","owner":"chevalie
+         +rAdam2@gmail.com","created_at":"2026-09-18T14:30:46Z","created_
+         +by":"Adam \u003cla-xirsoi\u003e Chevalier","updated_at":"2026-0
+         +9-18T15:39:16Z","started_at":"2026-09-18T15:39:16Z","dependency
+         +_count":0,"dependent_count":0,"comment_count":0}               
+      16  {"_type":"issue","id":"hive-0uz","title":"Compose OIDC issuer i
+          s unreachable from the browser and mismatches token iss","descr
+          iption":"OAUTH_ISSUER_URI in .env.example is https://idp:8443/r
+          ealms/hive -- a container-internal name the browser cannot reso
+          lve. environment.ts still points at the placeholder https://id.
+          hive.example.com/realms/hive, and nginx CSP connect-src allows 
+          https://hive-backend:8443 / https://hive-idp:8443, neither of w
+          hich is browser-reachable. The published IdP is https://localho
+          st:8543. Unless KC_HOSTNAME and HIVE_JWT_ISSUER_URI agree on on
+          e URI that both the browser and the backend container can use, 
+          tokens minted for the SPA will fail issuer validation at the ba
+          ckend.","acceptance_criteria":"A login from https://localhost:8
+          444 yields a token the backend accepts; issuer string is identi
+          cal in Keycloak, the SPA and HIVE_JWT_ISSUER_URI.","status":"cl
+          osed","priority":1,"issue_type":"bug","assignee":"Adam \u003cla
+          -xirsoi\u003e Chevalier","owner":"chevalierAdam2@gmail.com","cr
+          eated_at":"2026-09-16T03:40:05Z","created_by":"Adam \u003cla-xi
+          rsoi\u003e Chevalier","updated_at":"2026-09-16T04:12:35Z","star
+          ted_at":"2026-09-16T03:58:14Z","closed_at":"2026-09-16T04:12:35
+          Z","close_reason":"Verified end to end on a cold stack: the gat
+          eway proxies /api/v1 to the backend (200 with a token, 401 with
+          out, never index.html), and a real authorization-code + PKCE lo
+          gin through /idp yields iss=https://localhost:8444/idp/realms/h
+          ive, which the backend accepts.","dependency_count":0,"dependen
+          t_count":0,"comment_count":0}
+      17  {"_type":"issue","id":"hive-pxy","title":"Frontend container ha
+          s no /api proxy: SPA API calls return index.html","description"
+          :"containers/frontend/nginx.conf has no proxy_pass for /api. en
+          vironment.ts sets apiBaseUrl='/api/v1' (same-origin), so every 
+          API call falls through to the SPA fallback. Verified against th
+          e running stack: curl -k https://localhost:8444/api/v1/tasks re
+          turns 200 text/html (index.html) instead of reaching hive-backe
+          nd:8443.","acceptance_criteria":"A request to https://localhost
+          :8444/api/v1/tasks is proxied to the backend and returns the ba
+          ckend's status (401 unauthenticated), not index.html.","status"
+          :"closed","priority":1,"issue_type":"bug","assignee":"Adam \u00
+          3cla-xirsoi\u003e Chevalier","owner":"chevalierAdam2@gmail.com"
+          ,"created_at":"2026-09-16T03:40:04Z","created_by":"Adam \u003cl
+          a-xirsoi\u003e Chevalier","updated_at":"2026-09-16T04:12:35Z","
+          started_at":"2026-09-16T03:58:14Z","closed_at":"2026-09-16T04:1
+          2:35Z","close_reason":"Verified end to end on a cold stack: the
+           gateway proxies /api/v1 to the backend (200 with a token, 401 
+          without, never index.html), and a real authorization-code + PKC
+          E login through /idp yields iss=https://localhost:8444/idp/real
+          ms/hive, which the backend accepts.","dependency_count":0,"depe
+          ndent_count":0,"comment_count":0}
+      18  {"_type":"issue","id":"hive-0fq.5","title":"Backend coverage ga
+          te at 70 percent","description":"Configure Kover verification t
+          o fail the Gradle build below 70 percent line coverage on produ
+          ction code, with generated and configuration-only classes exclu
+          ded deliberately and the exclusions justified. Run it across al
+          l backend modules.","acceptance_criteria":"'./gradlew check' fa
+          ils below the threshold and currently passes; exclusion list re
+          viewed and minimal.","status":"closed","priority":1,"issue_type
+          ":"task","owner":"chevalierAdam2@gmail.com","created_at":"2026-
+          09-13T23:58:34Z","created_by":"Adam \u003cla-xirsoi\u003e Cheva
+          lier","updated_at":"2026-09-15T00:28:52Z","closed_at":"2026-09-
+          15T00:28:52Z","close_reason":"Both gates enforce 70% and were p
+          roven to fail below it","dependencies":[{"issue_id":"hive-0fq.5
+          ","depends_on_id":"hive-0fq","type":"parent-child","created_at"
+          :"2026-09-13T18:58:33Z","created_by":"Adam \u003cla-xirsoi\u003
+          e Chevalier","metadata":"{}"},{"issue_id":"hive-0fq.5","depends
+          _on_id":"hive-bjw.4","type":"blocks","created_at":"2026-09-13T1
+          8:58:37Z","created_by":"Adam \u003cla-xirsoi\u003e Chevalier","
+          metadata":"{}"},{"issue_id":"hive-0fq.5","depends_on_id":"hive-
+          r0f.5","type":"blocks","created_at":"2026-09-13T18:58:37Z","cre
+          ated_by":"Adam \u003cla-xirsoi\u003e Chevalier","metadata":"{}"
+          }],"dependency_count":2,"dependent_count":2,"comment_count":0}
+
+  Read 2 files, listed 1 directory (ctrl+o to expand)
+
+● Now I'll create a shared header snippet and include it wherever a location
+  declares its own add_header.
+
+● Bash(cat > containers/frontend/security-headers.conf <<'EOF'
+      # The SPA's security header set, kept in one file because nginx's
+      add_header is…)
+  ⎿  written
+  ⎿  Created containers\frontend\security-headers.conf (+22 -0)
+       1 +# The SPA's security header set, kept in one file because nginx
+         +'s add_header is                                               
+       2 +# replacing, not additive: a location that declares any add_hea
+         +der of its own                                                 
+       3 +# discards every header inherited from the server block. So eve
+         +ry location here                                               
+       4 +# that needs a header of its own includes this file to put the 
+         +set back.                                                      
+       5 +#                                                              
+       6 +# Deliberately NOT included by /idp/, which serves Keycloak's p
+         +ages and carries                                               
+       7 +# its own CSP and frame rules; it repeats only HSTS, a property
+         + of the origin.                                                
+       8 +                                                               
+       9 +# HSTS: two years, subdomains included. Note this is why the de
+         +v certificate                                                  
+      10 +# must be trusted rather than click-through accepted -- once a 
+         +browser sees                                                   
+      11 +# this header for a host, it will refuse plaintext to that host
+         + entirely.                                                     
+      12 +add_header Strict-Transport-Security "max-age=63072000; include
+         +SubDomains" always;                                            
+      13 +add_header X-Content-Type-Options    "nosniff" always;         
+      14 +add_header X-Frame-Options           "DENY" always;            
+      15 +add_header Referrer-Policy           "strict-origin-when-cross-
+         +origin" always;                                                
+      16 +add_header Permissions-Policy        "geolocation=(), microphon
+         +e=(), camera=()" always;                                       
+      17 +                                                               
+      18 +# connect-src is 'self' and nothing else: this server is the on
+         +ly origin the                                                  
+      19 +# SPA talks to. The API lives under /api/ and the identity prov
+         +ider under                                                     
+      20 +# /idp/, both proxied from the same server, so there is no seco
+         +nd origin to                                                   
+      21 +# allow -- and no deployed hostname to keep in sync here either
+         +.                                                              
+      22 +add_header Content-Security-Policy "default-src 'self'; script-
+         +src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' da
+         +ta:; font-src 'self' data:; connect-src 'self'; frame-ancestors
+         + 'none'; base-uri 'self'; form-action 'self'" always;          
+
+● Bash(python - <<'PY'
+      import io…)
+  ⎿  <stdin>:46: SyntaxWarning: invalid escape sequence '\.'
+     <stdin>:58: SyntaxWarning: invalid escape sequence '\.'
+     ok
+  ⎿  Updated containers\frontend\nginx.conf (+18 -18)
+      45      index index.html;
+      46  
+      47      # --- Security headers ------------------------------------
+          ---------------
+      48 -    # HSTS: two years, subdomains included. Note this is why th
+         -e dev certificate                                              
+      49 -    # must be trusted rather than click-through accepted -- onc
+         -e a browser sees                                               
+      50 -    # this header for a host, it will refuse plaintext to that 
+         -host entirely.                                                 
+      51 -    add_header Strict-Transport-Security "max-age=63072000; inc
+         -ludeSubDomains" always;                                        
+      52 -    add_header X-Content-Type-Options    "nosniff" always;     
+      53 -    add_header X-Frame-Options           "DENY" always;        
+      54 -    add_header Referrer-Policy           "strict-origin-when-cr
+         -oss-origin" always;                                            
+      55 -    add_header Permissions-Policy        "geolocation=(), micro
+         -phone=(), camera=()" always;                                   
+      56 -                                                               
+      57 -    # connect-src is 'self' and nothing else: this server is th
+         -e only origin the                                              
+      58 -    # SPA talks to. The API lives under /api/ and the identity 
+         -provider under                                                 
+      59 -    # /idp/, both proxied below, so there is no second origin t
+         -o allow -- and no                                              
+      60 -    # deployed hostname to keep in sync here either.           
+      61 -    add_header Content-Security-Policy "default-src 'self'; scr
+         -ipt-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self
+         -' data:; font-src 'self' data:; connect-src 'self'; frame-ances
+         -tors 'none'; base-uri 'self'; form-action 'self'" always;      
+      48 +    # add_header is replacing, not additive: any location that 
+         +declares one of                                                
+      49 +    # its own starts from an empty set. So the set lives in a f
+         +ile, included                                                  
+      50 +    # here for everything that declares nothing, and again in e
+         +ach location                                                   
+      51 +    # that does. Adding an add_header anywhere below without th
+         +is include                                                     
+      52 +    # silently strips the lot from those responses.            
+      53 +    include /etc/nginx/hive-security-headers.conf;             
+      54  
+      55      location = /healthz {
+      56          access_log off;
+      65 -        add_header Content-Type text/plain;                    
+      57 +        # default_type, not add_header: setting the type this w
+         +ay leaves the                                                  
+      58 +        # inherited header set intact.                         
+      59 +        default_type text/plain;                               
+      60          return 200 'ok';
+      61      }
+      62  
+     ...
+      128  
+      129      # Fingerprinted build assets are immutable; index.html mus
+           t never be cached
+      130      # or users keep running the previous deploy against the cu
+           rrent API.
+      131 +    #                                                         
+      132 +    # max-age is spelled out rather than left to `expires 1y`,
+          + which would emit                                             
+      133 +    # its own Cache-Control alongside this one and send the he
+          +ader twice.                                                   
+      134      location ~* \.(?:js|css|woff2?|png|jpg|jpeg|gif|svg|ico)$ 
+           {
+     … 16 more lines (ctrl+o to expand)
+
+● Bash(python - <<'PY'
+      import io…)
+  ⎿  ok
+  ⎿  Updated containers\frontend\Containerfile (+3 -0)
+      29  
+      30  COPY --from=build /build/dist/hive-web/browser /usr/share/nginx
+          /html
+      31  COPY containers/frontend/nginx.conf /etc/nginx/conf.d/hive.conf
+      32 +# Included by hive.conf, and NOT under conf.d/ -- everything th
+         +ere is loaded                                                  
+      33 +# into the http context, where add_header directives would not 
+         +belong.                                                        
+      34 +COPY containers/frontend/security-headers.conf /etc/nginx/hive-
+         +security-headers.conf                                          
+      35  
+      36  # Run before nginx starts: the resolver the proxied upstreams n
+          eed, and the
+      37  # public origin the plaintext listener redirects to.
+  ⎿  Updated containers\frontend\nginx.conf (+4 -3)
+      12      # any orchestrator probe do not need to trust the dev certi
+          ficate.
+      13      location = /healthz {
+      14          access_log off;
+      15 -        add_header Content-Type text/plain;                    
+      15 +        default_type text/plain;                               
+      16          return 200 'ok';
+      17      }
+      18  
+     ...
+      114          proxy_set_header X-Forwarded-Port  8444;
+      115  
+      116          # Keycloak's login and admin pages carry their own CSP
+            and frame rules,
+      117 -        # and the SPA's headers above are wrong for them -- ad
+          -ding any header                                               
+      118 -        # here cancels the inherited set, which is exactly wha
+          -t we want. HSTS is                                            
+      117 +        # the SPA's set is wrong for them -- so this location 
+          +deliberately does                                             
+      118 +        # NOT include hive-security-headers.conf, and declarin
+          +g any add_header                                              
+      119 +        # here drops the inherited set, which is exactly what 
+          +we want. HSTS is                                              
+      120          # repeated because it is a property of the origin, not
+            of the page.
+      121          add_header Strict-Transport-Security "max-age=63072000
+           ; includeSubDomains" always;
+      122  
+
+● Now let me build and verify against a running stack.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● The stack is up. Rebuilding the frontend image and recreating that service:
+
+  Ran 4 shell commands (ctrl+o to expand)
+
+● One wrinkle worth fixing while here: /idp now sends two
+  Strict-Transport-Security headers (Keycloak's 1-year one plus ours), and
+  browsers honour only the first.
+
+● Bash(python - <<'PY'
+      import io…)
+  ⎿  ok
+  ⎿  Updated containers\frontend\nginx.conf (+5 -1)
+      117          # the SPA's set is wrong for them -- so this location 
+           deliberately does
+      118          # NOT include hive-security-headers.conf, and declarin
+           g any add_header
+      119          # here drops the inherited set, which is exactly what 
+           we want. HSTS is
+      120 -        # repeated because it is a property of the origin, not
+          - of the page.                                                 
+      120 +        # repeated because it is a property of the origin, not
+          + of the page --                                               
+      121 +        # and Keycloak sends one of its own with a shorter max
+          +-age, which has to                                            
+      122 +        # be dropped first or the browser would honour that on
+          +e instead (only                                               
+      123 +        # the first Strict-Transport-Security header of a resp
+          +onse is read).                                                
+      124 +        proxy_hide_header Strict-Transport-Security;          
+      125          add_header Strict-Transport-Security "max-age=63072000
+           ; includeSubDomains" always;
+      126  
+      127          # Keycloak's state cookies and the authorization code 
+           in the callback
+
+  Searched for 1 pattern, ran 2 shell commands (ctrl+o to expand)
+
+● Bash(python - <<'PY'
+      import io…)
+  ⎿  ok
+  ⎿  Updated docs\verification.md (+10 -1)
+      304    its own. So the browser's HSTS pin for `localhost` came from
+            the identity
+      305    provider's responses, not from the application's — and the C
+           SP that section
+      306    7.2 item 4 describes as enforcing a single origin is, on the
+            document that
+      307 -  matters, not being sent. Tracked as `hive-scn`; not fixed he
+          -re.                                                           
+      307 +  matters, not being sent. Tracked as `hive-scn`.             
+      308 +                                                              
+      309 +  **Fixed.** The set moved into `containers/frontend/security-
+          +headers.conf`,                                                
+      310 +  included by the server block and again by each location that
+          + declares an                                                  
+      311 +  `add_header` of its own; `/healthz` now sets its type with `
+          +default_type`, so                                             
+      312 +  it no longer declares one at all. Re-verified against the ru
+          +nning stack: `/`,                                             
+      313 +  `/index.html`, a deep link, a fingerprinted asset, `/favicon
+          +.ico` and                                                     
+      314 +  `/healthz` all return the full six. `/idp` still carries onl
+          +y HSTS by design,                                             
+      315 +  and now carries it once — Keycloak's own shorter-lived heade
+          +r is dropped with                                             
+      316 +  `proxy_hide_header`, since a browser reads only the first on
+          +e it sees.                                                    
+      317  - **Nothing here says anything about a deployed environment.**
+            The certificates
+      318    are from a CA that exists on one machine, `start-dev` is not
+            a production
+      319    Keycloak mode, and the database holds a single SA credential
+           .
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(bd close hive-scn --reason="Hoisted the header set into
+      containers/frontend/security-headers.conf, included by the server block
+      and by every location that decla…)
+  ⎿  ✓ Closed hive-scn — SPA responses carry no security headers: add_heade
+     r in a location discards the inherited set: Hoisted the header set int
+     o containers/frontend/security-headers.conf, included by the server bl
+     … +5 lines (ctrl+o to expand)
+  ⎿  Updated .beads\interactions.jsonl (+1 -0)
+      128  {"id":"int-44419cf0","kind":"field_change","created_at":"2026-
+           09-15T00:41:28.0471969Z","actor":"Adam <la-xirsoi> Chevalier",
+           "issue_id":"hive-0fq","extra":{"field":"status","new_value":"c
+           losed","old_value":"open","reason":"All child issues resolved"
+           }}
+      129  {"id":"int-98b38ad5","kind":"field_change","created_at":"2026-
+           09-16T04:12:35.442871Z","actor":"Adam <la-xirsoi> Chevalier","
+           issue_id":"hive-pxy","extra":{"field":"status","new_value":"cl
+           osed","old_value":"in_progress","reason":"Verified end to end 
+           on a cold stack: the gateway proxies /api/v1 to the backend (2
+           00 with a token, 401 without, never index.html), and a real au
+           thorization-code + PKCE login through /idp yields iss=https://
+           localhost:8444/idp/realms/hive, which the backend accepts."}}
+      130  {"id":"int-227f9623","kind":"field_change","created_at":"2026-
+           09-16T04:12:35.5147858Z","actor":"Adam <la-xirsoi> Chevalier",
+           "issue_id":"hive-0uz","extra":{"field":"status","new_value":"c
+           losed","old_value":"in_progress","reason":"Verified end to end
+            on a cold stack: the gateway proxies /api/v1 to the backend (
+           200 with a token, 401 without, never index.html), and a real a
+           uthorization-code + PKCE login through /idp yields iss=https:/
+           /localhost:8444/idp/realms/hive, which the backend accepts."}}
+      131 +{"id":"int-cfaec041","kind":"field_change","created_at":"2026-
+          +09-18T15:46:05.1356166Z","actor":"Adam <la-xirsoi> Chevalier",
+          +"issue_id":"hive-scn","extra":{"field":"status","new_value":"c
+          +losed","old_value":"in_progress","reason":"Hoisted the header 
+          +set into containers/frontend/security-headers.conf, included b
+          +y the server block and by every location that declares an add_
+          +header of its own; /healthz uses default_type instead. Verifie
+          +d on the running stack: /, /index.html, a deep link, a fingerp
+          +rinted asset, /favicon.ico and /healthz all return all six hea
+          +ders. /idp keeps its own set and now sends HSTS once (proxy_hi
+          +de_header drops Keycloak's shorter one)."}}                   
+  ⎿  Updated .beads\issues.jsonl (+1 -1)
+      12  {"_type":"issue","id":"hive-dgq.2","title":"Backend Gradle buil
+          d with Kotlin 2.4 and Spring Boot 4.0","description":"Create ba
+          ckend/ as a Gradle project: Gradle 9.7.1 wrapper (wrapper jar a
+          lready fetched to the scratchpad), Kotlin 2.4.20 JVM toolchain 
+          21, Spring Boot 4.0.8, spring-dependency-management, kotlin-spr
+          ing and kotlin-jpa plugins, JUnit 5, Mockk, and Kotlinx Kover f
+          or coverage. Source layout must follow the hexagonal package ta
+          ble in spec.md. Include a trivial application class and context
+          -load test so the build has something to prove.","acceptance_cr
+          iteria":"'./gradlew build' completes offline-safe and green fro
+          m a clean clone; kover report task exists; package dirs hive/do
+          main, hive/application, hive/adapter/in, hive/adapter/out exist
+          .","status":"closed","priority":0,"issue_type":"task","assignee
+          ":"agent-backend-scaffold","owner":"chevalierAdam2@gmail.com","
+          created_at":"2026-09-13T23:55:24Z","created_by":"Adam \u003cla-
+          xirsoi\u003e Chevalier","updated_at":"2026-09-14T00:05:23Z","st
+          arted_at":"2026-09-13T23:58:50Z","closed_at":"2026-09-14T00:05:
+          23Z","close_reason":"Both scaffolds build and test green with a
+          ll pinned versions","dependencies":[{"issue_id":"hive-dgq.2","d
+          epends_on_id":"hive-dgq","type":"parent-child","created_at":"20
+          26-09-13T18:55:24Z","created_by":"Adam \u003cla-xirsoi\u003e Ch
+          evalier","metadata":"{}"},{"issue_id":"hive-dgq.2","depends_on_
+          id":"hive-dgq.1","type":"blocks","created_at":"2026-09-13T18:55
+          :25Z","created_by":"Adam \u003cla-xirsoi\u003e Chevalier","meta
+          data":"{}"}],"dependency_count":1,"dependent_count":3,"comment_
+          count":0}
+      13  {"_type":"issue","id":"hive-4wc","title":"EPIC: Domain layer (h
+          ive/domain)","description":"Pure Kotlin domain: entities, value
+           objects, status transition rules, authorization policy, reposi
+          tory port interfaces, and domain exceptions. No Spring, no JPA,
+           no framework imports in this package.","acceptance_criteria":"
+          All spec rules encoded as domain code with unit tests; zero fra
+          mework dependencies in hive/domain; \u003e=70% line coverage on
+           the package.","status":"closed","priority":0,"issue_type":"epi
+          c","owner":"chevalierAdam2@gmail.com","created_at":"2026-09-13T
+          23:55:01Z","created_by":"Adam \u003cla-xirsoi\u003e Chevalier",
+          "updated_at":"2026-09-15T00:41:02Z","closed_at":"2026-09-15T00:
+          41:02Z","close_reason":"All child issues complete","dependency_
+          count":0,"dependent_count":0,"comment_count":0}
+      14  {"_type":"issue","id":"hive-dgq","title":"EPIC: Repository scaf
+          folding and build toolchain","description":"Establish the monor
+          epo layout, Gradle/Kotlin backend build, Angular frontend works
+          pace, and the shared contract documents that every downstream a
+          gent codes against. Nothing else can start until builds are gre
+          en and the API contract is frozen.","acceptance_criteria":"Back
+          end 'gradlew build' succeeds; frontend 'npm test' succeeds head
+          less; docs/api-contract.md and docs/authorization.md exist and 
+          are reviewed.","status":"closed","priority":0,"issue_type":"epi
+          c","owner":"chevalierAdam2@gmail.com","created_at":"2026-09-13T
+          23:55:01Z","created_by":"Adam \u003cla-xirsoi\u003e Chevalier",
+          "updated_at":"2026-09-15T00:41:02Z","closed_at":"2026-09-15T00:
+          41:02Z","close_reason":"All child issues complete","dependency_
+          count":0,"dependent_count":0,"comment_count":0}
+      15 -{"_type":"issue","id":"hive-scn","title":"SPA responses carry n
+         -o security headers: add_header in a location discards the inher
+         -ited set","description":"nginx add_header replaces rather than 
+         -extends the inherited set. location = /index.html and the asset
+         - regex location each declare add_header Cache-Control, which si
+         -lently drops every header the server block sets. Verified again
+         -st the running stack: GET https://localhost:8444/ returns no St
+         -rict-Transport-Security, Content-Security-Policy, X-Frame-Optio
+         -ns, X-Content-Type-Options, Referrer-Policy or Permissions-Poli
+         -cy; the same is true of fingerprinted assets. Only /idp, which 
+         -declares its own, is observably covered -- so the CSP that pins
+         - the app to a single origin is not being sent on the document i
+         -t is meant to protect. Fix by repeating the header set in each 
+         -location that declares one, or by hoisting cache control out of
+         - add_header (expires / map).","acceptance_criteria":"curl -k -D
+         - - https://localhost:8444/ shows the full security header set, 
+         -and so does a fingerprinted asset; no location silently drops i
+         -t.","status":"in_progress","priority":1,"issue_type":"bug","ass
+         -ignee":"Adam \u003cla-xirsoi\u003e Chevalier","owner":"chevalie
+         -rAdam2@gmail.com","created_at":"2026-09-18T14:30:46Z","created_
+         -by":"Adam \u003cla-xirsoi\u003e Chevalier","updated_at":"2026-0
+         -9-18T15:39:16Z","started_at":"2026-09-18T15:39:16Z","dependency
+         -_count":0,"dependent_count":0,"comment_count":0}               
+      15 +{"_type":"issue","id":"hive-scn","title":"SPA responses carry n
+         +o security headers: add_header in a location discards the inher
+         +ited set","description":"nginx add_header replaces rather than 
+         +extends the inherited set. location = /index.html and the asset
+         + regex location each declare add_header Cache-Control, which si
+         +lently drops every header the server block sets. Verified again
+         +st the running stack: GET https://localhost:8444/ returns no St
+         +rict-Transport-Security, Content-Security-Policy, X-Frame-Optio
+         +ns, X-Content-Type-Options, Referrer-Policy or Permissions-Poli
+         +cy; the same is true of fingerprinted assets. Only /idp, which 
+         +declares its own, is observably covered -- so the CSP that pins
+         + the app to a single origin is not being sent on the document i
+         +t is meant to protect. Fix by repeating the header set in each 
+         +location that declares one, or by hoisting cache control out of
+         + add_header (expires / map).","acceptance_criteria":"curl -k -D
+         + - https://localhost:8444/ shows the full security header set, 
+         +and so does a fingerprinted asset; no location silently drops i
+         +t.","status":"closed","priority":1,"issue_type":"bug","assignee
+         +":"Adam \u003cla-xirsoi\u003e Chevalier","owner":"chevalierAdam
+         +2@gmail.com","created_at":"2026-09-18T14:30:46Z","created_by":"
+         +Adam \u003cla-xirsoi\u003e Chevalier","updated_at":"2026-09-18T
+         +15:46:05Z","started_at":"2026-09-18T15:39:16Z","closed_at":"202
+         +6-09-18T15:46:05Z","close_reason":"Hoisted the header set into 
+         +containers/frontend/security-headers.conf, included by the serv
+         +er block and by every location that declares an add_header of i
+         +ts own; /healthz uses default_type instead. Verified on the run
+         +ning stack: /, /index.html, a deep link, a fingerprinted asset,
+         + /favicon.ico and /healthz all return all six headers. /idp kee
+         +ps its own set and now sends HSTS once (proxy_hide_header drops
+         + Keycloak's shorter one).","dependency_count":0,"dependent_coun
+         +t":0,"comment_count":0}                                        
+      16  {"_type":"issue","id":"hive-0uz","title":"Compose OIDC issuer i
+          s unreachable from the browser and mismatches token iss","descr
+          iption":"OAUTH_ISSUER_URI in .env.example is https://idp:8443/r
+          ealms/hive -- a container-internal name the browser cannot reso
+          lve. environment.ts still points at the placeholder https://id.
+          hive.example.com/realms/hive, and nginx CSP connect-src allows 
+          https://hive-backend:8443 / https://hive-idp:8443, neither of w
+          hich is browser-reachable. The published IdP is https://localho
+          st:8543. Unless KC_HOSTNAME and HIVE_JWT_ISSUER_URI agree on on
+          e URI that both the browser and the backend container can use, 
+          tokens minted for the SPA will fail issuer validation at the ba
+          ckend.","acceptance_criteria":"A login from https://localhost:8
+          444 yields a token the backend accepts; issuer string is identi
+          cal in Keycloak, the SPA and HIVE_JWT_ISSUER_URI.","status":"cl
+          osed","priority":1,"issue_type":"bug","assignee":"Adam \u003cla
+          -xirsoi\u003e Chevalier","owner":"chevalierAdam2@gmail.com","cr
+          eated_at":"2026-09-16T03:40:05Z","created_by":"Adam \u003cla-xi
+          rsoi\u003e Chevalier","updated_at":"2026-09-16T04:12:35Z","star
+          ted_at":"2026-09-16T03:58:14Z","closed_at":"2026-09-16T04:12:35
+          Z","close_reason":"Verified end to end on a cold stack: the gat
+          eway proxies /api/v1 to the backend (200 with a token, 401 with
+          out, never index.html), and a real authorization-code + PKCE lo
+          gin through /idp yields iss=https://localhost:8444/idp/realms/h
+          ive, which the backend accepts.","dependency_count":0,"dependen
+          t_count":0,"comment_count":0}
+      17  {"_type":"issue","id":"hive-pxy","title":"Frontend container ha
+          s no /api proxy: SPA API calls return index.html","description"
+          :"containers/frontend/nginx.conf has no proxy_pass for /api. en
+          vironment.ts sets apiBaseUrl='/api/v1' (same-origin), so every 
+          API call falls through to the SPA fallback. Verified against th
+          e running stack: curl -k https://localhost:8444/api/v1/tasks re
+          turns 200 text/html (index.html) instead of reaching hive-backe
+          nd:8443.","acceptance_criteria":"A request to https://localhost
+          :8444/api/v1/tasks is proxied to the backend and returns the ba
+          ckend's status (401 unauthenticated), not index.html.","status"
+          :"closed","priority":1,"issue_type":"bug","assignee":"Adam \u00
+          3cla-xirsoi\u003e Chevalier","owner":"chevalierAdam2@gmail.com"
+          ,"created_at":"2026-09-16T03:40:04Z","created_by":"Adam \u003cl
+          a-xirsoi\u003e Chevalier","updated_at":"2026-09-16T04:12:35Z","
+          started_at":"2026-09-16T03:58:14Z","closed_at":"2026-09-16T04:1
+          2:35Z","close_reason":"Verified end to end on a cold stack: the
+           gateway proxies /api/v1 to the backend (200 with a token, 401 
+          without, never index.html), and a real authorization-code + PKC
+          E login through /idp yields iss=https://localhost:8444/idp/real
+          ms/hive, which the backend accepts.","dependency_count":0,"depe
+          ndent_count":0,"comment_count":0}
+      18  {"_type":"issue","id":"hive-0fq.5","title":"Backend coverage ga
+          te at 70 percent","description":"Configure Kover verification t
+          o fail the Gradle build below 70 percent line coverage on produ
+          ction code, with generated and configuration-only classes exclu
+          ded deliberately and the exclusions justified. Run it across al
+          l backend modules.","acceptance_criteria":"'./gradlew check' fa
+          ils below the threshold and currently passes; exclusion list re
+          viewed and minimal.","status":"closed","priority":1,"issue_type
+          ":"task","owner":"chevalierAdam2@gmail.com","created_at":"2026-
+          09-13T23:58:34Z","created_by":"Adam \u003cla-xirsoi\u003e Cheva
+          lier","updated_at":"2026-09-15T00:28:52Z","closed_at":"2026-09-
+          15T00:28:52Z","close_reason":"Both gates enforce 70% and were p
+          roven to fail below it","dependencies":[{"issue_id":"hive-0fq.5
+          ","depends_on_id":"hive-0fq","type":"parent-child","created_at"
+          :"2026-09-13T18:58:33Z","created_by":"Adam \u003cla-xirsoi\u003
+          e Chevalier","metadata":"{}"},{"issue_id":"hive-0fq.5","depends
+          _on_id":"hive-bjw.4","type":"blocks","created_at":"2026-09-13T1
+          8:58:37Z","created_by":"Adam \u003cla-xirsoi\u003e Chevalier","
+          metadata":"{}"},{"issue_id":"hive-0fq.5","depends_on_id":"hive-
+          r0f.5","type":"blocks","created_at":"2026-09-13T18:58:37Z","cre
+          ated_by":"Adam \u003cla-xirsoi\u003e Chevalier","metadata":"{}"
+          }],"dependency_count":2,"dependent_count":2,"comment_count":0}
+
+  Pushed to claude/opus5-with-beads, ran 9 shell commands (ctrl+o to expand)
+
+● hive-scn is fixed, verified, closed, and pushed.
+
+  The cause was exactly as filed: add_header in a location replaces the
+  inherited set. Two locations declared their own Cache-Control and so silently
+  answered with nothing else.
+
+  The fix, in containers/frontend/:
+  - security-headers.conf (new) holds the six-header set; nginx.conf:53 includes
+    it in the server block and again in the asset regex location and = 
+    /index.html.
+  - /healthz now sets its type with default_type rather than add_header 
+    Content-Type, so it declares no header of its own and stops dropping the set
+    (that was also emitting a duplicate Content-Type).
+  - The asset location spells out max-age=31536000 instead of relying on expires
+    1y, which would have sent a second Cache-Control alongside the immutable
+    one.
+  - ^~ /idp/ keeps its deliberate override — Keycloak's pages need their own CSP
+    and frame rules — and now sends HSTS once: proxy_hide_header drops
+    Keycloak's shorter-lived one, which a browser would otherwise honour in
+    preference to ours.
+
+  Verified against the rebuilt, recreated stack. /, /index.html, a deep link
+  (/deep/link/route), styles-DLB7LG7E.css, /favicon.ico and /healthz all return
+  all six headers with the right Cache-Control; /idp discovery returns a single
+  2-year HSTS. docs/verification.md:307 records the resolution under the
+  original finding.
+
+  Two things to flag:
+
+  - Push went over HTTPS, not origin. origin is git@github.com:... and there's
+    no key in ~/.ssh, so git push/git fetch origin fail with Permission denied 
+    (publickey). I pushed with an explicit HTTPS URL via your gh credentials and
+    confirmed the remote branch is at 00c4a9f. Because fetch origin can't run,
+    git status still shows ahead 5 — that's a stale tracking ref, not unpushed
+    work. Saved as a bead memory; worth either adding a key or switching the
+    remote to HTTPS.
+  - containers/scripts/generate-certs.sh and frontend/angular.json are still 
+    modified — they were already dirty when this session started and are
+    unrelated to this bead, so I left them alone.
+
+✻ Churned for 8m 15s · done 10:47 AM
+
+※ recap: Goal was fixing bead hive-scn, the missing SPA security headers; that's done, verified against the running stack, closed, and pushed. Next: nothing pending, unless you want the stale origin remote switched from SSH to HTTPS.
+
+❯ please document this issue (described in hive-scn) in validation.md.          
+
+  Searched for 1 pattern, listed 1 directory, ran 2 shell commands (ctrl+o to expand)
+
+● There's no validation.md in the repo — not in docs/, not anywhere in the
+  working tree, and no file by that name in any branch's history. The closest is
+  docs/verification.md, which is where hive-scn is already written up (§7.3),
+  including the fix note I added in the last turn.
+
+  So I want to check which you mean before writing:
+
+● User answered Claude's questions:
+  ⎿  · There's no validation.md in the repo. Where should this go? → Expand it 
+     in verification.md
+
+  Searched for 1 pattern (ctrl+o to expand)
+● Now I'll promote it into §7.2 as item 6, at the depth of the other entries,
+  and fix the cross-references.
+
+● Bash(python - <<'PY'
+      import io…)
+  ⎿  ok
+  ⎿  Updated docs\verification.md (+51 -25)
+      220  | Plaintext redirects to the right place | `http://localhost:8
+           080/projects/7?tab=tasks` answers `301` to `https://localhost:
+           8444/projects/7?tab=tasks`, path and query intact; the fronten
+           d logs `hive: plaintext redirects to https://localhost:8444` a
+           t startup. `/healthz` still answers `200` over plaintext, by d
+           esign, so probes need no certificate |
+      221  | A real Keycloak token is accepted | the full authorization-c
+           ode + PKCE flow was driven through the gateway as user `ada`; 
+           the resulting token carries `iss: https://localhost:8444/idp/r
+           ealms/hive` and `GET /api/v1/projects/mine` with it returns `2
+           00 []`, where the same request without it returns `401` — reti
+           ring 4.3 |
+      222  
+      223 -### 7.2 What it cost — five bugs no parser could have found   
+      223 +### 7.2 What it cost — six bugs no parser could have found    
+      224  
+      225  1. **The IdP healthcheck could never pass.** Setting `KC_HTTPS
+           _*` makes
+      226     Keycloak's management interface serve HTTPS as well, and th
+           e image ships no
+     ...
+      263     *Browser side, and the reason the error said TLS:* **HSTS i
+           s scoped to a
+      264     host and has no concept of a port.** Once any response from
+      265     `https://localhost:8444` has carried the header — in practi
+           ce the identity
+      266 -   provider's, for the reason in 7.3 — `http://localhost:` is 
+          -pinned on *every*                                             
+      266 +   provider's, for the reason in item 6 — `http://localhost:` 
+          +is pinned on *every*                                          
+      267     port, so the browser upgraded the request to HTTPS and spok
+           e TLS to a
+      268     listener that answers plaintext. Nothing was sent to port 8
+           080 in cleartext
+      269     and no redirect was ever requested — **no server-side chang
+           e can reach that
+     ...
+      281     syntactically perfect and semantically wrong, the other is 
+           browser state
+      282     accumulated across visits, held outside the stack entirely.
+      283  
+      284 +6. **The SPA's own responses carried no security headers at al
+          +l.** Found while                                              
+      285 +   confirming where the HSTS pin in item 5 came from: `GET    
+      286 +   https://localhost:8444/` returned no `Strict-Transport-Secu
+          +rity`, no                                                     
+      287 +   `Content-Security-Policy`, no `X-Frame-Options`, `X-Content
+          +-Type-Options`,                                               
+      288 +   `Referrer-Policy` and no `Permissions-Policy`. Neither did 
+          +the fingerprinted                                             
+      289 +   assets. Every one of those directives was present in the co
+          +nfiguration, in                                               
+      290 +   the server block, spelled correctly.                       
+      291 +                                                              
+      292 +   *The cause is a property of nginx, not a missing line:* **`
+          +add_header` in a                                              
+      293 +   `location` replaces the inherited set rather than extending
+          + it.** A location                                             
+      294 +   that declares one header of its own starts from empty and i
+          +nherits nothing.                                              
+      295 +   Two did — the asset regex and `location = /index.html`, eac
+          +h for a                                                       
+      296 +   `Cache-Control` — and so answered with that one header and 
+          +nothing else. The                                             
+      297 +   SPA fallback routes every deep link through `= /index.html`
+          +, so this covered                                             
+      298 +   the document and every client-side route in the application
+          +. `/healthz` had                                              
+      299 +   the same defect through an `add_header Content-Type`, which
+          + was also                                                     
+      300 +   duplicating a header nginx already sets.                   
+      301 +                                                              
+      302 +   The consequences ran in both directions. The CSP that item 
+          +4 describes as                                                
+      303 +   the structural fix for the single-origin problem — the one 
+          +that makes                                                    
+      304 +   `connect-src 'self'` mean something — was never sent on the
+          + document it                                                  
+     … 60 more lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(python - <<'PY'
+      import io…)
+  ⎿  ok
+     docs/verification.md:3: 81
+     docs/verification.md:17: 91
+     … +8 lines (ctrl+o to expand)
+  ⎿  Updated docs\verification.md (+5 -2)
+      263     *Browser side, and the reason the error said TLS:* **HSTS i
+           s scoped to a
+      264     host and has no concept of a port.** Once any response from
+      265     `https://localhost:8444` has carried the header — in practi
+           ce the identity
+      266 -   provider's, for the reason in item 6 — `http://localhost:` 
+          -is pinned on *every*                                          
+      267 -   port, so the browser upgraded the request to HTTPS and spok
+          -e TLS to a                                                    
+      266 +   provider's, for the reason in item 6 — `http://localhost:` 
+          +is pinned on                                                  
+      267 +   *every* port, so the browser upgraded the request to HTTPS 
+          +and spoke TLS to a                                            
+      268     listener that answers plaintext. Nothing was sent to port 8
+           080 in cleartext
+      269     and no redirect was ever requested — **no server-side chang
+           e can reach that
+      270     request.** The escape hatch is `chrome://net-internals/#hst
+           s` → *Delete
+     ...
+      323  
+      324     Re-verified against the running stack: `/`, `/index.html`, 
+           a deep link, a
+      325     fingerprinted asset, `/favicon.ico` and `/healthz` all retu
+           rn the full six.
+      326 +   Unlike items 1–5 this one was found on 2026-09-15 and fixed
+          + on 2026-09-18;                                               
+      327 +   the run recorded above was made against the stack as it sto
+          +od before the                                                 
+      328 +   fix, which is why the finding reads in the past tense and t
+          +he others do not.                                             
+      329  
+      330     **This one is invisible to a reviewer reading the file, not
+            just to a
+      331     parser.** Nothing is missing and nothing is misspelled; the
+            headers are
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(sed -n '296p' docs/verification.md && python - <<'PY'
+      import io…)
+  ⎿     `Cache-Control` — and so answered with that one header and nothing
+     else. The
+     rewrapped
+  ⎿  Updated docs\verification.md (+3 -3)
+      293     `location` replaces the inherited set rather than extending
+            it.** A location
+      294     that declares one header of its own starts from empty and i
+           nherits nothing.
+      295     Two did — the asset regex and `location = /index.html`, eac
+           h for a
+      296 -   `Cache-Control` — and so answered with that one header and 
+          -nothing else. The                                             
+      297 -   SPA fallback routes every deep link through `= /index.html`
+          -, so this covered                                             
+      298 -   the document and every client-side route in the application
+          -. `/healthz` had                                              
+      296 +   `Cache-Control` — and so answered with that one header and 
+          +nothing else.                                                 
+      297 +   The SPA fallback routes every deep link through `= /index.h
+          +tml`, so this                                                 
+      298 +   covered the document and every client-side route in the app
+          +lication. `/healthz` had                                      
+      299     the same defect through an `add_header Content-Type`, which
+            was also
+      300     duplicating a header nginx already sets.
+      301  
+
+  Pushed to claude/opus5-with-beads (ctrl+o to expand)
+
+● Documented and pushed (768ac78).
+
+  What changed in docs/verification.md: hive-scn was a bullet in §7.3 "What
+  remains unproven" — the wrong section, since it isn't unproven; it's a bug
+  that was found, understood and fixed. It's now §7.2 item 6, written to the
+  depth of the other five, and the heading reads "six bugs no parser could have
+  found".
+
+  The entry covers:
+
+  - Symptom — six headers absent from / and from the assets, with every
+    directive present and correctly spelled in the server block.
+  - Cause — add_header in a location replaces the inherited set; a location
+    declaring one header starts from empty. Two did, each for a Cache-Control,
+    and the SPA fallback routes every deep link through one of them.
+  - Consequence, both directions — the CSP that item 4 calls the structural fix
+    for single-origin was never sent on the document it constrains; and the HSTS
+    pin that item 5 spends two paragraphs on turned out to be Keycloak's, not
+    the application's, since /idp was the only location declaring headers
+    deliberately. The pin that broke every plain-HTTP dev server on the machine
+    came from the IdP.
+  - Fix and re-verification — the include file, default_type on /healthz, the
+    spelled-out max-age, the proxy_hide_header on /idp, and the six paths
+    checked against the running stack.
+
+  Two consistency fixes came with it: item 5's reference to "the reason in 7.3"
+  now points at item 6, and item 6 notes it was found 2026-09-15 but fixed
+  2026-09-18 — the §7 addendum is dated the 15th, and item 6 is the only finding
+  there written in the past tense, so the mismatch needed explaining rather
+  than hiding.
+
+  One note on the earlier question: I asked rather than guessing because
+  creating a new docs/validation.md and editing verification.md were materially
+  different outcomes, and you'd already seen me cite verification.md:307.
+
+✻ Worked for 1m 57s · done 11:14 AM
+
+※ recap: Fixed and closed bead hive-scn, the missing nginx security headers, then documented it as finding six in docs/verification.md. Both commits are pushed. Nothing is pending; next action is yours.
+
+❯ how can i access and use Hive?                                                
+
+  Searched for 2 patterns, listed 1 directory, ran 6 shell commands (ctrl+o to expand)
+
+● The stack is already running on this machine and the dev CA is already trusted
+  in your user Root store, so there's nothing to set up — just open it.
+
+  Access it
+
+  https://localhost:8444 — everything is on that one origin. Sign in with any of
+  the seeded realm users, all with password hive:
+
+  ┌───────────┬────────────────────────┐
+  │ Username  │         Email          │
+  ├───────────┼────────────────────────┤
+  │ ada       │ ada@hive.example       │
+  ├───────────┼────────────────────────┤
+  │ grace     │ grace@hive.example     │
+  ├───────────┼────────────────────────┤
+  │ alan      │ alan@hive.example      │
+  ├───────────┼────────────────────────┤
+  │ katherine │ katherine@hive.example │
+  └───────────┴────────────────────────┘
+
+  They're defined in containers/idp/realm-hive.json, non-temporary passwords, so
+  there's no forced reset on first login. The realm has no roles defined, so
+  all four are equivalent right now.
+
+  Use https:// explicitly and don't try http://localhost:8080 — that's the HSTS
+  trap from the verification report; the browser upgrades it to TLS against a
+  plaintext listener and you get ERR_SSL_PROTOCOL_ERROR. 8080 is for probes and
+  curl only.
+
+  What's there
+
+  Sign-in lands you on the dashboard inside the app shell. The screens are:
+
+  - Dashboard (/)
+  - My tasks (/tasks) and Unassigned queue (/tasks/unassigned), with detail at
+    /tasks/:id
+  - Teams (/teams, /teams/:id)
+  - Projects (/projects, /projects/:id)
+
+  The database is empty. The only migration is V1__baseline.sql — schema, no
+  seed rows. So the dashboard and every list will be blank on first login, which
+  is correct behaviour, not a broken deploy. Work from the outside in: create a
+  team, then a project under it, then tasks.
+
+  Other ways in
+
+  - Identity provider admin — https://localhost:8444/idp/admin, realm hive.
+    Admin credentials come from your containers/.env.
+  - API directly — https://localhost:8444/api/v1. It returns 401 without a
+    bearer token (just confirmed). Grab one via the realm's token endpoint at
+    /idp/realms/hive/protocol/openid-connect/token using the public hive-web
+    client.
+  - No containers — npm start in frontend/ serves on http://localhost:4200,
+    where devAuth is on and the app mints a local token from POST 
+    /api/v1/dev/token instead of doing a real OIDC round trip. That endpoint is
+    @Profile("dev") and doesn't exist in prod. Note 4200 is registered as a
+    redirect URI in the realm too, if you'd rather use the real IdP there.
+
+  One caveat
+
+  A real authorization-code + PKCE login was verified on 2026-09-15, but with
+  curl — §4.5 of the verification report still stands, there's no browser-driven
+  end-to-end test. So the protocol and the token are proven; the sign-in
+  screens driving that flow are not. If the login button misbehaves, that's the
+  untested gap rather than something you're doing wrong. Happy to drive it
+  through Chrome and confirm the flow end to end if you want that closed.
+
+  If the stack ever isn't up: cd containers && podman compose up -d.
+
+✻ Baked for 1m 1s · done 11:25 AM
+
+※ recap: Goal was fixing hive-scn, the missing SPA security headers; that's done, verified, documented in verification.md, and pushed. You then asked how to use Hive: it's running at https://localhost:8444, sign in as ada with password hive.
+
+❯ i went ot that URL and clicked "sign in with your organization account" and   
+  it threw an error: Sign-in failed                                             
+  Invalid scopes: openid profile email offline_access                           
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Confirmed the cause. Let me check how the SPA uses that scope before choosing
+  the fix.
+
+  Ran 4 shell commands (ctrl+o to expand)
+
+● Two things to verify empirically before I change anything. Let me run a real
+  PKCE flow against the live stack.
+
+  Read 1 file, ran 4 shell commands (ctrl+o to expand)
+
+● Reproduced exactly — error=invalid_scope. Now the decisive question: does the
+  SPA still get a refresh token without it?
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● That's decisive — but it surfaced something else. Let me check how the backend
+  identifies the caller, because the access token has no sub.
+
+  Searched for 1 pattern, ran 1 shell command (ctrl+o to expand)
+
+● No second bug there — the backend matches by email and already falls back to
+  it when sub is absent (CurrentUser.kt:98). So this is one issue, and the
+  evidence settles the fix.
+
+● Bash(bd create --title="Sign-in fails with 'Invalid scopes': SPA requests
+      offline_access, which the realm does not grant" --type=bug --priority=1
+      --description="Clic…)
+  ⎿    Status: open
+  ⎿  Updated .beads\issues.jsonl (+1 -0)
+      12  {"_type":"issue","id":"hive-dgq.2","title":"Backend Gradle buil
+          d with Kotlin 2.4 and Spring Boot 4.0","description":"Create ba
+          ckend/ as a Gradle project: Gradle 9.7.1 wrapper (wrapper jar a
+          lready fetched to the scratchpad), Kotlin 2.4.20 JVM toolchain 
+          21, Spring Boot 4.0.8, spring-dependency-management, kotlin-spr
+          ing and kotlin-jpa plugins, JUnit 5, Mockk, and Kotlinx Kover f
+          or coverage. Source layout must follow the hexagonal package ta
+          ble in spec.md. Include a trivial application class and context
+          -load test so the build has something to prove.","acceptance_cr
+          iteria":"'./gradlew build' completes offline-safe and green fro
+          m a clean clone; kover report task exists; package dirs hive/do
+          main, hive/application, hive/adapter/in, hive/adapter/out exist
+          .","status":"closed","priority":0,"issue_type":"task","assignee
+          ":"agent-backend-scaffold","owner":"chevalierAdam2@gmail.com","
+          created_at":"2026-09-13T23:55:24Z","created_by":"Adam \u003cla-
+          xirsoi\u003e Chevalier","updated_at":"2026-09-14T00:05:23Z","st
+          arted_at":"2026-09-13T23:58:50Z","closed_at":"2026-09-14T00:05:
+          23Z","close_reason":"Both scaffolds build and test green with a
+          ll pinned versions","dependencies":[{"issue_id":"hive-dgq.2","d
+          epends_on_id":"hive-dgq","type":"parent-child","created_at":"20
+          26-09-13T18:55:24Z","created_by":"Adam \u003cla-xirsoi\u003e Ch
+          evalier","metadata":"{}"},{"issue_id":"hive-dgq.2","depends_on_
+          id":"hive-dgq.1","type":"blocks","created_at":"2026-09-13T18:55
+          :25Z","created_by":"Adam \u003cla-xirsoi\u003e Chevalier","meta
+          data":"{}"}],"dependency_count":1,"dependent_count":3,"comment_
+          count":0}
+      13  {"_type":"issue","id":"hive-4wc","title":"EPIC: Domain layer (h
+          ive/domain)","description":"Pure Kotlin domain: entities, value
+           objects, status transition rules, authorization policy, reposi
+          tory port interfaces, and domain exceptions. No Spring, no JPA,
+           no framework imports in this package.","acceptance_criteria":"
+          All spec rules encoded as domain code with unit tests; zero fra
+          mework dependencies in hive/domain; \u003e=70% line coverage on
+           the package.","status":"closed","priority":0,"issue_type":"epi
+          c","owner":"chevalierAdam2@gmail.com","created_at":"2026-09-13T
+          23:55:01Z","created_by":"Adam \u003cla-xirsoi\u003e Chevalier",
+          "updated_at":"2026-09-15T00:41:02Z","closed_at":"2026-09-15T00:
+          41:02Z","close_reason":"All child issues complete","dependency_
+          count":0,"dependent_count":0,"comment_count":0}
+      14  {"_type":"issue","id":"hive-dgq","title":"EPIC: Repository scaf
+          folding and build toolchain","description":"Establish the monor
+          epo layout, Gradle/Kotlin backend build, Angular frontend works
+          pace, and the shared contract documents that every downstream a
+          gent codes against. Nothing else can start until builds are gre
+          en and the API contract is frozen.","acceptance_criteria":"Back
+          end 'gradlew build' succeeds; frontend 'npm test' succeeds head
+          less; docs/api-contract.md and docs/authorization.md exist and 
+          are reviewed.","status":"closed","priority":0,"issue_type":"epi
+          c","owner":"chevalierAdam2@gmail.com","created_at":"2026-09-13T
+          23:55:01Z","created_by":"Adam \u003cla-xirsoi\u003e Chevalier",
+          "updated_at":"2026-09-15T00:41:02Z","closed_at":"2026-09-15T00:
+          41:02Z","close_reason":"All child issues complete","dependency_
+          count":0,"dependent_count":0,"comment_count":0}
+      15 +{"_type":"issue","id":"hive-m50","title":"Sign-in fails with 'I
+         +nvalid scopes': SPA requests offline_access, which the realm do
+         +es not grant","description":"Clicking 'Sign in with your organi
+         +zation account' at https://localhost:8444 returns error=invalid
+         +_scope, 'Invalid scopes: openid profile email offline_access', 
+         +from the authorize endpoint before any login form is shown. The
+         + SPA requests 'openid profile email offline_access' (frontend/s
+         +rc/environments/environment.ts and environment.development.ts),
+         + but the hive-web client in containers/idp/realm-hive.json decl
+         +ares only defaultClientScopes and no optionalClientScopes, so o
+         +ffline_access is not assignable and Keycloak rejects the whole 
+         +request. Verified live: the same authorize URL without offline_
+         +access passes scope validation.","acceptance_criteria":"A brows
+         +er sign-in at https://localhost:8444 completes and lands on the
+         + dashboard; the token response still carries a refresh_token so
+         + silent refresh keeps working.","status":"open","priority":1,"i
+         +ssue_type":"bug","owner":"chevalierAdam2@gmail.com","created_at
+         +":"2026-09-18T16:35:26Z","created_by":"Adam \u003cla-xirsoi\u00
+         +3e Chevalier","updated_at":"2026-09-18T16:35:26Z","dependency_c
+         +ount":0,"dependent_count":0,"comment_count":0}                 
+      16  {"_type":"issue","id":"hive-scn","title":"SPA responses carry n
+          o security headers: add_header in a location discards the inher
+          ited set","description":"nginx add_header replaces rather than 
+          extends the inherited set. location = /index.html and the asset
+           regex location each declare add_header Cache-Control, which si
+          lently drops every header the server block sets. Verified again
+          st the running stack: GET https://localhost:8444/ returns no St
+          rict-Transport-Security, Content-Security-Policy, X-Frame-Optio
+          ns, X-Content-Type-Options, Referrer-Policy or Permissions-Poli
+          cy; the same is true of fingerprinted assets. Only /idp, which 
+          declares its own, is observably covered -- so the CSP that pins
+           the app to a single origin is not being sent on the document i
+          t is meant to protect. Fix by repeating the header set in each 
+          location that declares one, or by hoisting cache control out of
+           add_header (expires / map).","acceptance_criteria":"curl -k -D
+           - https://localhost:8444/ shows the full security header set, 
+          and so does a fingerprinted asset; no location silently drops i
+          t.","status":"closed","priority":1,"issue_type":"bug","assignee
+          ":"Adam \u003cla-xirsoi\u003e Chevalier","owner":"chevalierAdam
+          2@gmail.com","created_at":"2026-09-18T14:30:46Z","created_by":"
+          Adam \u003cla-xirsoi\u003e Chevalier","updated_at":"2026-09-18T
+          15:46:05Z","started_at":"2026-09-18T15:39:16Z","closed_at":"202
+          6-09-18T15:46:05Z","close_reason":"Hoisted the header set into 
+          containers/frontend/security-headers.conf, included by the serv
+          er block and by every location that declares an add_header of i
+          ts own; /healthz uses default_type instead. Verified on the run
+          ning stack: /, /index.html, a deep link, a fingerprinted asset,
+           /favicon.ico and /healthz all return all six headers. /idp kee
+          ps its own set and now sends HSTS once (proxy_hide_header drops
+           Keycloak's shorter one).","dependency_count":0,"dependent_coun
+          t":0,"comment_count":0}
+      17  {"_type":"issue","id":"hive-0uz","title":"Compose OIDC issuer i
+          s unreachable from the browser and mismatches token iss","descr
+          iption":"OAUTH_ISSUER_URI in .env.example is https://idp:8443/r
+          ealms/hive -- a container-internal name the browser cannot reso
+          lve. environment.ts still points at the placeholder https://id.
+          hive.example.com/realms/hive, and nginx CSP connect-src allows 
+          https://hive-backend:8443 / https://hive-idp:8443, neither of w
+          hich is browser-reachable. The published IdP is https://localho
+          st:8543. Unless KC_HOSTNAME and HIVE_JWT_ISSUER_URI agree on on
+          e URI that both the browser and the backend container can use, 
+          tokens minted for the SPA will fail issuer validation at the ba
+          ckend.","acceptance_criteria":"A login from https://localhost:8
+          444 yields a token the backend accepts; issuer string is identi
+          cal in Keycloak, the SPA and HIVE_JWT_ISSUER_URI.","status":"cl
+          osed","priority":1,"issue_type":"bug","assignee":"Adam \u003cla
+          -xirsoi\u003e Chevalier","owner":"chevalierAdam2@gmail.com","cr
+          eated_at":"2026-09-16T03:40:05Z","created_by":"Adam \u003cla-xi
+          rsoi\u003e Chevalier","updated_at":"2026-09-16T04:12:35Z","star
+          ted_at":"2026-09-16T03:58:14Z","closed_at":"2026-09-16T04:12:35
+          Z","close_reason":"Verified end to end on a cold stack: the gat
+          eway proxies /api/v1 to the backend (200 with a token, 401 with
+          out, never index.html), and a real authorization-code + PKCE lo
+          gin through /idp yields iss=https://localhost:8444/idp/realms/h
+          ive, which the backend accepts.","dependency_count":0,"dependen
+          t_count":0,"comment_count":0}
+      18  {"_type":"issue","id":"hive-pxy","title":"Frontend container ha
+          s no /api proxy: SPA API calls return index.html","description"
+          :"containers/frontend/nginx.conf has no proxy_pass for /api. en
+          vironment.ts sets apiBaseUrl='/api/v1' (same-origin), so every 
+          API call falls through to the SPA fallback. Verified against th
+          e running stack: curl -k https://localhost:8444/api/v1/tasks re
+          turns 200 text/html (index.html) instead of reaching hive-backe
+          nd:8443.","acceptance_criteria":"A request to https://localhost
+          :8444/api/v1/tasks is proxied to the backend and returns the ba
+          ckend's status (401 unauthenticated), not index.html.","status"
+          :"closed","priority":1,"issue_type":"bug","assignee":"Adam \u00
+          3cla-xirsoi\u003e Chevalier","owner":"chevalierAdam2@gmail.com"
+          ,"created_at":"2026-09-16T03:40:04Z","created_by":"Adam \u003cl
+          a-xirsoi\u003e Chevalier","updated_at":"2026-09-16T04:12:35Z","
+          started_at":"2026-09-16T03:58:14Z","closed_at":"2026-09-16T04:1
+          2:35Z","close_reason":"Verified end to end on a cold stack: the
+           gateway proxies /api/v1 to the backend (200 with a token, 401 
+          without, never index.html), and a real authorization-code + PKC
+          E login through /idp yields iss=https://localhost:8444/idp/real
+          ms/hive, which the backend accepts.","dependency_count":0,"depe
+          ndent_count":0,"comment_count":0}
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Bash(python - <<'PY'
+      import io…)
+  ⎿  ok
+  ⎿  Updated frontend\src\app\core\config\app-config.ts (+7 -1)
+      16    readonly clientId: string;
+      17    /** Absolute URL the issuer redirects back to after authoriza
+          tion. */
+      18    readonly redirectUri: string;
+      19 -  /** Space-delimited scope string. Include `offline_access` to
+         - get a refresh token. */                                       
+      19 +  /**                                                          
+      20 +   * Space-delimited scope string. Every scope named here must 
+         +be one the client                                              
+      21 +   * is registered to hold -- an issuer rejects the entire auth
+         +orization request                                              
+      22 +   * over a single unknown one. Note a refresh token does not n
+         +eed                                                            
+      23 +   * `offline_access`: the authorization-code flow issues one r
+         +egardless, and                                                 
+      24 +   * `offline_access` only asks that it outlive the SSO session
+         +.                                                              
+      25 +   */                                                          
+      26    readonly scope: string;
+      27    /** Optional explicit authorization endpoint; derived from `i
+          ssuer` when absent. */
+      28    readonly authorizeEndpoint?: string;
+  ⎿  Updated frontend\src\environments\environment.development.ts (+3 -1)
+      26      issuer: 'http://localhost:8081/realms/hive',
+      27      clientId: 'hive-web',
+      28      redirectUri: `${origin}/auth/callback`,
+      29 -    scope: 'openid profile email offline_access',              
+      29 +    // See environment.ts: the refresh token comes with the cod
+         +e flow, and                                                    
+      30 +    // asking for a scope the client does not hold fails the wh
+         +ole request.                                                   
+      31 +    scope: 'openid profile email',                             
+      32    },
+      33    // No container runtime is available locally to host a real i
+          dentity provider,
+      34    // so development logs in through the backend's dev token end
+          point instead.
+  ⎿  Updated frontend\src\environments\environment.ts (+10 -1)
+      39      issuer,
+      40      clientId: 'hive-web',
+      41      redirectUri: `${origin}/auth/callback`,
+      42 -    scope: 'openid profile email offline_access',              
+      42 +    // No `offline_access`. It is not needed: Keycloak issues a
+         + refresh token to                                              
+      43 +    // this client from the plain authorization-code flow, boun
+         +d to the SSO                                                   
+      44 +    // session, which is what `scheduleRefresh` arms the silent
+         + refresh on.                                                   
+      45 +    // `offline_access` would instead mint a token that outlive
+         +s the session --                                               
+      46 +    // pointless here, since the token set lives in `sessionSto
+         +rage` and dies                                                 
+      47 +    // with the tab, and a longer-lived credential in a public 
+         +browser client                                                 
+      48 +    // for no gain. Requesting it also has to be granted: a sco
+         +pe the client                                                  
+      49 +    // does not hold fails the whole authorization request with
+      50 +    // `invalid_scope`, before the login form is ever shown.   
+      51 +    scope: 'openid profile email',                             
+      52      // Keycloak does not use the RFC 6749 conventional paths th
+          at
+      53      // `resolveAuthorizeEndpoint` and `resolveTokenEndpoint` fa
+          ll back to, so
+      54      // both are given explicitly. Without these the SPA would c
+          all
+
+  Searched for 1 pattern, ran 1 shell command (ctrl+o to expand)
+
+● Bash(python - <<'PY'
+      import io…)
+  ⎿  ok
+  ⎿  Updated frontend\src\app\core\auth\auth-service.ts (+4 -4)
+      371     * Arms the silent refresh.
+      372     *
+      373     * With a refresh token the timer fires {@link REFRESH_SKEW_
+           MS} before expiry so
+      374 -   * the new token is in hand before the old one lapses. Witho
+          -ut one (a dev                                                 
+      375 -   * session, or a provider issuing no `offline_access`) the t
+          -imer instead fires                                            
+      376 -   * at expiry and ends the session, so `isAuthenticated` neve
+          -r reports a token                                             
+      377 -   * the API would reject.                                    
+      374 +   * the new token is in hand before the old one lapses. Witho
+          +ut one -- a dev                                               
+      375 +   * session, or an issuer that returns none for this grant --
+          + the timer instead                                            
+      376 +   * fires at expiry and ends the session, so `isAuthenticated
+          +` never reports a                                             
+      377 +   * token the API would reject.                              
+      378     */
+      379    private scheduleRefresh(): void {
+      380      this.cancelRefresh();
+  ⎿  Updated frontend\src\app\core\config\app-config.spec.ts (+12 -4)
+      54      expect(devEnvironment.oauth.redirectUri.endsWith('/auth/cal
+          lback')).toBeTrue();
+      55    });
+      56  
+      57 -  it('requests the scopes the flow depends on', () => {        
+      58 -    // `openid` is what produces the id_token the nonce check v
+         -alidates;                                                      
+      59 -    // `offline_access` is what produces the refresh token sile
+         -nt refresh needs.                                              
+      57 +  it('requests the scopes the flow depends on, and none the cli
+         +ent lacks', () => {                                            
+      58 +    // `openid` is what produces the id_token the nonce check v
+         +alidates.                                                      
+      59      expect(environment.oauth.scope).toContain('openid');
+      61 -    expect(environment.oauth.scope).toContain('offline_access')
+         -;                                                              
+      60 +                                                               
+      61 +    // NOT `offline_access`. The refresh token silent refresh n
+         +eeds comes with                                                
+      62 +    // the authorization-code flow regardless; `offline_access`
+         + only asks that                                                
+      63 +    // it outlive the SSO session, which is useless to a token 
+         +set held in                                                    
+      64 +    // sessionStorage. It has to be granted, too -- the realm's
+         + hive-web client                                               
+      65 +    // does not hold it, and an issuer rejects the whole author
+         +ization request                                                
+      66 +    // over one unknown scope rather than ignoring it. Asserted
+         + as an absence                                                 
+      67 +    // because requesting it broke sign-in entirely (hive-m50).
+      68 +    expect(environment.oauth.scope).not.toContain('offline_acce
+         +ss');                                                          
+      69 +    expect(devEnvironment.oauth.scope).not.toContain('offline_a
+         +ccess');                                                       
+      70    });
+      71  
+      72    it('derives devAuth from the build mode rather than hard-codi
+          ng it on', () => {
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● 471/471 pass. Now rebuilding the image and recreating the service:
+
+  Ran 2 shell commands (ctrl+o to expand)
+● The bundle now requests exactly openid profile email. Let me confirm the
+  actual browser sign-in, since that's how you hit this.
+
+  Called claude-in-chrome (ctrl+o to expand)
+
+● Chrome extension isn't connected, so I can't drive the browser. Falling back
+  to the protocol-level proof with the exact scope the new bundle ships:
+
+  Searched for 1 pattern, ran 3 shell commands (ctrl+o to expand)
+
+● Everything works end to end. Committing:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Bash(bd close hive-m50 --reason="Removed offline_access from the requested
+      scope in both environment files. Keycloak issues a refresh token from the
+      plain authorizat…)
+  ⎿  Exported 60 issues to C:\src\hive\.beads\issues.jsonl
+     To https://github.com/la-xirsoi/hive.git
+        768ac78..277112b  HEAD -> claude/opus5-with-beads
+  ⎿  Updated .beads\interactions.jsonl (+1 -0)
+      129  {"id":"int-98b38ad5","kind":"field_change","created_at":"2026-
+           09-16T04:12:35.442871Z","actor":"Adam <la-xirsoi> Chevalier","
+           issue_id":"hive-pxy","extra":{"field":"status","new_value":"cl
+           osed","old_value":"in_progress","reason":"Verified end to end 
+           on a cold stack: the gateway proxies /api/v1 to the backend (2
+           00 with a token, 401 without, never index.html), and a real au
+           thorization-code + PKCE login through /idp yields iss=https://
+           localhost:8444/idp/realms/hive, which the backend accepts."}}
+      130  {"id":"int-227f9623","kind":"field_change","created_at":"2026-
+           09-16T04:12:35.5147858Z","actor":"Adam <la-xirsoi> Chevalier",
+           "issue_id":"hive-0uz","extra":{"field":"status","new_value":"c
+           losed","old_value":"in_progress","reason":"Verified end to end
+            on a cold stack: the gateway proxies /api/v1 to the backend (
+           200 with a token, 401 without, never index.html), and a real a
+           uthorization-code + PKCE login through /idp yields iss=https:/
+           /localhost:8444/idp/realms/hive, which the backend accepts."}}
+      131  {"id":"int-cfaec041","kind":"field_change","created_at":"2026-
+           09-18T15:46:05.1356166Z","actor":"Adam <la-xirsoi> Chevalier",
+           "issue_id":"hive-scn","extra":{"field":"status","new_value":"c
+           losed","old_value":"in_progress","reason":"Hoisted the header 
+           set into containers/frontend/security-headers.conf, included b
+           y the server block and by every location that declares an add_
+           header of its own; /healthz uses default_type instead. Verifie
+           d on the running stack: /, /index.html, a deep link, a fingerp
+           rinted asset, /favicon.ico and /healthz all return all six hea
+           ders. /idp keeps its own set and now sends HSTS once (proxy_hi
+           de_header drops Keycloak's shorter one)."}}
+      132 +{"id":"int-b14205bf","kind":"field_change","created_at":"2026-
+          +09-18T16:39:01.9512597Z","actor":"Adam <la-xirsoi> Chevalier",
+          +"issue_id":"hive-m50","extra":{"field":"status","new_value":"c
+          +losed","old_value":"in_progress","reason":"Removed offline_acc
+          +ess from the requested scope in both environment files. Keyclo
+          +ak issues a refresh token from the plain authorization-code fl
+          +ow anyway (verified: refresh_expires_in 1800), so silent refre
+          +sh is unaffected, and an offline token is pointless against a 
+          +token set held in sessionStorage. Verified end to end against 
+          +the running stack: authorize -> login as ada -> code exchange 
+          +-> refresh_token present -> GET /api/v1/users/me returns 200. 
+          +Not browser-verified; the Chrome extension was not connected."
+          +}}                                                            
+  ⎿  Updated .beads\issues.jsonl (+1 -1)
+      12  {"_type":"issue","id":"hive-dgq.2","title":"Backend Gradle buil
+          d with Kotlin 2.4 and Spring Boot 4.0","description":"Create ba
+          ckend/ as a Gradle project: Gradle 9.7.1 wrapper (wrapper jar a
+          lready fetched to the scratchpad), Kotlin 2.4.20 JVM toolchain 
+          21, Spring Boot 4.0.8, spring-dependency-management, kotlin-spr
+          ing and kotlin-jpa plugins, JUnit 5, Mockk, and Kotlinx Kover f
+          or coverage. Source layout must follow the hexagonal package ta
+          ble in spec.md. Include a trivial application class and context
+          -load test so the build has something to prove.","acceptance_cr
+          iteria":"'./gradlew build' completes offline-safe and green fro
+          m a clean clone; kover report task exists; package dirs hive/do
+          main, hive/application, hive/adapter/in, hive/adapter/out exist
+          .","status":"closed","priority":0,"issue_type":"task","assignee
+          ":"agent-backend-scaffold","owner":"chevalierAdam2@gmail.com","
+          created_at":"2026-09-13T23:55:24Z","created_by":"Adam \u003cla-
+          xirsoi\u003e Chevalier","updated_at":"2026-09-14T00:05:23Z","st
+          arted_at":"2026-09-13T23:58:50Z","closed_at":"2026-09-14T00:05:
+          23Z","close_reason":"Both scaffolds build and test green with a
+          ll pinned versions","dependencies":[{"issue_id":"hive-dgq.2","d
+          epends_on_id":"hive-dgq","type":"parent-child","created_at":"20
+          26-09-13T18:55:24Z","created_by":"Adam \u003cla-xirsoi\u003e Ch
+          evalier","metadata":"{}"},{"issue_id":"hive-dgq.2","depends_on_
+          id":"hive-dgq.1","type":"blocks","created_at":"2026-09-13T18:55
+          :25Z","created_by":"Adam \u003cla-xirsoi\u003e Chevalier","meta
+          data":"{}"}],"dependency_count":1,"dependent_count":3,"comment_
+          count":0}
+      13  {"_type":"issue","id":"hive-4wc","title":"EPIC: Domain layer (h
+          ive/domain)","description":"Pure Kotlin domain: entities, value
+           objects, status transition rules, authorization policy, reposi
+          tory port interfaces, and domain exceptions. No Spring, no JPA,
+           no framework imports in this package.","acceptance_criteria":"
+          All spec rules encoded as domain code with unit tests; zero fra
+          mework dependencies in hive/domain; \u003e=70% line coverage on
+           the package.","status":"closed","priority":0,"issue_type":"epi
+          c","owner":"chevalierAdam2@gmail.com","created_at":"2026-09-13T
+          23:55:01Z","created_by":"Adam \u003cla-xirsoi\u003e Chevalier",
+          "updated_at":"2026-09-15T00:41:02Z","closed_at":"2026-09-15T00:
+          41:02Z","close_reason":"All child issues complete","dependency_
+          count":0,"dependent_count":0,"comment_count":0}
+      14  {"_type":"issue","id":"hive-dgq","title":"EPIC: Repository scaf
+          folding and build toolchain","description":"Establish the monor
+          epo layout, Gradle/Kotlin backend build, Angular frontend works
+          pace, and the shared contract documents that every downstream a
+          gent codes against. Nothing else can start until builds are gre
+          en and the API contract is frozen.","acceptance_criteria":"Back
+          end 'gradlew build' succeeds; frontend 'npm test' succeeds head
+          less; docs/api-contract.md and docs/authorization.md exist and 
+          are reviewed.","status":"closed","priority":0,"issue_type":"epi
+          c","owner":"chevalierAdam2@gmail.com","created_at":"2026-09-13T
+          23:55:01Z","created_by":"Adam \u003cla-xirsoi\u003e Chevalier",
+          "updated_at":"2026-09-15T00:41:02Z","closed_at":"2026-09-15T00:
+          41:02Z","close_reason":"All child issues complete","dependency_
+          count":0,"dependent_count":0,"comment_count":0}
+      15 -{"_type":"issue","id":"hive-m50","title":"Sign-in fails with 'I
+         -nvalid scopes': SPA requests offline_access, which the realm do
+         -es not grant","description":"Clicking 'Sign in with your organi
+         -zation account' at https://localhost:8444 returns error=invalid
+         -_scope, 'Invalid scopes: openid profile email offline_access', 
+         -from the authorize endpoint before any login form is shown. The
+         - SPA requests 'openid profile email offline_access' (frontend/s
+         -rc/environments/environment.ts and environment.development.ts),
+         - but the hive-web client in containers/idp/realm-hive.json decl
+         -ares only defaultClientScopes and no optionalClientScopes, so o
+         -ffline_access is not assignable and Keycloak rejects the whole 
+         -request. Verified live: the same authorize URL without offline_
+         -access passes scope validation.","acceptance_criteria":"A brows
+         -er sign-in at https://localhost:8444 completes and lands on the
+         - dashboard; the token response still carries a refresh_token so
+         - silent refresh keeps working.","status":"open","priority":1,"i
+         -ssue_type":"bug","owner":"chevalierAdam2@gmail.com","created_at
+         -":"2026-09-18T16:35:26Z","created_by":"Adam \u003cla-xirsoi\u00
+         -3e Chevalier","updated_at":"2026-09-18T16:35:26Z","dependency_c
+         -ount":0,"dependent_count":0,"comment_count":0}                 
+      15 +{"_type":"issue","id":"hive-m50","title":"Sign-in fails with 'I
+         +nvalid scopes': SPA requests offline_access, which the realm do
+         +es not grant","description":"Clicking 'Sign in with your organi
+         +zation account' at https://localhost:8444 returns error=invalid
+         +_scope, 'Invalid scopes: openid profile email offline_access', 
+         +from the authorize endpoint before any login form is shown. The
+         + SPA requests 'openid profile email offline_access' (frontend/s
+         +rc/environments/environment.ts and environment.development.ts),
+         + but the hive-web client in containers/idp/realm-hive.json decl
+         +ares only defaultClientScopes and no optionalClientScopes, so o
+         +ffline_access is not assignable and Keycloak rejects the whole 
+         +request. Verified live: the same authorize URL without offline_
+         +access passes scope validation.","acceptance_criteria":"A brows
+         +er sign-in at https://localhost:8444 completes and lands on the
+         + dashboard; the token response still carries a refresh_token so
+         + silent refresh keeps working.","status":"closed","priority":1,
+         +"issue_type":"bug","assignee":"Adam \u003cla-xirsoi\u003e Cheva
+         +lier","owner":"chevalierAdam2@gmail.com","created_at":"2026-09-
+         +18T16:35:26Z","created_by":"Adam \u003cla-xirsoi\u003e Chevalie
+         +r","updated_at":"2026-09-18T16:39:02Z","started_at":"2026-09-18
+         +T16:35:38Z","closed_at":"2026-09-18T16:39:02Z","close_reason":"
+         +Removed offline_access from the requested scope in both environ
+         +ment files. Keycloak issues a refresh token from the plain auth
+         +orization-code flow anyway (verified: refresh_expires_in 1800),
+         + so silent refresh is unaffected, and an offline token is point
+         +less against a token set held in sessionStorage. Verified end t
+         +o end against the running stack: authorize -\u003e login as ada
+         + -\u003e code exchange -\u003e refresh_token present -\u003e GE
+         +T /api/v1/users/me returns 200. Not browser-verified; the Chrom
+         +e extension was not connected.","dependency_count":0,"dependent
+         +_count":0,"comment_count":0}                                   
+      16  {"_type":"issue","id":"hive-scn","title":"SPA responses carry n
+          o security headers: add_header in a location discards the inher
+          ited set","description":"nginx add_header replaces rather than 
+          extends the inherited set. location = /index.html and the asset
+           regex location each declare add_header Cache-Control, which si
+          lently drops every header the server block sets. Verified again
+          st the running stack: GET https://localhost:8444/ returns no St
+          rict-Transport-Security, Content-Security-Policy, X-Frame-Optio
+          ns, X-Content-Type-Options, Referrer-Policy or Permissions-Poli
+          cy; the same is true of fingerprinted assets. Only /idp, which 
+          declares its own, is observably covered -- so the CSP that pins
+           the app to a single origin is not being sent on the document i
+          t is meant to protect. Fix by repeating the header set in each 
+          location that declares one, or by hoisting cache control out of
+           add_header (expires / map).","acceptance_criteria":"curl -k -D
+           - https://localhost:8444/ shows the full security header set, 
+          and so does a fingerprinted asset; no location silently drops i
+          t.","status":"closed","priority":1,"issue_type":"bug","assignee
+          ":"Adam \u003cla-xirsoi\u003e Chevalier","owner":"chevalierAdam
+          2@gmail.com","created_at":"2026-09-18T14:30:46Z","created_by":"
+          Adam \u003cla-xirsoi\u003e Chevalier","updated_at":"2026-09-18T
+          15:46:05Z","started_at":"2026-09-18T15:39:16Z","closed_at":"202
+          6-09-18T15:46:05Z","close_reason":"Hoisted the header set into 
+          containers/frontend/security-headers.conf, included by the serv
+          er block and by every location that declares an add_header of i
+          ts own; /healthz uses default_type instead. Verified on the run
+          ning stack: /, /index.html, a deep link, a fingerprinted asset,
+           /favicon.ico and /healthz all return all six headers. /idp kee
+          ps its own set and now sends HSTS once (proxy_hide_header drops
+           Keycloak's shorter one).","dependency_count":0,"dependent_coun
+          t":0,"comment_count":0}
+      17  {"_type":"issue","id":"hive-0uz","title":"Compose OIDC issuer i
+          s unreachable from the browser and mismatches token iss","descr
+          iption":"OAUTH_ISSUER_URI in .env.example is https://idp:8443/r
+          ealms/hive -- a container-internal name the browser cannot reso
+          lve. environment.ts still points at the placeholder https://id.
+          hive.example.com/realms/hive, and nginx CSP connect-src allows 
+          https://hive-backend:8443 / https://hive-idp:8443, neither of w
+          hich is browser-reachable. The published IdP is https://localho
+          st:8543. Unless KC_HOSTNAME and HIVE_JWT_ISSUER_URI agree on on
+          e URI that both the browser and the backend container can use, 
+          tokens minted for the SPA will fail issuer validation at the ba
+          ckend.","acceptance_criteria":"A login from https://localhost:8
+          444 yields a token the backend accepts; issuer string is identi
+          cal in Keycloak, the SPA and HIVE_JWT_ISSUER_URI.","status":"cl
+          osed","priority":1,"issue_type":"bug","assignee":"Adam \u003cla
+          -xirsoi\u003e Chevalier","owner":"chevalierAdam2@gmail.com","cr
+          eated_at":"2026-09-16T03:40:05Z","created_by":"Adam \u003cla-xi
+          rsoi\u003e Chevalier","updated_at":"2026-09-16T04:12:35Z","star
+          ted_at":"2026-09-16T03:58:14Z","closed_at":"2026-09-16T04:12:35
+          Z","close_reason":"Verified end to end on a cold stack: the gat
+          eway proxies /api/v1 to the backend (200 with a token, 401 with
+          out, never index.html), and a real authorization-code + PKCE lo
+          gin through /idp yields iss=https://localhost:8444/idp/realms/h
+          ive, which the backend accepts.","dependency_count":0,"dependen
+          t_count":0,"comment_count":0}
+      18  {"_type":"issue","id":"hive-pxy","title":"Frontend container ha
+          s no /api proxy: SPA API calls return index.html","description"
+          :"containers/frontend/nginx.conf has no proxy_pass for /api. en
+          vironment.ts sets apiBaseUrl='/api/v1' (same-origin), so every 
+          API call falls through to the SPA fallback. Verified against th
+          e running stack: curl -k https://localhost:8444/api/v1/tasks re
+          turns 200 text/html (index.html) instead of reaching hive-backe
+          nd:8443.","acceptance_criteria":"A request to https://localhost
+          :8444/api/v1/tasks is proxied to the backend and returns the ba
+          ckend's status (401 unauthenticated), not index.html.","status"
+          :"closed","priority":1,"issue_type":"bug","assignee":"Adam \u00
+          3cla-xirsoi\u003e Chevalier","owner":"chevalierAdam2@gmail.com"
+          ,"created_at":"2026-09-16T03:40:04Z","created_by":"Adam \u003cl
+          a-xirsoi\u003e Chevalier","updated_at":"2026-09-16T04:12:35Z","
+          started_at":"2026-09-16T03:58:14Z","closed_at":"2026-09-16T04:1
+          2:35Z","close_reason":"Verified end to end on a cold stack: the
+           gateway proxies /api/v1 to the backend (200 with a token, 401 
+          without, never index.html), and a real authorization-code + PKC
+          E login through /idp yields iss=https://localhost:8444/idp/real
+          ms/hive, which the backend accepts.","dependency_count":0,"depe
+          ndent_count":0,"comment_count":0}
+  ⎿  (timeout 3m)
+
+● Fixed and deployed — reload https://localhost:8444 and sign in; it should work
+  now. (Hard-reload if the old bundle is cached.)
+
+  What went wrong
+
+  Your click never reached a login form. The authorize endpoint rejected the
+  request and bounced straight back to the callback:
+
+  Location: .../auth/callback?error=invalid_scope
+
+  &error_description=Invalid+scopes%3A+openid+profile+email+offline_access
+
+  The SPA asked for openid profile email offline_access. The hive-web client in
+  the realm declares only defaultClientScopes and no optional ones — I confirmed
+  against the live Keycloak that its optional scope list is genuinely empty, so
+  offline_access isn't assignable. An issuer refuses the whole request over one
+  unknown scope rather than quietly dropping it, which is why you got an error
+  page instead of a degraded login.
+
+  The fix, and why this one rather than the other
+
+  Two options: grant offline_access on the client, or stop asking for it. I
+  removed it — the code comment in app-config.ts claiming offline_access "is
+  what produces a refresh token" was simply wrong, and I checked rather than
+  assumed. A full PKCE flow with openid profile email returns:
+
+  granted scope : openid profile email
+  refresh_token : yes          (refresh_expires_in: 1800s)
+
+  Keycloak issues a refresh token from the ordinary code flow regardless;
+  offline_access only asks that it outlive the SSO session. That's worthless
+  here, because the token set lives in sessionStorage (browser.ts:73) and dies
+  with the tab — so it would have been a longer-lived credential in a public
+  browser client for no benefit.
+
+  Changed: both environment files, the misleading doc comment, and a stale
+  comment in auth-service.ts. The test at app-config.spec.ts asserted 
+  offline_access was present — it encoded the same wrong belief, so it now
+  asserts the absence with the reason. 471/471 frontend tests pass; image
+  rebuilt and the service recreated.
+
+  Verified end to end: authorize → login as ada → code exchange → GET 
+  /api/v1/users/me → 200 {"id":1,"name":"Ada Lovelace",...}. Tracked as
+  hive-m50, closed, pushed as 277112b.
+
+  Two corrections to what I told you earlier
+
+  - The database is not empty. I inferred that from V1__baseline.sql being the
+    only migration, but /teams/mine returns an existing team, Platform, with Ada
+    as lead. There's prior data in the volume.
+  - I said the sign-in screens were untested. That was accurate, and this is
+    exactly the §4.5 gap biting — the first person to actually click the button
+    found a bug that the curl-driven verification of 2026-09-15 structurally
+    could not, because that flow hand-built the authorize URL instead of using
+    the one the bundle ships.
+
+  I could not confirm this in a real browser: the Claude Chrome extension isn't
+  connected, so my verification is protocol-level. If the button still
+  misbehaves, tell me what it says.
+
+  Worth noting for later — say the word and I'll do either: this bug belongs in
+  verification.md §7.2 as item 7 (it's the sharpest example yet of the
+  untested-screens gap), and the realm JSON lists openid in defaultClientScopes,
+  which Keycloak silently discards since no client scope by that name exists.
+  The latter is inert but misleading, and editing the realm file only takes
+  effect on a fresh IdP volume.
+
+✻ Brewed for 6m 55s · done 11:39 AM
+
+※ recap: Goal is getting Hive usable: sign-in was broken by a bad OAuth scope, now fixed, rebuilt, and pushed. Next, reload https://localhost:8444 (hard-refresh if cached) and sign in as ada with password hive.
+
+❯ update verification and fix the realm json                                    
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● No named volume for the IdP — start-dev keeps its H2 in the container layer,
+  so recreating it re-runs the import. That makes this verifiable. Let me look
+  at the client block.
+
+  Searched for 1 pattern (ctrl+o to expand)
+
+● Bash(python - <<'PY'
+      import io…)
+  ⎿  ok
+     valid JSON
+  ⎿  Updated containers\idp\realm-hive.json (+3 -1)
+      27        ],
+      28        "webOrigins": ["https://localhost:8444", "https://localho
+          st:4200"],
+      29        "defaultClientScopes": [
+      30 -        "openid",                                              
+      30 +        "basic",                                               
+      31 +        "acr",                                                 
+      32          "profile",
+      33          "email",
+      34          "web-origins",
+      35          "roles"
+      36        ],
+      37 +      "optionalClientScopes": ["address", "phone", "offline_acc
+         +ess", "microprofile-jwt"],                                     
+      38        "protocolMappers": [
+      39          {
+      40            "name": "audience-hive-api",
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Confirmed safe to re-import: User has no subject field, matching is by email
+  only (UserService.kt:47), and app data is on a separate named volume.
+  Recreating the IdP:
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● The realm imported cleanly. Now verifying the scopes actually landed, and that
+  sub is back:
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● sub is back and offline_access now validates. Critical check — the fresh IdP
+  has new signing keys, so does the backend still accept tokens?
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Backend picked up the new keys and Ada still resolves to user 1 by email. Now
+  the verification report:
+
+● Bash(python - <<'PY'
+      import io…)
+  ⎿  ok
+  ⎿  Updated docs\verification.md (+57 -1)
+      220  | Plaintext redirects to the right place | `http://localhost:8
+           080/projects/7?tab=tasks` answers `301` to `https://localhost:
+           8444/projects/7?tab=tasks`, path and query intact; the fronten
+           d logs `hive: plaintext redirects to https://localhost:8444` a
+           t startup. `/healthz` still answers `200` over plaintext, by d
+           esign, so probes need no certificate |
+      221  | A real Keycloak token is accepted | the full authorization-c
+           ode + PKCE flow was driven through the gateway as user `ada`; 
+           the resulting token carries `iss: https://localhost:8444/idp/r
+           ealms/hive` and `GET /api/v1/projects/mine` with it returns `2
+           00 []`, where the same request without it returns `401` — reti
+           ring 4.3 |
+      222  
+      223 -### 7.2 What it cost — six bugs no parser could have found    
+      223 +### 7.2 What it cost — seven bugs no parser could have found  
+      224  
+      225  1. **The IdP healthcheck could never pass.** Setting `KC_HTTPS
+           _*` makes
+      226     Keycloak's management interface serve HTTPS as well, and th
+           e image ships no
+     ...
+      333     directive fifty lines below does to them. It is only observ
+           able in a
+      334     response. Tracked and closed as `hive-scn`.
+      335  
+      336 +7. **Sign-in was broken outright, and every earlier verificati
+          +on had missed                                                 
+      337 +   it.** Clicking *Sign in with your organization account* on 
+          +the running stack                                             
+      338 +   produced `Sign-in failed — Invalid scopes: openid profile e
+          +mail                                                          
+      339 +   offline_access`. Not a degraded login: the authorization en
+          +dpoint answered                                               
+      340 +   `302` back to the callback with `error=invalid_scope` **bef
+          +ore drawing a                                                 
+      341 +   login form**, so no credential was ever collected.         
+      342 +                                                              
+      343 +   *The cause is an unasked-for scope meeting a client that ca
+          +nnot grant it.*                                               
+      344 +   The SPA requested `openid profile email offline_access`; th
+          +e realm's                                                     
+      345 +   `hive-web` client declared `defaultClientScopes` and **no**
+      346 +   `optionalClientScopes`, so `offline_access` was not assigna
+          +ble to it. An                                                 
+      347 +   issuer rejects the entire authorization request over one un
+          +known scope                                                   
+      348 +   rather than dropping it and continuing — the failure is tot
+          +al and arrives                                                
+      349 +   before authentication.                                     
+      350 +                                                              
+      351 +   Underneath it sat a wrong belief, written into a comment an
+          +d *asserted by a                                              
+      352 +   test*: that `offline_access` is what produces the refresh t
+          +oken the silent                                               
+      353 +   refresh needs. It is not. The authorization-code flow issue
+          +s a refresh token                                             
+      354 +   regardless — measured here at `refresh_expires_in: 1800` wi
+          +th                                                            
+      355 +   `offline_access` absent — and `offline_access` only asks th
+          +at the token                                                  
+      356 +   outlive the SSO session. That is worthless to this applicat
+          +ion, whose token                                              
+      357 +   set lives in `sessionStorage` and dies with the tab, and it
+          + is a                                                         
+      358 +   longer-lived credential in a public browser client for no g
+          +ain. So the scope                                             
+      359 +   was dropped rather than granted, and `app-config.spec.ts` n
+          +ow asserts its                                                
+      360 +   **absence**, with the reason.                              
+      361 +                                                              
+      362 +   *The realm file was wrong in two further ways, both invisib
+          +le until                                                      
+      363 +   queried.* It listed `openid` among `defaultClientScopes`, b
+          +ut Keycloak has                                               
+      364 +   no client scope by that name — `openid` is an OIDC request 
+          +value — so the                                                
+     … 30 more lines (ctrl+o to expand)
+
+● Bash(python - <<'PY'
+      import io…)
+  ⎿  ok
+     223:### 7.2 What it cost — seven bugs no parser could have found
+     394:- **4.5 stands, and item 7 is what it costs.** There is still no
+  ⎿  Updated docs\verification.md (+7 -3)
+      391  
+      392  ### 7.3 What remains unproven
+      393  
+      394 -- **4.5 stands.** There is still no browser-driven end-to-end 
+          -test. The PKCE                                                
+      395 -  flow above was driven with `curl`, which proves the protocol
+          - and the token,                                               
+      396 -  not the application's screens.                              
+      394 +- **4.5 stands, and item 7 is what it costs.** There is still 
+          +no                                                            
+      395 +  browser-driven end-to-end test. The PKCE flow above was driv
+          +en with `curl`,                                               
+      396 +  which proves the protocol and the token, not the application
+          +'s screens — and                                              
+      397 +  item 7 is a sign-in that was broken for everyone while that 
+          +flow passed,                                                  
+      398 +  found by a person clicking the button. The gap is no longer 
+          +hypothetical.                                                 
+      399 +  Until a test drives the SPA's own request, every claim in th
+          +is report about                                               
+      400 +  authentication is a claim about the protocol only.          
+      401  - **SQL Server dialect differences.** The migration runs and t
+           he mappings
+      402    validate, but the test suite still executes against H2; pagi
+           ng syntax,
+      403    collation and `DATETIME2` rounding remain exercised only in 
+           compatibility
+
+● Bash(bd create --title="No browser-driven end-to-end test: the SPA's own auth
+      request is never exercised" --type=task --priority=2
+      --description="hive-m50 was a tota…)
+  ⎿    Status: open
+
+     Found 1 issues matching 'browser-driven':
+     … +2 lines (ctrl+o to expand)
+  ⎿  Updated .beads\issues.jsonl (+1 -0)
+      45  {"_type":"issue","id":"hive-r0f","title":"EPIC: Adapter In - RE
+          ST and security (hive/adapter/in)","description":"REST controll
+          ers, DTOs, global error handling per the spec status-code table
+          , OAuth2/JWT resource server security, HTTPS enforcement, and O
+          penAPI documentation.","acceptance_criteria":"All endpoints in 
+          the contract implemented and tested via MockMvc; error table ho
+          nored exactly; JWT auth enforced on every non-public route.","s
+          tatus":"closed","priority":1,"issue_type":"epic","owner":"cheva
+          lierAdam2@gmail.com","created_at":"2026-09-13T23:55:02Z","creat
+          ed_by":"Adam \u003cla-xirsoi\u003e Chevalier","updated_at":"202
+          6-09-15T00:41:28Z","closed_at":"2026-09-15T00:41:28Z","close_re
+          ason":"All child issues resolved","dependency_count":0,"depende
+          nt_count":0,"comment_count":0}
+      46  {"_type":"issue","id":"hive-y13","title":"EPIC: Angular fronten
+          d","description":"Angular 22 SPA implementing the three roles, 
+          styled per BRANDING_GUIDE.md, authenticating via OAuth/PKCE and
+           calling the REST API with JWT bearer tokens.","acceptance_crit
+          eria":"All role workflows usable end to end; Jasmine/Karma suit
+          e green headless with \u003e=70% line coverage.","status":"clos
+          ed","priority":1,"issue_type":"epic","owner":"chevalierAdam2@gm
+          ail.com","created_at":"2026-09-13T23:55:02Z","created_by":"Adam
+           \u003cla-xirsoi\u003e Chevalier","updated_at":"2026-09-15T00:4
+          1:02Z","closed_at":"2026-09-15T00:41:02Z","close_reason":"All c
+          hild issues complete","dependency_count":0,"dependent_count":0,
+          "comment_count":0}
+      47  {"_type":"issue","id":"hive-8c1","title":"EPIC: Application lay
+          er (hive/application)","description":"Use case interfaces and s
+          ervice implementations orchestrating domain objects and reposit
+          ory ports. Enforces authorization at the use case boundary.","a
+          cceptance_criteria":"Every REST operation in the contract is ba
+          cked by a use case; services unit tested with Mockk; \u003e=70%
+           line coverage.","status":"closed","priority":1,"issue_type":"e
+          pic","owner":"chevalierAdam2@gmail.com","created_at":"2026-09-1
+          3T23:55:01Z","created_by":"Adam \u003cla-xirsoi\u003e Chevalier
+          ","updated_at":"2026-09-15T00:41:02Z","closed_at":"2026-09-15T0
+          0:41:02Z","close_reason":"All child issues complete","dependenc
+          y_count":0,"dependent_count":0,"comment_count":0}
+      48 +{"_type":"issue","id":"hive-nfv","title":"No browser-driven end
+         +-to-end test: the SPA's own auth request is never exercised","d
+         +escription":"hive-m50 was a total sign-in failure that the curl
+         +-driven PKCE verification passed straight through, because that
+         + flow rebuilds the authorization URL by hand and never uses the
+         + scope string the shipped bundle sends. Section 4.5 of docs/ver
+         +ification.md has flagged the missing browser-level test since b
+         +efore the stack ever ran; item 7 of 7.2 is the first bug it dem
+         +onstrably cost. Add a test that drives the real SPA through a r
+         +eal sign-in against the compose stack, so the request the appli
+         +cation actually issues is the one under test.","acceptance_crit
+         +eria":"A test navigates the built SPA to the login screen, comp
+         +letes an authorization-code + PKCE sign-in against the compose 
+         +Keycloak, and asserts an authenticated screen renders; it fails
+         + if the requested scope is one the realm does not grant.","stat
+         +us":"open","priority":2,"issue_type":"task","owner":"chevalierA
+         +dam2@gmail.com","created_at":"2026-09-18T16:51:56Z","created_by
+         +":"Adam \u003cla-xirsoi\u003e Chevalier","updated_at":"2026-09-
+         +18T16:51:56Z","dependency_count":0,"dependent_count":0,"comment
+         +_count":0}                                                     
+      49  {"_type":"issue","id":"hive-3p8","title":"Add server-computed p
+          ermissions to TeamDetail and ProjectSummary","description":"Tas
+          kDetail carries a TaskPermissions block so every task control i
+          s driven by the server. TeamDetail and ProjectSummary have no e
+          quivalent, so the UI gates rename, member management, lead tran
+          sfer, ownership transfer and task-create by comparing the actin
+          g user's id against the teamLead.id / projectOwner.id the serve
+          r returned. That is a comparison against server data rather tha
+          n re-derived policy, and every operation is still enforced serv
+          er-side, so the worst case is a control that appears and then 4
+          03s. Adding TeamPermissions and ProjectPermissions blocks, comp
+          uted by the same AuthorizationPolicy that enforces, would close
+           the gap properly and make the UI consistent with how tasks alr
+          eady work.","acceptance_criteria":"TeamDetail and ProjectSummar
+          y carry a permissions block computed by the domain policy; the 
+          frontend gates every team and project control on it; tests asse
+          rt controls are absent when forbidden.","status":"open","priori
+          ty":2,"issue_type":"feature","owner":"chevalierAdam2@gmail.com"
+          ,"created_at":"2026-09-15T00:40:32Z","created_by":"Adam \u003cl
+          a-xirsoi\u003e Chevalier","updated_at":"2026-09-15T00:40:32Z","
+          dependency_count":0,"dependent_count":0,"comment_count":0}
+      50  {"_type":"issue","id":"hive-5dg","title":"Reformat core/** with
+           the pinned Prettier version","description":"npm run lint fails
+           on 15 pre-existing files under frontend/src/app/core (api-erro
+          r.spec.ts, task-api.ts, user-api.ts, auth-service.ts, dev-auth-
+          service.ts and others). They were committed formatted by an old
+          er Prettier; prettier 3.8.1 now wants different output. The fea
+          ture work left them untouched on purpose (core/** was out of sc
+          ope). Fix: run npm run format and commit the whitespace-only ch
+          urn in core/**.","status":"closed","priority":2,"issue_type":"c
+          hore","owner":"chevalierAdam2@gmail.com","created_at":"2026-09-
+          14T21:50:42Z","created_by":"Adam \u003cla-xirsoi\u003e Chevalie
+          r","updated_at":"2026-09-15T00:33:52Z","closed_at":"2026-09-15T
+          00:33:52Z","close_reason":"prettier clean across the whole fron
+          tend; lint exits 0","dependency_count":0,"dependent_count":0,"c
+          omment_count":0}
+      51  {"_type":"issue","id":"hive-2on","title":"Status filter on GET 
+          /projects/{id}/tasks skews page totals","description":"ProjectU
+          seCases.listTasks applies the optional ?status= filter to the p
+          age returned by TaskRepository.findVisibleInProject, because th
+          at port has no status predicate. The filter can only remove row
+          s the caller was already entitled to see, so visibility is neve
+          r widened, but a filtered page reports the unfiltered totalElem
+          ents/totalPages and can return fewer than size rows. Fix by add
+          ing a status predicate to the outbound port (a domain change) a
+          nd pushing the filter into SQL, or by documenting the behaviour
+           in the API contract.","status":"closed","priority":2,"issue_ty
+          pe":"bug","owner":"chevalierAdam2@gmail.com","created_at":"2026
+          -09-14T14:36:34Z","created_by":"Adam \u003cla-xirsoi\u003e Chev
+          alier","updated_at":"2026-09-15T00:38:18Z","closed_at":"2026-09
+          -15T00:38:18Z","close_reason":"Status predicate pushed into JPQ
+          L; COUNT and SELECT now share it; 4 integration tests incl. int
+          ersection-with-visibility","dependency_count":0,"dependent_coun
+          t":0,"comment_count":0}
+
+● Bash(python - <<'PY'
+      import io…)
+  ⎿  ok
+
+     7. **Sign-in was broken outright, and every earlier verification had m
+     … +15 lines (ctrl+o to expand)
+  ⎿  Updated docs\verification.md (+1 -1)
+      397    item 7 is a sign-in that was broken for everyone while that 
+           flow passed,
+      398    found by a person clicking the button. The gap is no longer 
+           hypothetical.
+      399    Until a test drives the SPA's own request, every claim in th
+           is report about
+      400 -  authentication is a claim about the protocol only.          
+      400 +  authentication is a claim about the protocol only. Tracked a
+          +s `hive-nfv`.                                                 
+      401  - **SQL Server dialect differences.** The migration runs and t
+           he mappings
+      402    validate, but the test suite still executes against H2; pagi
+           ng syntax,
+      403    collation and `DATETIME2` rounding remain exercised only in 
+           compatibility
+
+● Running the full test suites before committing, since the realm change touches
+  auth:
+
+  Pushed to claude/opus5-with-beads, ran 3 shell commands (ctrl+o to expand)
+
+● Both done and pushed (cfb8e70).
+
+  The realm fix turned up a second defect
+
+  I expected to remove one inert line. openid was indeed discarded silently at
+  import — Keycloak has no client scope by that name; it's an OIDC request
+  value. But spelling out defaultClientScopes by hand had also dropped basic,
+  and basic is what puts sub in a token.
+
+  Every access token this realm minted had no subject claim. Nothing failed,
+  because CurrentUser.kt:98 does subject = jwt.subject ?: email — a fallback
+  written so a token without a usable subject still resolves. So a
+  non-conformant token was being carried by a fallback meant for something else.
+  The client now holds basic and acr among its defaults plus the standard
+  optional set — what Keycloak would have created had the list never been
+  overridden.
+
+  Verified by recreating the IdP from the corrected file rather than trusting
+  the JSON. The IdP has no named volume, so start-dev's H2 lives in the
+  container layer and a recreate genuinely re-runs the import:
+
+  Realm 'hive' imported / Import finished successfully
+  default : acr basic email profile roles web-origins
+  optional: address microprofile-jwt offline_access phone
+  access sub : c48b899a-4dcf-4e84-ad68-43640e54c108   ← was absent
+  access aud : hive-api
+  GET /api/v1/users/me → 200
+
+  offline_access now fails only on my deliberately bogus code_challenge, not on
+  scope — so it's grantable if ever wanted, though the SPA no longer asks.
+
+  That rebuild also incidentally proved a design claim: every realm user was
+  minted with a new subject UUID, and ada still resolves to Hive user 1, because
+  UserService matches on email and the domain stores no subject.
+
+  verification.md
+
+  §7.2 is now seven bugs, with item 7 covering the sign-in failure: the
+  invalid_scope bounce before any login form, the wrong belief about
+  offline_access that a test was asserting, both realm defects, and the
+  re-verification.
+
+  Its closing point is the one that matters — this is the first bug found by
+  using the application rather than testing it. The curl PKCE run recorded in
+  §7.1 passed while sign-in was broken for everyone, because it hand-built its
+  authorization URL and so never sent the scope string the bundle ships. A
+  verification that reconstructs the request instead of making the application
+  issue it proves the protocol and nothing about the product.
+
+  I also amended the 4.5 stands bullet in §7.3 to say the gap is no longer
+  hypothetical, and filed hive-nfv (P2) to add a test that drives the real SPA
+  through a real sign-in.
+
+  Backend build succeeded; frontend was 471/471 earlier. The two pre-existing
+  dirty files (generate-certs.sh, angular.json) are still untouched.
+
+✻ Worked for 3m 28s · done 11:52 AM
+
+※ recap: Goal was getting Hive usable: sign-in is fixed, the realm and verification report are updated, and everything is pushed. Next, reload https://localhost:8444 and sign in as ada with password hive to confirm it works in your browser.

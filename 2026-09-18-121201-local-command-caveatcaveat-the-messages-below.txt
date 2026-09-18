@@ -1,0 +1,1037 @@
+ ▐▛███▛█   Claude Code v2.1.272
+▝▜██████▀  Opus 5 · Claude Pro
+  ▝▝ ▝▝    C:\src\hive
+
+
+❯ /clear                                                                        
+
+❯ claim and complete hive-nfv                                                   
+
+● I'll start by looking at the issue.
+
+  Searched for 1 pattern, read 1 file, listed 1 directory, ran 8 shell commands (ctrl+o to expand)
+
+● Bash(npm install -D @playwright/test 2>&1 | tail -15)
+  ⎿  added 3 packages, and audited 488 packages in 7s
+
+     115 packages are looking for funding
+     … +14 lines (ctrl+o to expand)
+  ⎿  Updated frontend\package-lock.json (+46 -0)
+      21          "@angular/build": "^22.1.8",
+      22          "@angular/cli": "^22.1.8",
+      23          "@angular/compiler-cli": "^22.1.0",
+      24 +        "@playwright/test": "^1.63.0",                         
+      25          "@types/jasmine": "~6.0.0",
+      26          "istanbul-lib-instrument": "^6.0.3",
+      27          "jasmine-core": "~6.3.0",
+     ...
+      3282        "license": "MIT",
+      3283        "optional": true
+      3284      },
+      3285 +    "node_modules/@playwright/test": {                       
+      3286 +      "version": "1.63.0",                                   
+      3287 +      "resolved": "https://registry.npmjs.org/@playwright/tes
+           +t/-/test-1.63.0.tgz",                                        
+      3288 +      "integrity": "sha512-oxMK4vllB9RK5NQ2l1pq1IfOf2AvnEuj/v
+           +YGDj0H2nMtmtZpKtCwt/l00GEO6xjGfpBNAvjovvYdCm50dRQkpQ==",     
+      3289 +      "dev": true,                                           
+      3290 +      "license": "Apache-2.0",                               
+      3291 +      "dependencies": {                                      
+      3292 +        "playwright": "1.63.0"                               
+      3293 +      },                                                     
+      3294 +      "bin": {                                               
+      3295 +        "playwright": "cli.js"                               
+      3296 +      },                                                     
+      3297 +      "engines": {                                           
+      3298 +        "node": ">=20"                                       
+      3299 +      }                                                      
+      3300 +    },                                                       
+      3301      "node_modules/@rolldown/binding-android-arm64": {
+      3302        "version": "1.2.0",
+      3303        "resolved": "https://registry.npmjs.org/@rolldown/bindi
+            ng-android-arm64/-/binding-android-arm64-1.2.0.tgz",
+     ...
+      7798          "node": ">=16.20.0"
+      7799        }
+      7800      },
+      7801 +    "node_modules/playwright": {                             
+      7802 +      "version": "1.63.0",                                   
+      7803 +      "resolved": "https://registry.npmjs.org/playwright/-/pl
+           +aywright-1.63.0.tgz",                                        
+      7804 +      "integrity": "sha512-+7ziBLidS4NaNCdt57SUDT+wYmmd5fmiQe
+           +jUic/kb+YsYSCPyOOE9sebzMjNmQrsnNpDJqd4WHvV/8lfKfUDUg==",     
+      7805 +      "dev": true,                                           
+      7806 +      "license": "Apache-2.0",                               
+      7807 +      "dependencies": {                                      
+      7808 +        "playwright-core": "1.63.0"                          
+     … 24 more lines (ctrl+o to expand)
+  ⎿  Updated frontend\package.json (+1 -0)
+      27      "@angular/build": "^22.1.8",
+      28      "@angular/cli": "^22.1.8",
+      29      "@angular/compiler-cli": "^22.1.0",
+      30 +    "@playwright/test": "^1.63.0",                             
+      31      "@types/jasmine": "~6.0.0",
+      32      "istanbul-lib-instrument": "^6.0.3",
+      33      "jasmine-core": "~6.3.0",
+  ⎿  (timeout 5m)
+
+  Ran 5 shell commands (ctrl+o to expand)
+
+● Bash(npm install -D @types/node 2>&1 | tail -3)
+  ⎿  npm warn allow-scripts   msgpackr-extract@3.0.4 (install: node-gyp reb
+     uild)
+     npm warn allow-scripts
+     … +2 lines (ctrl+o to expand)
+  ⎿  Updated frontend\package-lock.json (+4 -3)
+      23          "@angular/compiler-cli": "^22.1.0",
+      24          "@playwright/test": "^1.63.0",
+      25          "@types/jasmine": "~6.0.0",
+      26 +        "@types/node": "^26.6.1",                              
+      27          "istanbul-lib-instrument": "^6.0.3",
+      28          "jasmine-core": "~6.3.0",
+      29          "karma": "~6.4.0",
+     ...
+      3655        "license": "MIT"
+      3656      },
+      3657      "node_modules/@types/node": {
+      3657 -      "version": "26.5.1",                                   
+      3658 -      "resolved": "https://registry.npmjs.org/@types/node/-/n
+           -ode-26.5.1.tgz",                                             
+      3659 -      "integrity": "sha512-CzNm2FezW4VR/LjG6yUdiEgLE/rAQ9Slj5
+           -gCu/C2VrdcW7I0ahNZ8DRbHT7zOZ6r3ONgd/bsQIeSaoDGrd1C6g==",     
+      3658 +      "version": "26.6.1",                                   
+      3659 +      "resolved": "https://registry.npmjs.org/@types/node/-/n
+           +ode-26.6.1.tgz",                                             
+      3660 +      "integrity": "sha512-VqGJBMCtdhqkBUCcBLvywI0NJ+KLuVzgNn
+           +lBUNFOQjqVxzo2lxLUNg1DSey8+u2u6ktswSAxg+s68QLzWHNOuA==",     
+      3661        "dev": true,
+      3662        "license": "MIT",
+      3663        "dependencies": {
+  ⎿  Updated frontend\package.json (+1 -0)
+      29      "@angular/compiler-cli": "^22.1.0",
+      30      "@playwright/test": "^1.63.0",
+      31      "@types/jasmine": "~6.0.0",
+      32 +    "@types/node": "^26.6.1",                                  
+      33      "istanbul-lib-instrument": "^6.0.3",
+      34      "jasmine-core": "~6.3.0",
+      35      "karma": "~6.4.0",
+
+● Bash(mkdir -p /c/src/hive/frontend/e2e/support && cat >
+      /c/src/hive/frontend/playwright.config.ts <<'EOF'
+      import { defineConfig, devices } from '@playwright/test';…)
+  ⎿  ok
+  ⎿  Created frontend\playwright.config.ts (+46 -0)
+       1 +import { defineConfig, devices } from '@playwright/test';      
+       2 +                                                               
+       3 +/**                                                            
+       4 + * Browser-driven end-to-end tests (`npm run e2e`).            
+       5 + *                                                             
+       6 + * These run against the **compose stack**, not against `ng ser
+         +ve`: the point of                                              
+       7 + * the suite (docs/verification.md 4.5) is to exercise the requ
+         +est the shipped                                                
+       8 + * bundle issues to the real identity provider, which a dev ser
+         +ver with mocked                                                
+       9 + * HTTP cannot do. Bring the stack up first:                   
+      10 + *                                                             
+      11 + *     cd containers && ./scripts/generate-certs.sh && podman c
+         +ompose up -d                                                   
+      12 + *                                                             
+      13 + * `HIVE_E2E_BASE_URL` overrides the origin for a stack publish
+         +ed somewhere else.                                             
+      14 + * There is deliberately no `webServer` entry -- Playwright mus
+         +t not start or own                                             
+      15 + * the thing under test, because a stack it started would be a 
+         +stack configured                                               
+      16 + * by this file rather than the one that ships.                
+      17 + */                                                            
+      18 +const baseURL = process.env['HIVE_E2E_BASE_URL'] ?? 'https://lo
+         +calhost:8444';                                                 
+      19 +                                                               
+      20 +export default defineConfig({                                  
+      21 +  testDir: './e2e',                                            
+      22 +  testMatch: '**/*.e2e.ts',                                    
+      23 +  globalSetup: './e2e/support/global-setup.ts',                
+      24 +  // The whole stack -- one database, one realm, one set of use
+         +rs -- is shared                                                
+      25 +  // state, so tests run one at a time and never retry into a h
+         +alf-finished                                                   
+      26 +  // session.                                                  
+      27 +  fullyParallel: false,                                        
+      28 +  workers: 1,                                                  
+      29 +  forbidOnly: !!process.env['CI'],                             
+      30 +  retries: 0,                                                  
+      31 +  timeout: 60_000,                                             
+      32 +  expect: { timeout: 15_000 },                                 
+      33 +  reporter: process.env['CI'] ? [['list'], ['html', { open: 'ne
+         +ver' }]] : [['list']],                                         
+      34 +  use: {                                                       
+      35 +    baseURL,                                                   
+      36 +    // The stack presents certificates from containers/scripts/
+         +generate-certs.sh,                                             
+      37 +    // signed by a CA that only the developer's machine trusts.
+         + Accepting them                                                
+      38 +    // here keeps the suite runnable before that CA is installe
+         +d; it does not                                                 
+      39 +    // weaken anything under test, because nothing here asserts
+         + on trust.                                                     
+      40 +    ignoreHTTPSErrors: true,                                   
+     … 6 more lines (ctrl+o to expand)
+
+● Bash(cat > /c/src/hive/frontend/e2e/support/global-setup.ts <<'EOF'
+      import { request, type FullConfig } from '@playwright/test';…)
+  ⎿  ok
+  ⎿  Created frontend\e2e\support\global-setup.ts (+33 -0)
+       1 +import { request, type FullConfig } from '@playwright/test';   
+       2 +                                                               
+       3 +/**                                                            
+       4 + * Fails fast, with an instruction, when the compose stack is n
+         +ot up.                                                         
+       5 + *                                                             
+       6 + * Without this the first test dies on `net::ERR_CONNECTION_REF
+         +USED` inside a                                                 
+       7 + * browser navigation, which reads like a broken test rather th
+         +an a missing                                                   
+       8 + * prerequisite.                                               
+       9 + */                                                            
+      10 +export default async function globalSetup(config: FullConfig): 
+         +Promise<void> {                                                
+      11 +  const baseURL = config.projects[0]?.use.baseURL ?? 'https://l
+         +ocalhost:8444';                                                
+      12 +  const context = await request.newContext({ ignoreHTTPSErrors:
+         + true });                                                      
+      13 +  try {                                                        
+      14 +    // Realm discovery, not the SPA's index: it proves both hop
+         +s the sign-in                                                  
+      15 +    // needs -- the gateway is answering, and Keycloak behind i
+         +t has imported                                                 
+      16 +    // the realm.                                              
+      17 +    const discovery = await context.get(                       
+      18 +      `${baseURL}/idp/realms/hive/.well-known/openid-configurat
+         +ion`,                                                          
+      19 +    );                                                         
+      20 +    if (!discovery.ok()) {                                     
+      21 +      throw new Error(`realm discovery answered ${discovery.sta
+         +tus()}`);                                                      
+      22 +    }                                                          
+      23 +  } catch (cause) {                                            
+      24 +    throw new Error(                                           
+      25 +      `The Hive stack is not answering at ${baseURL} (${cause i
+         +nstanceof Error ? cause.message : String(cause)}).\n` +        
+      26 +        'These tests drive the shipped bundle against the real 
+         +identity provider. Start the stack first:\n' +                 
+      27 +        '  cd containers && ./scripts/generate-certs.sh && podm
+         +an compose up -d\n' +                                          
+      28 +        'Set HIVE_E2E_BASE_URL to point at a stack published so
+         +mewhere else.',                                                
+      29 +    );                                                         
+      30 +  } finally {                                                  
+      31 +    await context.dispose();                                   
+      32 +  }                                                            
+      33 +}                                                              
+
+● Bash(cat > /c/src/hive/frontend/e2e/support/fixtures.ts <<'EOF'
+      import { test as base, type Page } from '@playwright/test';…)
+  ⎿  ok
+  ⎿  Created frontend\e2e\support\fixtures.ts (+76 -0)
+       1 +import { test as base, type Page } from '@playwright/test';    
+       2 +                                                               
+       3 +/** A realm user seeded by `containers/idp/realm-hive.json`. */
+       4 +export interface RealmUser {                                   
+       5 +  readonly username: string;                                   
+       6 +  readonly password: string;                                   
+       7 +  readonly email: string;                                      
+       8 +  readonly fullName: string;                                   
+       9 +}                                                              
+      10 +                                                               
+      11 +export const ADA: RealmUser = {                                
+      12 +  username: 'ada',                                             
+      13 +  password: 'hive',                                            
+      14 +  email: 'ada@hive.example',                                   
+      15 +  fullName: 'Ada Lovelace',                                    
+      16 +};                                                             
+      17 +                                                               
+      18 +/** The shape of the token endpoint's success response, as far 
+         +as tests read it. */                                           
+      19 +export interface TokenEndpointResponse {                       
+      20 +  readonly access_token: string;                               
+      21 +  readonly refresh_token?: string;                             
+      22 +  readonly id_token?: string;                                  
+      23 +  readonly expires_in?: number;                                
+      24 +  /** Scopes the issuer actually granted, which need not be the
+         + ones asked for. */                                            
+      25 +  readonly scope?: string;                                     
+      26 +}                                                              
+      27 +                                                               
+      28 +/**                                                            
+      29 + * Records the OAuth traffic the **page** generates.           
+      30 + *                                                             
+      31 + * This is the whole point of the suite. Reconstructing an auth
+         +orization URL in                                               
+      32 + * the test and asserting on that proves only that the test can
+         + build a URL --                                                
+      33 + * exactly the blind spot that let `hive-m50` ship a sign-in th
+         +at was broken for                                              
+      34 + * everyone while a curl-driven PKCE run passed (docs/verificat
+         +ion.md 7.2 item                                                
+      35 + * 7). Everything asserted here is read off the request Chromiu
+         +m actually sent                                                
+      36 + * on behalf of the shipped bundle.                            
+      37 + */                                                            
+      38 +export class OAuthTraffic {                                    
+      39 +  /** Every navigation to the realm's authorization endpoint, i
+         +n order. */                                                    
+      40 +  readonly authorizeRequests: URL[] = [];                      
+     … 36 more lines (ctrl+o to expand)
+
+● Bash(cat > /c/src/hive/frontend/e2e/sign-in.e2e.ts <<'EOF'
+      import { ADA, expect, test } from './support/fixtures';…)
+  ⎿  ok
+  ⎿  Created frontend\e2e\sign-in.e2e.ts (+114 -0)
+        1 +import { ADA, expect, test } from './support/fixtures';       
+        2 +                                                              
+        3 +/**                                                           
+        4 + * The sign-in every other screen depends on, driven the way a
+          + person drives it:                                            
+        5 + * load the app, click the button the bundle renders, type a p
+          +assword into the                                              
+        6 + * identity provider's own form, and land on an authenticated 
+          +screen.                                                       
+        7 + *                                                            
+        8 + * `docs/verification.md` 4.5 asked for this before the stack 
+          +had ever run;                                                 
+        9 + * 7.2 item 7 is the bug its absence cost.                    
+       10 + */                                                           
+       11 +test.describe('sign-in', () => {                              
+       12 +  test('signs a realm user in through Keycloak and renders the
+          + dashboard', async ({                                         
+       13 +    page,                                                     
+       14 +    oauth,                                                    
+       15 +    baseURL,                                                  
+       16 +  }) => {                                                     
+       17 +    await page.goto('/');                                     
+       18 +                                                              
+       19 +    // The guard sends an anonymous visitor to the sign-in scr
+          +een.                                                          
+       20 +    await expect(page).toHaveURL(/\/login(\?|$)/);            
+       21 +                                                              
+       22 +    await page.getByTestId('oauth-sign-in').click();          
+       23 +                                                              
+       24 +    // The identity provider's own login form. Reaching it is 
+          +the assertion the                                             
+       25 +    // acceptance criterion is about: a scope the client does 
+          +not hold fails the                                            
+       26 +    // authorization request outright, and Keycloak renders an
+          + error page here                                              
+       27 +    // instead of a username field -- before any password is t
+          +yped.                                                         
+       28 +    const username = page.locator('#username');               
+       29 +    await expect(                                             
+       30 +      username,                                               
+       31 +      'Keycloak did not render its login form; the authorizati
+          +on request was rejected',                                     
+       32 +    ).toBeVisible();                                          
+       33 +                                                              
+       34 +    // What the bundle actually sent, read off the wire rather
+          + than rebuilt.                                                
+       35 +    const authorize = oauth.latestAuthorizeParams();          
+       36 +    expect(authorize.get('response_type')).toBe('code');      
+       37 +    expect(authorize.get('client_id')).toBe('hive-web');      
+       38 +    expect(authorize.get('redirect_uri')).toBe(`${baseURL}/aut
+          +h/callback`);                                                 
+       39 +    expect(authorize.get('code_challenge_method')).toBe('S256'
+          +);                                                            
+       40 +    expect(authorize.get('code_challenge')).toBeTruthy();     
+     … 74 more lines (ctrl+o to expand)
+  ⎿  Created frontend\e2e\tsconfig.json (+13 -0)
+       1 +/* Type-checking context for the browser-driven end-to-end suit
+         +e.                                                             
+       2 +   Kept out of tsconfig.app.json / tsconfig.spec.json on purpos
+         +e: these files                                                 
+       3 +   are never bundled and never run under Karma. */             
+       4 +{                                                              
+       5 +  "extends": "../tsconfig.json",                               
+       6 +  "compilerOptions": {                                         
+       7 +    "types": ["node"],                                         
+       8 +    "module": "preserve",                                      
+       9 +    "moduleResolution": "bundler",                             
+      10 +    "noEmit": true                                             
+      11 +  },                                                           
+      12 +  "include": ["**/*.ts", "../playwright.config.ts"]            
+      13 +}                                                              
+
+● Bash(python - <<'EOF'
+      import json,io…)
+  ⎿  11:    "e2e": "playwright test",
+     12:    "e2e:install": "playwright install chromium",
+     node_modules
+     … +48 lines (ctrl+o to expand)
+  ⎿  Updated frontend\package.json (+2 -0)
+       8      "watch": "ng build --watch --configuration development",
+       9      "test": "ng test",
+      10      "test:ci": "ng test --watch=false --browsers=ChromeHeadless
+          NoSandbox --coverage",
+      11 +    "e2e": "playwright test",                                  
+      12 +    "e2e:install": "playwright install chromium",              
+      13      "lint": "prettier --check \"**/*.{ts,html,scss,css,json,js,
+          md}\"",
+      14      "format": "prettier --write \"**/*.{ts,html,scss,css,json,j
+          s,md}\""
+      15    },
+
+● Bash(printf 'playwright-report\ntest-results\n' >> .prettierignore && printf
+      '\n# Playwright\n/playwright-report\n/test-results\n/blob-report\n/playwri
+      ght/.cache\n'…)
+  ⎿  .DS_Store
+     Thumbs.db
+     … +12 lines (ctrl+o to expand)
+  ⎿  Updated frontend\.gitignore (+49 -43)
+       1 -# See https://docs.github.com/get-started/getting-started-with-
+         -git/ignoring-files for more about ignoring files.              
+       1 +# See https://docs.github.com/get-started/getting-started-with-
+         +git/ignoring-files for more about ignoring files.              
+       2 +                                                               
+       3 +# Compiled output                                              
+       4 +/dist                                                          
+       5 +/tmp                                                           
+       6 +/out-tsc                                                       
+       7 +/bazel-out                                                     
+       8 +                                                               
+       9 +# Node                                                         
+      10 +/node_modules                                                  
+      11 +npm-debug.log                                                  
+      12 +yarn-error.log                                                 
+      13 +                                                               
+      14 +# IDEs and editors                                             
+      15 +.idea/                                                         
+      16 +.project                                                       
+      17 +.classpath                                                     
+      18 +.c9/                                                           
+      19 +*.launch                                                       
+      20 +.settings/                                                     
+      21 +*.sublime-workspace                                            
+      22 +                                                               
+      23 +# Visual Studio Code                                           
+      24 +.vscode/*                                                      
+      25 +!.vscode/settings.json                                         
+      26 +!.vscode/tasks.json                                            
+      27 +!.vscode/launch.json                                           
+      28 +!.vscode/extensions.json                                       
+      29 +!.vscode/mcp.json                                              
+      30 +.history/*                                                     
+      31 +                                                               
+      32 +# Miscellaneous                                                
+      33 +/.angular/cache                                                
+      34 +.sass-cache/                                                   
+      35 +/connect.lock                                                  
+      36 +/coverage                                                      
+      37 +/libpeerconnection.log                                         
+      38 +testem.log                                                     
+      39 +/typings                                                       
+     … 53 more lines (ctrl+o to expand)
+  ⎿  Updated frontend\.prettierignore (+2 -0)
+      3  coverage
+      4  .angular
+      5  package-lock.json
+      6 +playwright-report                                               
+      7 +test-results                                                    
+
+● Now let's run it against the live stack.
+
+  Ran 5 shell commands (ctrl+o to expand)
+
+● Bash(python - <<'PY'
+      import io…)
+  ⎿  124:### Browser-driven end-to-end tests
+  ⎿  Updated docs\runbook.md (+23 -0)
+      121  > backend accepts. What that first run cost, and what is still
+            unproven, is in
+      122  > [verification.md](verification.md) section 7.
+      123  
+      124 +### Browser-driven end-to-end tests                           
+      125 +                                                              
+      126 +The stack above is what the end-to-end suite runs against. It 
+          +drives the built                                              
+      127 +SPA through a real authorization-code + PKCE sign-in against t
+          +he compose                                                    
+      128 +Keycloak, so the request under test is the one the shipped bun
+          +dle issues rather                                             
+      129 +than one the test rebuilt:                                    
+      130 +                                                              
+      131 +```bash                                                       
+      132 +cd frontend                                                   
+      133 +npm run e2e:install   # once: downloads the Playwright Chromiu
+          +m build                                                       
+      134 +npm run e2e           # requires the stack above to be up     
+      135 +```                                                           
+      136 +                                                              
+      137 +Point it at a stack published elsewhere with `HIVE_E2E_BASE_UR
+          +L`. There is no                                               
+      138 +`webServer` entry in `playwright.config.ts` on purpose: a stac
+          +k Playwright                                                  
+      139 +started would be a stack configured by the test suite, not the
+          + one that ships.                                              
+      140 +Failures leave a trace in `frontend/test-results/`; open one w
+          +ith                                                           
+      141 +`npx playwright show-trace <path>`.                           
+      142 +                                                              
+      143 +This is the gap [verification.md](verification.md) 4.5 recorde
+          +d, and closing it                                             
+      144 +is why `hive-m50` — a sign-in broken for everyone while a curl
+          +-driven PKCE                                                  
+      145 +verification passed — could not happen unnoticed again.       
+      146 +                                                              
+      147  ---
+      148  
+      149  ## 4. Running without containers
+
+● Bash(python - <<'PY'
+      p='README.md'…)
+  ⎿  ```
+
+     ### Prerequisites
+     … +28 lines (ctrl+o to expand)
+  ⎿  Updated README.md (+6 -1)
+      48  - JDK 21 (`JAVA_HOME` must point at it)
+      49  - Node 24 and npm 11
+      50  - Google Chrome (for the headless Karma test run)
+      51 -- Podman (only needed to build and run containers)             
+      51 +- Podman (needed to build and run containers, and for the end-t
+         +o-end suite)                                                   
+      52  
+      53  Gradle itself is not required: the repository ships a Gradle wr
+          apper.
+      54  
+     ...
+      62  cd frontend && npm ci
+      63  npm run test:ci
+      64  npm run build
+      65 +                                                               
+      66 +# End-to-end: drives the real SPA through a real sign-in.      
+      67 +# Needs the containerized stack up first (see the runbook).    
+      68 +npm run e2e:install   # once                                   
+      69 +npm run e2e                                                    
+      70  ```
+      71  
+      72  See [docs/runbook.md](docs/runbook.md) for running the full con
+          tainerized stack.
+
+● Now update the verification report (4.5 and 7.3).
+
+  Searched for 1 pattern, ran 1 shell command (ctrl+o to expand)
+
+● Bash(python - <<'PY'
+      p='docs/verification.md'…)
+  ⎿  415:## 8. Addendum — 2026-09-18: the sign-in is now driven by a browse
+     r
+     416-
+     … +3 lines (ctrl+o to expand)
+  ⎿  Updated docs\verification.md (+57 -7)
+      146  exercises policy, transition machine, mappers, JPA and the mig
+           rated schema
+      147  together in one Spring context — but through Kotlin, not a bro
+           wser.
+      148  
+      149 +> **Closed on 2026-09-18.** `frontend/e2e/` now drives the bui
+          +lt SPA through a                                              
+      150 +> real authorization-code + PKCE sign-in against the compose K
+          +eycloak. Section 8                                            
+      151 +> records what it proves and what it still does not. Tracked a
+          +s `hive-nfv`.                                                 
+      152 +                                                              
+      153  ### 4.6 OpenAPI documentation is not implemented
+      154  
+      155  `spec.md` does not require it; the project plan did. springdoc
+            has no release
+     ...
+      395  
+      396  ### 7.3 What remains unproven
+      397  
+      394 -- **4.5 stands, and item 7 is what it costs.** There is still 
+          -no                                                            
+      395 -  browser-driven end-to-end test. The PKCE flow above was driv
+          -en with `curl`,                                               
+      396 -  which proves the protocol and the token, not the application
+          -'s screens — and                                              
+      397 -  item 7 is a sign-in that was broken for everyone while that 
+          -flow passed,                                                  
+      398 -  found by a person clicking the button. The gap is no longer 
+          -hypothetical.                                                 
+      399 -  Until a test drives the SPA's own request, every claim in th
+          -is report about                                               
+      400 -  authentication is a claim about the protocol only. Tracked a
+          -s `hive-nfv`.                                                 
+      398 +- **4.5 stood, and item 7 is what it cost.** The PKCE flow abo
+          +ve was driven                                                 
+      399 +  with `curl`, which proves the protocol and the token, not th
+          +e application's                                               
+      400 +  screens — and item 7 is a sign-in that was broken for everyo
+          +ne while that                                                 
+      401 +  flow passed, found by a person clicking the button. Until a 
+          +test drove the                                                
+      402 +  SPA's own request, every claim in this report about authenti
+          +cation was a                                                  
+      403 +  claim about the protocol only. **Closed on 2026-09-18 — see 
+          +section 8.**                                                  
+      404  - **SQL Server dialect differences.** The migration runs and t
+           he mappings
+      405    validate, but the test suite still executes against H2; pagi
+           ng syntax,
+      406    collation and `DATETIME2` rounding remain exercised only in 
+           compatibility
+     ...
+      409  - **Nothing here says anything about a deployed environment.**
+            The certificates
+      410    are from a CA that exists on one machine, `start-dev` is not
+            a production
+      411    Keycloak mode, and the database holds a single SA credential
+           .
+      412 +                                                              
+      413 +---                                                           
+      414 +                                                              
+      415 +## 8. Addendum — 2026-09-18: the sign-in is now driven by a br
+          +owser                                                         
+      416 +                                                              
+      417 +`frontend/e2e/`, run with `npm run e2e` against the compose st
+          +ack. Playwright                                               
+      418 +driving Chromium; three tests, all passing, 1.9s wall clock.  
+      419 +                                                              
+     … 39 more lines (ctrl+o to expand)
+
+  Searched for 2 patterns, ran 3 shell commands (ctrl+o to expand)
+
+● Bash(npx prettier --write e2e/support/fixtures.ts >/dev/null && npm run lint
+      2>&1 | tail -5)
+  ⎿  > hive-web@0.0.0 lint
+     > prettier --check "**/*.{ts,html,scss,css,json,js,md}"
+     … +2 lines (ctrl+o to expand)
+  ⎿  Updated frontend\e2e\support\fixtures.ts (+4 -1)
+      50      });
+      51      page.on('response', (response) => {
+      52        const request = response.request();
+      53 -      if (request.method() === 'POST' && response.url().include
+         -s('/protocol/openid-connect/token')) {                         
+      53 +      if (                                                     
+      54 +        request.method() === 'POST' &&                         
+      55 +        response.url().includes('/protocol/openid-connect/token
+         +')                                                             
+      56 +      ) {                                                      
+      57          this.tokenExchanges.push(response.json() as Promise<Tok
+          enEndpointResponse>);
+      58        }
+      59      });
+
+  Searched for 1 pattern, ran 4 shell commands (ctrl+o to expand)
+
+● Bash(python - <<'PY'
+      p='e2e/sign-in.e2e.ts'…)
+  ⎿  Running 3 tests using 1 worker
+
+       ✓  1 [chromium] › e2e\sign-in.e2e.ts:12:7 › sign-in › signs a realm
+     … +7 lines (ctrl+o to expand)
+  ⎿  Updated frontend\e2e\sign-in.e2e.ts (+4 -1)
+      54      await expect(page).toHaveURL(`${baseURL}/`);
+      55      await expect(page.getByTestId('sign-out')).toBeVisible();
+      56      await expect(page.getByTestId('my-tasks')).toBeVisible();
+      57 -    await expect(page.getByText(ADA.fullName)).toBeVisible();  
+      57 +    // The greeting comes from `GET /users/me`, so seeing the u
+         +ser's own name                                                 
+      58 +    // here is the backend accepting this token, not the token 
+         +being decoded                                                  
+      59 +    // client-side.                                            
+      60 +    await expect(page.getByText(`Welcome back, ${ADA.fullName}`
+         +)).toBeVisible();                                              
+      61  
+      62      // Every scope the bundle asked for was granted. Keycloak r
+          efuses an unheld
+      63      // scope outright, so this is belt and braces -- but it is 
+          what turns "the
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Bash(bd close hive-nfv --reason="frontend/e2e/ drives the built SPA through a
+      real authorization-code + PKCE sign-in against the compose Keycloak with
+      Playwright: th…)
+  ⎿  ✓ Closed hive-nfv — No browser-driven end-to-end test: the SPA's own a
+     uth request is never exercised: frontend/e2e/ drives the built SPA thr
+     ough a real authorization-code + PKCE sign-in against the compose Keyc
+     … +7 lines (ctrl+o to expand)
+  ⎿  Updated .beads\interactions.jsonl (+1 -0)
+      130  {"id":"int-227f9623","kind":"field_change","created_at":"2026-
+           09-16T04:12:35.5147858Z","actor":"Adam <la-xirsoi> Chevalier",
+           "issue_id":"hive-0uz","extra":{"field":"status","new_value":"c
+           losed","old_value":"in_progress","reason":"Verified end to end
+            on a cold stack: the gateway proxies /api/v1 to the backend (
+           200 with a token, 401 without, never index.html), and a real a
+           uthorization-code + PKCE login through /idp yields iss=https:/
+           /localhost:8444/idp/realms/hive, which the backend accepts."}}
+      131  {"id":"int-cfaec041","kind":"field_change","created_at":"2026-
+           09-18T15:46:05.1356166Z","actor":"Adam <la-xirsoi> Chevalier",
+           "issue_id":"hive-scn","extra":{"field":"status","new_value":"c
+           losed","old_value":"in_progress","reason":"Hoisted the header 
+           set into containers/frontend/security-headers.conf, included b
+           y the server block and by every location that declares an add_
+           header of its own; /healthz uses default_type instead. Verifie
+           d on the running stack: /, /index.html, a deep link, a fingerp
+           rinted asset, /favicon.ico and /healthz all return all six hea
+           ders. /idp keeps its own set and now sends HSTS once (proxy_hi
+           de_header drops Keycloak's shorter one)."}}
+      132  {"id":"int-b14205bf","kind":"field_change","created_at":"2026-
+           09-18T16:39:01.9512597Z","actor":"Adam <la-xirsoi> Chevalier",
+           "issue_id":"hive-m50","extra":{"field":"status","new_value":"c
+           losed","old_value":"in_progress","reason":"Removed offline_acc
+           ess from the requested scope in both environment files. Keyclo
+           ak issues a refresh token from the plain authorization-code fl
+           ow anyway (verified: refresh_expires_in 1800), so silent refre
+           sh is unaffected, and an offline token is pointless against a 
+           token set held in sessionStorage. Verified end to end against 
+           the running stack: authorize -> login as ada -> code exchange 
+           -> refresh_token present -> GET /api/v1/users/me returns 200. 
+           Not browser-verified; the Chrome extension was not connected."
+           }}
+      133 +{"id":"int-bcb39494","kind":"field_change","created_at":"2026-
+          +09-18T17:08:07.3556067Z","actor":"Adam <la-xirsoi> Chevalier",
+          +"issue_id":"hive-nfv","extra":{"field":"status","new_value":"c
+          +losed","old_value":"in_progress","reason":"frontend/e2e/ drive
+          +s the built SPA through a real authorization-code + PKCE sign-
+          +in against the compose Keycloak with Playwright: the authoriza
+          +tion request asserted on is read off the wire, not rebuilt. Th
+          +ree tests pass against the running stack; a companion test rep
+          +lays the bundle's own request with an unheld scope and asserts
+          + Keycloak refuses it, and the flow was re-run with a wrong pas
+          +sword to confirm the authenticated assertions are load-bearing
+          +. Recorded in docs/verification.md section 8; 4.5 and the 7.3 
+          +bullet closed."}}                                             
+  ⎿  Updated .beads\issues.jsonl (+1 -1)
+      45  {"_type":"issue","id":"hive-r0f","title":"EPIC: Adapter In - RE
+          ST and security (hive/adapter/in)","description":"REST controll
+          ers, DTOs, global error handling per the spec status-code table
+          , OAuth2/JWT resource server security, HTTPS enforcement, and O
+          penAPI documentation.","acceptance_criteria":"All endpoints in 
+          the contract implemented and tested via MockMvc; error table ho
+          nored exactly; JWT auth enforced on every non-public route.","s
+          tatus":"closed","priority":1,"issue_type":"epic","owner":"cheva
+          lierAdam2@gmail.com","created_at":"2026-09-13T23:55:02Z","creat
+          ed_by":"Adam \u003cla-xirsoi\u003e Chevalier","updated_at":"202
+          6-09-15T00:41:28Z","closed_at":"2026-09-15T00:41:28Z","close_re
+          ason":"All child issues resolved","dependency_count":0,"depende
+          nt_count":0,"comment_count":0}
+      46  {"_type":"issue","id":"hive-y13","title":"EPIC: Angular fronten
+          d","description":"Angular 22 SPA implementing the three roles, 
+          styled per BRANDING_GUIDE.md, authenticating via OAuth/PKCE and
+           calling the REST API with JWT bearer tokens.","acceptance_crit
+          eria":"All role workflows usable end to end; Jasmine/Karma suit
+          e green headless with \u003e=70% line coverage.","status":"clos
+          ed","priority":1,"issue_type":"epic","owner":"chevalierAdam2@gm
+          ail.com","created_at":"2026-09-13T23:55:02Z","created_by":"Adam
+           \u003cla-xirsoi\u003e Chevalier","updated_at":"2026-09-15T00:4
+          1:02Z","closed_at":"2026-09-15T00:41:02Z","close_reason":"All c
+          hild issues complete","dependency_count":0,"dependent_count":0,
+          "comment_count":0}
+      47  {"_type":"issue","id":"hive-8c1","title":"EPIC: Application lay
+          er (hive/application)","description":"Use case interfaces and s
+          ervice implementations orchestrating domain objects and reposit
+          ory ports. Enforces authorization at the use case boundary.","a
+          cceptance_criteria":"Every REST operation in the contract is ba
+          cked by a use case; services unit tested with Mockk; \u003e=70%
+           line coverage.","status":"closed","priority":1,"issue_type":"e
+          pic","owner":"chevalierAdam2@gmail.com","created_at":"2026-09-1
+          3T23:55:01Z","created_by":"Adam \u003cla-xirsoi\u003e Chevalier
+          ","updated_at":"2026-09-15T00:41:02Z","closed_at":"2026-09-15T0
+          0:41:02Z","close_reason":"All child issues complete","dependenc
+          y_count":0,"dependent_count":0,"comment_count":0}
+      48 -{"_type":"issue","id":"hive-nfv","title":"No browser-driven end
+         --to-end test: the SPA's own auth request is never exercised","d
+         -escription":"hive-m50 was a total sign-in failure that the curl
+         --driven PKCE verification passed straight through, because that
+         - flow rebuilds the authorization URL by hand and never uses the
+         - scope string the shipped bundle sends. Section 4.5 of docs/ver
+         -ification.md has flagged the missing browser-level test since b
+         -efore the stack ever ran; item 7 of 7.2 is the first bug it dem
+         -onstrably cost. Add a test that drives the real SPA through a r
+         -eal sign-in against the compose stack, so the request the appli
+         -cation actually issues is the one under test.","acceptance_crit
+         -eria":"A test navigates the built SPA to the login screen, comp
+         -letes an authorization-code + PKCE sign-in against the compose 
+         -Keycloak, and asserts an authenticated screen renders; it fails
+         - if the requested scope is one the realm does not grant.","stat
+         -us":"open","priority":2,"issue_type":"task","owner":"chevalierA
+         -dam2@gmail.com","created_at":"2026-09-18T16:51:56Z","created_by
+         -":"Adam \u003cla-xirsoi\u003e Chevalier","updated_at":"2026-09-
+         -18T16:51:56Z","comments":[{"id":"01a0b576-e4da-7238-a070-734c33
+         -4393c9","issue_id":"hive-nfv","author":"Adam \u003cla-xirsoi\u0
+         -03e Chevalier","text":"a full e2e test suite is needed","create
+         -d_at":"2026-09-18T17:01:03Z"}],"dependency_count":0,"dependent_
+         -count":0,"comment_count":1}                                    
+      48 +{"_type":"issue","id":"hive-nfv","title":"No browser-driven end
+         +-to-end test: the SPA's own auth request is never exercised","d
+         +escription":"hive-m50 was a total sign-in failure that the curl
+         +-driven PKCE verification passed straight through, because that
+         + flow rebuilds the authorization URL by hand and never uses the
+         + scope string the shipped bundle sends. Section 4.5 of docs/ver
+         +ification.md has flagged the missing browser-level test since b
+         +efore the stack ever ran; item 7 of 7.2 is the first bug it dem
+         +onstrably cost. Add a test that drives the real SPA through a r
+         +eal sign-in against the compose stack, so the request the appli
+         +cation actually issues is the one under test.","acceptance_crit
+         +eria":"A test navigates the built SPA to the login screen, comp
+         +letes an authorization-code + PKCE sign-in against the compose 
+         +Keycloak, and asserts an authenticated screen renders; it fails
+         + if the requested scope is one the realm does not grant.","stat
+         +us":"closed","priority":2,"issue_type":"task","assignee":"Adam 
+         +\u003cla-xirsoi\u003e Chevalier","owner":"chevalierAdam2@gmail.
+         +com","created_at":"2026-09-18T16:51:56Z","created_by":"Adam \u0
+         +03cla-xirsoi\u003e Chevalier","updated_at":"2026-09-18T17:08:07
+         +Z","started_at":"2026-09-18T17:01:54Z","closed_at":"2026-09-18T
+         +17:08:07Z","close_reason":"frontend/e2e/ drives the built SPA t
+         +hrough a real authorization-code + PKCE sign-in against the com
+         +pose Keycloak with Playwright: the authorization request assert
+         +ed on is read off the wire, not rebuilt. Three tests pass again
+         +st the running stack; a companion test replays the bundle's own
+         + request with an unheld scope and asserts Keycloak refuses it, 
+         +and the flow was re-run with a wrong password to confirm the au
+         +thenticated assertions are load-bearing. Recorded in docs/verif
+         +ication.md section 8; 4.5 and the 7.3 bullet closed.","comments
+         +":[{"id":"01a0b576-e4da-7238-a070-734c334393c9","issue_id":"hiv
+         +e-nfv","author":"Adam \u003cla-xirsoi\u003e Chevalier","text":"
+         +a full e2e test suite is needed","created_at":" … [+83 chars]  
+      49  {"_type":"issue","id":"hive-3p8","title":"Add server-computed p
+          ermissions to TeamDetail and ProjectSummary","description":"Tas
+          kDetail carries a TaskPermissions block so every task control i
+          s driven by the server. TeamDetail and ProjectSummary have no e
+          quivalent, so the UI gates rename, member management, lead tran
+          sfer, ownership transfer and task-create by comparing the actin
+          g user's id against the teamLead.id / projectOwner.id the serve
+          r returned. That is a comparison against server data rather tha
+          n re-derived policy, and every operation is still enforced serv
+          er-side, so the worst case is a control that appears and then 4
+          03s. Adding TeamPermissions and ProjectPermissions blocks, comp
+          uted by the same AuthorizationPolicy that enforces, would close
+           the gap properly and make the UI consistent with how tasks alr
+          eady work.","acceptance_criteria":"TeamDetail and ProjectSummar
+          y carry a permissions block computed by the domain policy; the 
+          frontend gates every team and project control on it; tests asse
+          rt controls are absent when forbidden.","status":"open","priori
+          ty":2,"issue_type":"feature","owner":"chevalierAdam2@gmail.com"
+          ,"created_at":"2026-09-15T00:40:32Z","created_by":"Adam \u003cl
+          a-xirsoi\u003e Chevalier","updated_at":"2026-09-15T00:40:32Z","
+          dependency_count":0,"dependent_count":0,"comment_count":0}
+      50  {"_type":"issue","id":"hive-5dg","title":"Reformat core/** with
+           the pinned Prettier version","description":"npm run lint fails
+           on 15 pre-existing files under frontend/src/app/core (api-erro
+          r.spec.ts, task-api.ts, user-api.ts, auth-service.ts, dev-auth-
+          service.ts and others). They were committed formatted by an old
+          er Prettier; prettier 3.8.1 now wants different output. The fea
+          ture work left them untouched on purpose (core/** was out of sc
+          ope). Fix: run npm run format and commit the whitespace-only ch
+          urn in core/**.","status":"closed","priority":2,"issue_type":"c
+          hore","owner":"chevalierAdam2@gmail.com","created_at":"2026-09-
+          14T21:50:42Z","created_by":"Adam \u003cla-xirsoi\u003e Chevalie
+          r","updated_at":"2026-09-15T00:33:52Z","closed_at":"2026-09-15T
+          00:33:52Z","close_reason":"prettier clean across the whole fron
+          tend; lint exits 0","dependency_count":0,"dependent_count":0,"c
+          omment_count":0}
+      51  {"_type":"issue","id":"hive-2on","title":"Status filter on GET 
+          /projects/{id}/tasks skews page totals","description":"ProjectU
+          seCases.listTasks applies the optional ?status= filter to the p
+          age returned by TaskRepository.findVisibleInProject, because th
+          at port has no status predicate. The filter can only remove row
+          s the caller was already entitled to see, so visibility is neve
+          r widened, but a filtered page reports the unfiltered totalElem
+          ents/totalPages and can return fewer than size rows. Fix by add
+          ing a status predicate to the outbound port (a domain change) a
+          nd pushing the filter into SQL, or by documenting the behaviour
+           in the API contract.","status":"closed","priority":2,"issue_ty
+          pe":"bug","owner":"chevalierAdam2@gmail.com","created_at":"2026
+          -09-14T14:36:34Z","created_by":"Adam \u003cla-xirsoi\u003e Chev
+          alier","updated_at":"2026-09-15T00:38:18Z","closed_at":"2026-09
+          -15T00:38:18Z","close_reason":"Status predicate pushed into JPQ
+          L; COUNT and SELECT now share it; 4 integration tests incl. int
+          ersection-with-visibility","dependency_count":0,"dependent_coun
+          t":0,"comment_count":0}
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Bash(git add .beads/interactions.jsonl && git commit -q -F - <<'EOF'
+      Make the browser issue the sign-in request the test checks…)
+  ⎿  warning: in the working copy of '.beads/interactions.jsonl', LF will b
+     e replaced by CRLF the next time Git touches it
+     Exported 62 issues to C:\src\hive\.beads\issues.jsonl
+     d735871 Make the browser issue the sign-in request the test checks
+  ⎿  Updated .beads\issues.jsonl (+1 -0)
+      45  {"_type":"issue","id":"hive-r0f","title":"EPIC: Adapter In - RE
+          ST and security (hive/adapter/in)","description":"REST controll
+          ers, DTOs, global error handling per the spec status-code table
+          , OAuth2/JWT resource server security, HTTPS enforcement, and O
+          penAPI documentation.","acceptance_criteria":"All endpoints in 
+          the contract implemented and tested via MockMvc; error table ho
+          nored exactly; JWT auth enforced on every non-public route.","s
+          tatus":"closed","priority":1,"issue_type":"epic","owner":"cheva
+          lierAdam2@gmail.com","created_at":"2026-09-13T23:55:02Z","creat
+          ed_by":"Adam \u003cla-xirsoi\u003e Chevalier","updated_at":"202
+          6-09-15T00:41:28Z","closed_at":"2026-09-15T00:41:28Z","close_re
+          ason":"All child issues resolved","dependency_count":0,"depende
+          nt_count":0,"comment_count":0}
+      46  {"_type":"issue","id":"hive-y13","title":"EPIC: Angular fronten
+          d","description":"Angular 22 SPA implementing the three roles, 
+          styled per BRANDING_GUIDE.md, authenticating via OAuth/PKCE and
+           calling the REST API with JWT bearer tokens.","acceptance_crit
+          eria":"All role workflows usable end to end; Jasmine/Karma suit
+          e green headless with \u003e=70% line coverage.","status":"clos
+          ed","priority":1,"issue_type":"epic","owner":"chevalierAdam2@gm
+          ail.com","created_at":"2026-09-13T23:55:02Z","created_by":"Adam
+           \u003cla-xirsoi\u003e Chevalier","updated_at":"2026-09-15T00:4
+          1:02Z","closed_at":"2026-09-15T00:41:02Z","close_reason":"All c
+          hild issues complete","dependency_count":0,"dependent_count":0,
+          "comment_count":0}
+      47  {"_type":"issue","id":"hive-8c1","title":"EPIC: Application lay
+          er (hive/application)","description":"Use case interfaces and s
+          ervice implementations orchestrating domain objects and reposit
+          ory ports. Enforces authorization at the use case boundary.","a
+          cceptance_criteria":"Every REST operation in the contract is ba
+          cked by a use case; services unit tested with Mockk; \u003e=70%
+           line coverage.","status":"closed","priority":1,"issue_type":"e
+          pic","owner":"chevalierAdam2@gmail.com","created_at":"2026-09-1
+          3T23:55:01Z","created_by":"Adam \u003cla-xirsoi\u003e Chevalier
+          ","updated_at":"2026-09-15T00:41:02Z","closed_at":"2026-09-15T0
+          0:41:02Z","close_reason":"All child issues complete","dependenc
+          y_count":0,"dependent_count":0,"comment_count":0}
+      48 +{"_type":"issue","id":"hive-onj","title":"Extend the browser-dr
+         +iven suite past sign-in to the task lifecycle","description":"h
+         +ive-nfv closed the 4.5 gap for sign-in only: frontend/e2e/ has 
+         +three tests, all about authentication. The teams, projects and 
+         +task screens are still exercised only at component level with m
+         +ocked HTTP, so the same class of bug hive-m50 was -- a screen t
+         +hat works in a unit test and not in a browser -- remains possib
+         +le everywhere else. Drive the task lifecycle (create, assign, t
+         +ransition, comment) through the compose stack as a signed-in us
+         +er, reusing the fixtures in frontend/e2e/support/. See docs/ver
+         +ification.md 8.3.","acceptance_criteria":"A browser-driven test
+         + signs in and takes a task through create -\u003e assign -\u003
+         +e in progress -\u003e done against the compose stack, asserting
+         + the screen state at each step; it fails if any step's server c
+         +all is rejected.","status":"open","priority":2,"issue_type":"ta
+         +sk","owner":"chevalierAdam2@gmail.com","created_at":"2026-09-18
+         +T17:08:16Z","created_by":"Adam \u003cla-xirsoi\u003e Chevalier"
+         +,"updated_at":"2026-09-18T17:08:16Z","dependency_count":0,"depe
+         +ndent_count":0,"comment_count":0}                              
+      49  {"_type":"issue","id":"hive-nfv","title":"No browser-driven end
+          -to-end test: the SPA's own auth request is never exercised","d
+          escription":"hive-m50 was a total sign-in failure that the curl
+          -driven PKCE verification passed straight through, because that
+           flow rebuilds the authorization URL by hand and never uses the
+           scope string the shipped bundle sends. Section 4.5 of docs/ver
+          ification.md has flagged the missing browser-level test since b
+          efore the stack ever ran; item 7 of 7.2 is the first bug it dem
+          onstrably cost. Add a test that drives the real SPA through a r
+          eal sign-in against the compose stack, so the request the appli
+          cation actually issues is the one under test.","acceptance_crit
+          eria":"A test navigates the built SPA to the login screen, comp
+          letes an authorization-code + PKCE sign-in against the compose 
+          Keycloak, and asserts an authenticated screen renders; it fails
+           if the requested scope is one the realm does not grant.","stat
+          us":"closed","priority":2,"issue_type":"task","assignee":"Adam 
+          \u003cla-xirsoi\u003e Chevalier","owner":"chevalierAdam2@gmail.
+          com","created_at":"2026-09-18T16:51:56Z","created_by":"Adam \u0
+          03cla-xirsoi\u003e Chevalier","updated_at":"2026-09-18T17:08:07
+          Z","started_at":"2026-09-18T17:01:54Z","closed_at":"2026-09-18T
+          17:08:07Z","close_reason":"frontend/e2e/ drives the built SPA t
+          hrough a real authorization-code + PKCE sign-in against the com
+          pose Keycloak with Playwright: the authorization request assert
+          ed on is read off the wire, not rebuilt. Three tests pass again
+          st the running stack; a companion test replays the bundle's own
+           request with an unheld scope and asserts Keycloak refuses it, 
+          and the flow was re-run with a wrong password to confirm the au
+          thenticated assertions are load-bearing. Recorded in docs/verif
+          ication.md section 8; 4.5 and the 7.3 bullet closed.","comments
+          ":[{"id":"01a0b576-e4da-7238-a070-734c334393c9","issue_id":"hiv
+          e-nfv","author":"Adam \u003cla-xirsoi\u003e Chevalier","text":"
+          a full e2e test suite is needed","created_at":" … [+83 chars]
+      50  {"_type":"issue","id":"hive-3p8","title":"Add server-computed p
+          ermissions to TeamDetail and ProjectSummary","description":"Tas
+          kDetail carries a TaskPermissions block so every task control i
+          s driven by the server. TeamDetail and ProjectSummary have no e
+          quivalent, so the UI gates rename, member management, lead tran
+          sfer, ownership transfer and task-create by comparing the actin
+          g user's id against the teamLead.id / projectOwner.id the serve
+          r returned. That is a comparison against server data rather tha
+          n re-derived policy, and every operation is still enforced serv
+          er-side, so the worst case is a control that appears and then 4
+          03s. Adding TeamPermissions and ProjectPermissions blocks, comp
+          uted by the same AuthorizationPolicy that enforces, would close
+           the gap properly and make the UI consistent with how tasks alr
+          eady work.","acceptance_criteria":"TeamDetail and ProjectSummar
+          y carry a permissions block computed by the domain policy; the 
+          frontend gates every team and project control on it; tests asse
+          rt controls are absent when forbidden.","status":"open","priori
+          ty":2,"issue_type":"feature","owner":"chevalierAdam2@gmail.com"
+          ,"created_at":"2026-09-15T00:40:32Z","created_by":"Adam \u003cl
+          a-xirsoi\u003e Chevalier","updated_at":"2026-09-15T00:40:32Z","
+          dependency_count":0,"dependent_count":0,"comment_count":0}
+      51  {"_type":"issue","id":"hive-5dg","title":"Reformat core/** with
+           the pinned Prettier version","description":"npm run lint fails
+           on 15 pre-existing files under frontend/src/app/core (api-erro
+          r.spec.ts, task-api.ts, user-api.ts, auth-service.ts, dev-auth-
+          service.ts and others). They were committed formatted by an old
+          er Prettier; prettier 3.8.1 now wants different output. The fea
+          ture work left them untouched on purpose (core/** was out of sc
+          ope). Fix: run npm run format and commit the whitespace-only ch
+          urn in core/**.","status":"closed","priority":2,"issue_type":"c
+          hore","owner":"chevalierAdam2@gmail.com","created_at":"2026-09-
+          14T21:50:42Z","created_by":"Adam \u003cla-xirsoi\u003e Chevalie
+          r","updated_at":"2026-09-15T00:33:52Z","closed_at":"2026-09-15T
+          00:33:52Z","close_reason":"prettier clean across the whole fron
+          tend; lint exits 0","dependency_count":0,"dependent_count":0,"c
+          omment_count":0}
+
+  Pushed to claude/opus5-with-beads, ran 1 shell command (ctrl+o to expand)
+
+● Done — hive-nfv is closed and pushed (d735871).
+
+  What landed
+
+  frontend/e2e/ — a Playwright suite that runs against the live compose stack
+  (npm run e2e, npm run e2e:install once):
+
+  - sign-in.e2e.ts:12 loads https://localhost:8444, follows the guard to /login,
+    clicks the bundle's own sign-in button, types ada/hive into Keycloak's own 
+    form, and asserts the authenticated shell, a dashboard card, and the Welcome
+    back, Ada Lovelace greeting — which comes from GET /users/me, so it's the
+    backend accepting the token, not the token being decoded client-side.
+  - Every assertion about the authorization request (scope, client_id,
+    redirect_uri, code_challenge_method, state, nonce) is read off what Chromium
+    actually sent, via an OAuthTraffic fixture; granted scopes come off the
+    token endpoint's answer to the bundle's own exchange. Nothing is rebuilt by
+    the test — that reconstruction is exactly what let hive-m50 through.
+  - A third test replays the bundle's own request with one unheld scope;
+    Keycloak refuses it and the login form never renders. So the acceptance
+    criterion's failure mode has been observed, not assumed.
+  - globalSetup pings realm discovery and fails with the podman compose up -d
+    command when the stack is down. No webServer entry, deliberately.
+
+  Verified: 3 passed, run four times, stable (~1.8s). Also re-ran the sign-in
+  test with a wrong password and confirmed it fails — the authenticated
+  assertions are load-bearing, not vacuous. npm run lint clean; tsc -p 
+  e2e/tsconfig.json clean. src/ is untouched, so the Karma suite and bundle are
+  unaffected.
+
+  Docs: verification.md gains section 8 (what it proves, that it's been seen to
+  fail, and what it still doesn't prove); 4.5 and the 7.3 bullet are marked
+  closed. Runbook and README gained the commands.
+
+  Follow-up filed: hive-onj — extend the suite past sign-in to the task
+  lifecycle. The suite is three tests about authentication; every other screen
+  is still component-level only, and npm run e2e is not part of test:ci since it
+  needs a container runtime.
+
+  Two things I left alone, both pre-existing in your working tree and unrelated
+  to this issue: containers/scripts/generate-certs.sh has CERT_PASSWORD
+  hardcoded to a literal (worth reverting before it gets committed — it's a
+  password in the repo that also overrides .env), and frontend/angular.json has
+  an analytics: false addition. Also, bd dolt push has no usable remote here
+  (same SSH gap as git push origin), so the beads state travelled as the
+  committed issues.jsonl export only.
+
+✻ Sautéed for 7m 13s · done 12:08 PM
+
+❯ /export                                                                       
+  ⎿  Conversation copied to clipboard
