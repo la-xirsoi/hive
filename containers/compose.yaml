@@ -182,7 +182,13 @@ services:
       # here; without it the redirect would drop the published port.
       HIVE_PUBLIC_ORIGIN: ${OAUTH_PUBLIC_ORIGIN:?set OAUTH_PUBLIC_ORIGIN in .env}
     ports:
-      - "127.0.0.1:8080:8080"
+      # 8080 is deliberately NOT published. The plaintext listener still runs
+      # inside the container, for /healthz and for an orchestrator that wants a
+      # certificate-free probe, but a browser that has loaded this app can
+      # never reach it: the HSTS header from https://localhost:8444 is scoped
+      # to the host and has no concept of a port, so http://localhost:8080 is
+      # upgraded to TLS before it leaves the browser and dies against a
+      # plaintext socket. Publishing it would only offer a door that looks open.
       - "127.0.0.1:8444:8443"
     volumes:
       - ./certs:/etc/nginx/certs:ro,z

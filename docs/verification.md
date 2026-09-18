@@ -221,7 +221,7 @@ Podman 5 on Windows 11. `podman compose up -d` from `containers/`, after
 | nginx accepts the configuration | the frontend container serves the SPA, and both proxied upstreams answer |
 | The migration runs on real SQL Server | Flyway reports `Successfully validated 1 migration` against `Microsoft SQL Server 16.0`, and `ddl-auto: validate` passes on the schema it produced — retiring most of 4.1 |
 | HTTPS end to end | browser to nginx, nginx to backend and nginx to Keycloak are all TLS, each verified against the development CA rather than skipped |
-| Plaintext redirects to the right place | `http://localhost:8080/projects/7?tab=tasks` answers `301` to `https://localhost:8444/projects/7?tab=tasks`, path and query intact; the frontend logs `hive: plaintext redirects to https://localhost:8444` at startup. `/healthz` still answers `200` over plaintext, by design, so probes need no certificate |
+| Plaintext redirects to the right place | asked from inside the container, `http://127.0.0.1:8080/projects/7?tab=tasks` answers `301` to `https://localhost:8444/projects/7?tab=tasks`, path and query intact; the frontend logs `hive: plaintext redirects to https://localhost:8444` at startup. `/healthz` still answers `200` over plaintext, by design, so probes need no certificate. The port is not published to the host — see 7.2 item 5 |
 | A real Keycloak token is accepted | the full authorization-code + PKCE flow was driven through the gateway as user `ada`; the resulting token carries `iss: https://localhost:8444/idp/realms/hive` and `GET /api/v1/projects/mine` with it returns `200 []`, where the same request without it returns `401` — retiring 4.3 |
 
 ### 7.2 What it cost — seven bugs no parser could have found
@@ -273,12 +273,18 @@ Podman 5 on Windows 11. `podman compose up -d` from `containers/`, after
    and no redirect was ever requested — **no server-side change can reach that
    request.** The escape hatch is `chrome://net-internals/#hsts` → *Delete
    domain security policies* → `localhost`; the standing advice is to use
-   `https://localhost:8444` and leave 8080 to probes and `curl`.
+   `https://localhost:8444`.
 
    The blast radius is wider than this project: that header pins `localhost`
    itself, so it breaks every unrelated plain-HTTP dev server on the machine,
-   on any port, for two years. `hive-ild` asks whether publishing 8080 at all
-   is worth the trap. The runbook now carries the warning and the escape hatch.
+   on any port, for two years. `hive-ild` asked whether publishing 8080 at all
+   was worth the trap, and the answer was no: **the host mapping is gone.** The
+   listener stays inside the container, where `/healthz` and the redirect serve
+   probes that should not have to trust the development certificate, but
+   nothing on the host offers a plaintext address that no browser can use. The
+   header itself keeps its two-year `max-age` — it is the value a real
+   deployment wants, and the trap was the published port, not the policy. The
+   runbook carries the warning and the escape hatch.
 
    **This is the bug this report exists to predict and could not have.** Both
    halves are invisible to a parser: one is a redirect target that is

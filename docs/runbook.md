@@ -83,7 +83,7 @@ copies of a hostname.
 
 | Service | URL | Notes |
 |---------|-----|-------|
-| Frontend | https://localhost:8444 | plain HTTP on 8080 redirects here |
+| Frontend | https://localhost:8444 | the only way in; there is no plaintext port |
 | API | https://localhost:8444/api/v1 | proxied to the backend |
 | Identity provider | https://localhost:8444/idp | realm `hive`; admin console at `/idp/admin` |
 | Backend (direct) | https://localhost:8443 | published for debugging; the app does not use it |
@@ -219,19 +219,24 @@ The profile matrix:
 
 ## 6. Troubleshooting
 
-**`ERR_SSL_PROTOCOL_ERROR` on http://localhost:8080.** The browser is speaking
-TLS to the plaintext listener, because it upgraded the request before sending
-it. HSTS is the cause and it is working as designed: the header this stack sends
-from `https://localhost:8444` is scoped to the *host*, and HSTS has no concept
-of a port, so it applies to `localhost` on **every** port — including ports
-served by unrelated projects on your machine. Once a browser has seen it, no URL
-of the form `http://localhost:<anything>` will leave that browser as plaintext
-for two years.
+**`http://localhost:8080` no longer answers.** It is not published, on purpose.
+A browser could never have used it: the HSTS header this stack sends from
+`https://localhost:8444` is scoped to the *host*, and HSTS has no concept of a
+port, so it applies to `localhost` on **every** port — including ports served by
+unrelated projects on your machine. Once a browser has seen it, no URL of the
+form `http://localhost:<anything>` leaves that browser as plaintext for two
+years; the request that reached 8080 was already TLS, and the plaintext listener
+answered it with `ERR_SSL_PROTOCOL_ERROR`. No server-side change could reach
+that request, so the mapping was a door that only looked open.
 
-Use **https://localhost:8444**. Port 8080 still exists for probes and for
-clients without an HSTS store (`curl -i http://localhost:8080/` returns a 301 to
-the HTTPS origin, port included), but it is no longer reachable from a browser
-that has loaded this app, and no server-side change can make it reachable.
+Use **https://localhost:8444**. The plaintext listener still runs inside the
+container — it serves `/healthz` and a 301 to the HTTPS origin, port included —
+so an orchestrator can probe it without trusting the certificate. To see the
+redirect yourself, ask from inside the container:
+
+```bash
+podman compose exec frontend wget -S -O- http://127.0.0.1:8080/projects/7
+```
 
 To undo it in Chrome: `chrome://net-internals/#hsts` → *Delete domain security
 policies* → `localhost`. That is also worth knowing if this stack's HSTS header
