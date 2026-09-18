@@ -220,7 +220,7 @@ Podman 5 on Windows 11. `podman compose up -d` from `containers/`, after
 | Plaintext redirects to the right place | `http://localhost:8080/projects/7?tab=tasks` answers `301` to `https://localhost:8444/projects/7?tab=tasks`, path and query intact; the frontend logs `hive: plaintext redirects to https://localhost:8444` at startup. `/healthz` still answers `200` over plaintext, by design, so probes need no certificate |
 | A real Keycloak token is accepted | the full authorization-code + PKCE flow was driven through the gateway as user `ada`; the resulting token carries `iss: https://localhost:8444/idp/realms/hive` and `GET /api/v1/projects/mine` with it returns `200 []`, where the same request without it returns `401` — retiring 4.3 |
 
-### 7.2 What it cost — five bugs no parser could have found
+### 7.2 What it cost — six bugs no parser could have found
 
 1. **The IdP healthcheck could never pass.** Setting `KC_HTTPS_*` makes
    Keycloak's management interface serve HTTPS as well, and the image ships no
@@ -263,8 +263,8 @@ Podman 5 on Windows 11. `podman compose up -d` from `containers/`, after
    *Browser side, and the reason the error said TLS:* **HSTS is scoped to a
    host and has no concept of a port.** Once any response from
    `https://localhost:8444` has carried the header — in practice the identity
-   provider's, for the reason in 7.3 — `http://localhost:` is pinned on *every*
-   port, so the browser upgraded the request to HTTPS and spoke TLS to a
+   provider's, for the reason in item 6 — `http://localhost:` is pinned on
+   *every* port, so the browser upgraded the request to HTTPS and spoke TLS to a
    listener that answers plaintext. Nothing was sent to port 8080 in cleartext
    and no redirect was ever requested — **no server-side change can reach that
    request.** The escape hatch is `chrome://net-internals/#hsts` → *Delete
@@ -281,6 +281,58 @@ Podman 5 on Windows 11. `podman compose up -d` from `containers/`, after
    syntactically perfect and semantically wrong, the other is browser state
    accumulated across visits, held outside the stack entirely.
 
+6. **The SPA's own responses carried no security headers at all.** Found while
+   confirming where the HSTS pin in item 5 came from: `GET
+   https://localhost:8444/` returned no `Strict-Transport-Security`, no
+   `Content-Security-Policy`, no `X-Frame-Options`, `X-Content-Type-Options`,
+   `Referrer-Policy` and no `Permissions-Policy`. Neither did the fingerprinted
+   assets. Every one of those directives was present in the configuration, in
+   the server block, spelled correctly.
+
+   *The cause is a property of nginx, not a missing line:* **`add_header` in a
+   `location` replaces the inherited set rather than extending it.** A location
+   that declares one header of its own starts from empty and inherits nothing.
+   Two did — the asset regex and `location = /index.html`, each for a
+   `Cache-Control` — and so answered with that one header and nothing else.
+   The SPA fallback routes every deep link through `= /index.html`, so this
+   covered the document and every client-side route in the application. `/healthz` had
+   the same defect through an `add_header Content-Type`, which was also
+   duplicating a header nginx already sets.
+
+   The consequences ran in both directions. The CSP that item 4 describes as
+   the structural fix for the single-origin problem — the one that makes
+   `connect-src 'self'` mean something — was never sent on the document it
+   exists to constrain. And the HSTS pin that item 5 spent two paragraphs
+   explaining was **not the application's**: it came from `/idp`, the one
+   location that declares its own headers deliberately and therefore had to
+   repeat HSTS to keep it. The pin that broke every plain-HTTP dev server on
+   the machine was set by Keycloak's responses.
+
+   *Fixed structurally,* the way item 4 was, rather than by pasting six
+   directives into two more places: the set now lives in
+   `containers/frontend/security-headers.conf` and is `include`d by the server
+   block and again by each location that declares a header of its own, so
+   adding one is no longer a way to silently lose the rest. `/healthz` sets its
+   type with `default_type` and declares nothing. The asset location spells out
+   `max-age=31536000` instead of leaving it to `expires 1y`, which would emit a
+   second `Cache-Control` beside the `immutable` one. `/idp` keeps its
+   deliberate override and now sends HSTS *once* — Keycloak's own, shorter,
+   header is dropped with `proxy_hide_header`, because a browser reads only the
+   first one in a response and was therefore honouring a year where the origin
+   intends two.
+
+   Re-verified against the running stack: `/`, `/index.html`, a deep link, a
+   fingerprinted asset, `/favicon.ico` and `/healthz` all return the full six.
+   Unlike items 1–5 this one was found on 2026-09-15 and fixed on 2026-09-18;
+   the run recorded above was made against the stack as it stood before the
+   fix, which is why the finding reads in the past tense and the others do not.
+
+   **This one is invisible to a reviewer reading the file, not just to a
+   parser.** Nothing is missing and nothing is misspelled; the headers are
+   declared once, in the obvious place, and the defect is in what a *different*
+   directive fifty lines below does to them. It is only observable in a
+   response. Tracked and closed as `hive-scn`.
+
 ### 7.3 What remains unproven
 
 - **4.5 stands.** There is still no browser-driven end-to-end test. The PKCE
@@ -291,29 +343,6 @@ Podman 5 on Windows 11. `podman compose up -d` from `containers/`, after
   collation and `DATETIME2` rounding remain exercised only in compatibility
   mode. `docs/testing.md` section 4 gives the procedure for running the suite
   against the `dev` profile, which is now possible and has not been done.
-- **The SPA's own responses carry no security headers at all.** Found while
-  confirming where the HSTS pin above came from: `GET https://localhost:8444/`
-  returns no `Strict-Transport-Security`, no `Content-Security-Policy`, no
-  `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy` or
-  `Permissions-Policy`, and neither do the fingerprinted assets. The cause is an
-  nginx rule rather than a missing directive: `add_header` in a `location`
-  **replaces** the inherited set instead of extending it, and both
-  `location = /index.html` and the asset regex declare their own
-  `add_header Cache-Control`, which silently discards every header the server
-  block sets. The headers are only observably present on `/idp`, which declares
-  its own. So the browser's HSTS pin for `localhost` came from the identity
-  provider's responses, not from the application's — and the CSP that section
-  7.2 item 4 describes as enforcing a single origin is, on the document that
-  matters, not being sent. Tracked as `hive-scn`.
-
-  **Fixed.** The set moved into `containers/frontend/security-headers.conf`,
-  included by the server block and again by each location that declares an
-  `add_header` of its own; `/healthz` now sets its type with `default_type`, so
-  it no longer declares one at all. Re-verified against the running stack: `/`,
-  `/index.html`, a deep link, a fingerprinted asset, `/favicon.ico` and
-  `/healthz` all return the full six. `/idp` still carries only HSTS by design,
-  and now carries it once — Keycloak's own shorter-lived header is dropped with
-  `proxy_hide_header`, since a browser reads only the first one it sees.
 - **Nothing here says anything about a deployed environment.** The certificates
   are from a CA that exists on one machine, `start-dev` is not a production
   Keycloak mode, and the database holds a single SA credential.
