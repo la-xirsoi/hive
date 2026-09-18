@@ -555,3 +555,73 @@ running product, and it would have gone on hiding behind every future change to
   `prefers-reduced-motion` are not exercised.
 - **It needs the stack**, with everything 8.3 says about that: not part of
   `npm run test:ci`, and skipped-by-absence wherever no container runtime exists.
+
+---
+
+## 10. Addendum — 2026-09-18: sign-out that the identity provider hears
+
+`hive-bra` was a bug found the same way `hive-0lu` was — by a person clicking
+the button. Sign out returned to `/login` and looked like it had worked. Signing
+in again landed straight on the dashboard as the same user, with no password
+prompt, so there was no way to leave the application at all.
+
+### 10.1 What was wrong
+
+`AuthService.logout()` cleared the local token set and navigated to `/login`.
+Nothing in the repository referenced an end-session endpoint. Keycloak's SSO
+cookie was untouched, so the next `/authorize` request was answered silently
+from the surviving session — a sign-out that ended a tab's state and nothing
+else.
+
+### 10.2 What replaced it
+
+RP-initiated OIDC logout, through the seam the other endpoints already use:
+`OAuthConfig.endSessionEndpoint` with an issuer-relative default
+(`resolveEndSessionEndpoint`), pinned in `environment.ts` to Keycloak's
+`/protocol/openid-connect/logout` — which is the URL the realm's own discovery
+document advertises, checked against it rather than assumed.
+
+`logout()` captures the `id_token` first, drops all local state
+**unconditionally**, and only then hands the browser to the provider with
+`id_token_hint` and a `post_logout_redirect_uri` derived from the registered
+`redirectUri`, so a provider that refuses the redirect still leaves nothing
+usable behind. A dev session (`TokenSet.dev`) has no provider session and no
+`id_token`, so it keeps the local path.
+
+One quieter fix came with it: a refresh grant need not re-issue an `id_token`,
+and the old code dropped it when the response omitted one. After a single silent
+refresh, sign-out would have degraded back to local-only. The previous token's
+`id_token` is now carried forward, and a unit test holds that.
+
+The realm seed's `post.logout.redirect.uris` gained the `:4200` dev origin
+alongside the `:8444` entry it already had, matching its `redirectUris`.
+
+### 10.3 What is now proven
+
+`npm run test:ci` is **477 passed**, from 473 in section 9. Three of the new
+tests are about this: the end-session redirect and its parameters, the dev
+session's local path, and the preserved `id_token`.
+
+The e2e suite is 7 tests. `frontend/e2e/sign-in.e2e.ts` now drives the whole
+round trip against the running stack — sign in as `ada`, sign out, assert the
+token storage is empty, click Sign in again, and assert **Keycloak's own
+`#username` form** is shown rather than the dashboard greeting.
+
+### 10.4 The assertion has been seen to fail
+
+The fix was stashed, the frontend image rebuilt from the reverted source and
+redeployed, and that test was run: it failed on the silent re-authentication,
+at the `#username` assertion, with the dashboard greeting present. Then the fix
+was restored, the image rebuilt, and all 7 pass. The assertion has been watched
+go red for the real reason, not a contrived one.
+
+### 10.5 What it still does not prove
+
+- **Back-channel logout is not implemented.** Ending the session from another
+  tab or from Keycloak's account console will not clear this tab's token set;
+  it will simply fail at the next refresh. No `backchannel_logout_uri` is
+  registered.
+- **The redirect is not verified against a hostile `post_logout_redirect_uri`.**
+  The value is derived in code from the registered `redirectUri`, so nothing
+  user-supplied reaches it, but there is no test that a crafted one is refused.
+- **It needs the stack**, with everything 8.3 says about that.

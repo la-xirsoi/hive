@@ -28,6 +28,13 @@ export interface OAuthConfig {
   readonly authorizeEndpoint?: string;
   /** Optional explicit token endpoint; derived from `issuer` when absent. */
   readonly tokenEndpoint?: string;
+  /**
+   * Optional explicit RP-initiated logout (end session) endpoint; derived from
+   * `issuer` when absent. Sending the browser here is what ends the SSO session
+   * at the provider -- clearing the local token set alone leaves the provider's
+   * cookie intact, so the next authorization request is answered silently.
+   */
+  readonly endSessionEndpoint?: string;
 }
 
 /** Runtime configuration for the Hive web client. */
@@ -61,4 +68,9 @@ export function resolveAuthorizeEndpoint(oauth: OAuthConfig): string {
 /** Resolves the token endpoint, honouring an explicit override. */
 export function resolveTokenEndpoint(oauth: OAuthConfig): string {
   return oauth.tokenEndpoint ?? `${trimTrailingSlash(oauth.issuer)}/token`;
+}
+
+/** Resolves the end-session endpoint, honouring an explicit override. */
+export function resolveEndSessionEndpoint(oauth: OAuthConfig): string {
+  return oauth.endSessionEndpoint ?? `${trimTrailingSlash(oauth.issuer)}/logout`;
 }

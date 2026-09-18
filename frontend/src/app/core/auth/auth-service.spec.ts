@@ -5,6 +5,7 @@ import { Router, provideRouter } from '@angular/router';
 import {
   FakeLocation,
   TEST_AUTHORIZE,
+  TEST_END_SESSION,
   TEST_REDIRECT_URI,
   TEST_TOKEN_ENDPOINT,
   accessTokenFor,
@@ -31,11 +32,15 @@ async function flushMicrotasks(times = 12): Promise<void> {
   }
 }
 
-function storedTokens(expiresInMs: number, refreshToken: string | null = 'rt'): string {
+function storedTokens(
+  expiresInMs: number,
+  refreshToken: string | null = 'rt',
+  idToken: string | null = null,
+): string {
   const tokens: TokenSet = {
     accessToken: accessTokenFor(Math.round(expiresInMs / 1000)),
     refreshToken,
-    idToken: null,
+    idToken,
     tokenType: 'Bearer',
     expiresAt: Date.now() + expiresInMs,
     scope: 'openid',
@@ -459,6 +464,21 @@ describe('AuthService', () => {
       http.verify();
     });
 
+    it('keeps the id_token when the refresh response omits one', async () => {
+      const idToken = makeJwt({ sub: 'auth0|alice' });
+      storage.setItem(TOKENS_KEY, storedTokens(3_600_000, 'rt-original', idToken));
+      const { service, http } = setup();
+
+      const result = service.refresh();
+      http.expectOne(TEST_TOKEN_ENDPOINT).flush({ access_token: 'new-access', expires_in: 600 });
+
+      // Losing it here would silently downgrade sign-out to the local-only path
+      // after the first silent refresh.
+      expect((await result).idToken).toBe(idToken);
+      service.clearSession();
+      http.verify();
+    });
+
     it('rejects when there is no refresh token to use', async () => {
       storage.setItem(TOKENS_KEY, storedTokens(3_600_000, null));
       const { service, http } = setup();
@@ -584,7 +604,7 @@ describe('AuthService', () => {
   // -------------------------------------------------------------------------
 
   describe('logout() and onUnauthorized()', () => {
-    it('logout clears everything and returns to the login route', () => {
+    it('logout clears everything and returns to the login route without an id_token', () => {
       storage.setItem(TOKENS_KEY, storedTokens(3_600_000));
       const { service, router } = setup();
       const navigate = spyOn(router, 'navigateByUrl').and.resolveTo(true);
@@ -594,6 +614,42 @@ describe('AuthService', () => {
       expect(service.isAuthenticated()).toBeFalse();
       expect(service.principal()).toBeNull();
       expect(TestBed.inject(TokenStore).readTokens()).toBeNull();
+      expect(navigate).toHaveBeenCalledWith('/login');
+    });
+
+    it('logout hands the browser to the provider end-session endpoint', () => {
+      const idToken = makeJwt({ sub: 'auth0|alice' });
+      storage.setItem(TOKENS_KEY, storedTokens(3_600_000, 'rt', idToken));
+      const { service, router } = setup();
+      const navigate = spyOn(router, 'navigateByUrl').and.resolveTo(true);
+
+      service.logout();
+
+      // Local state goes first and unconditionally, so a provider that refuses
+      // the redirect still leaves no usable session behind.
+      expect(service.isAuthenticated()).toBeFalse();
+      expect(TestBed.inject(TokenStore).readTokens()).toBeNull();
+      expect(storage.getItem(TOKENS_KEY)).toBeNull();
+
+      // The redirect is what actually ends the SSO session; an in-app
+      // navigation here would be the hive-bra bug.
+      expect(navigate).not.toHaveBeenCalled();
+      const url = location.lastUrl();
+      expect(`${url.origin}${url.pathname}`).toBe(TEST_END_SESSION);
+      expect(url.searchParams.get('id_token_hint')).toBe(idToken);
+      expect(url.searchParams.get('client_id')).toBe('hive-web-test');
+      expect(url.searchParams.get('post_logout_redirect_uri')).toBe('http://localhost:9876/login');
+    });
+
+    it('logout stays local for a dev session, which has no provider session', () => {
+      const { service, router } = setup({ devAuth: true });
+      const navigate = spyOn(router, 'navigateByUrl').and.resolveTo(true);
+      service.acceptDevToken(accessTokenFor(3600));
+
+      service.logout();
+
+      expect(service.isAuthenticated()).toBeFalse();
+      expect(location.assigned).toEqual([]);
       expect(navigate).toHaveBeenCalledWith('/login');
     });
 

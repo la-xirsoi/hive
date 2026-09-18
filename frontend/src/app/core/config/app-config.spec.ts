@@ -1,5 +1,10 @@
 import { isDevMode } from '@angular/core';
-import { OAuthConfig, resolveAuthorizeEndpoint, resolveTokenEndpoint } from './app-config';
+import {
+  OAuthConfig,
+  resolveAuthorizeEndpoint,
+  resolveEndSessionEndpoint,
+  resolveTokenEndpoint,
+} from './app-config';
 import { environment } from '../../../environments/environment';
 import { environment as devEnvironment } from '../../../environments/environment.development';
 import { routes } from '../../app.routes';
@@ -19,6 +24,7 @@ describe('endpoint resolution', () => {
   it('derives the conventional endpoints from the issuer', () => {
     expect(resolveAuthorizeEndpoint(oauth())).toBe('https://id.example.com/realms/hive/authorize');
     expect(resolveTokenEndpoint(oauth())).toBe('https://id.example.com/realms/hive/token');
+    expect(resolveEndSessionEndpoint(oauth())).toBe('https://id.example.com/realms/hive/logout');
   });
 
   it('does not double up a slash when the issuer has a trailing one', () => {
@@ -26,12 +32,14 @@ describe('endpoint resolution', () => {
 
     expect(resolveAuthorizeEndpoint(config)).toBe('https://id.example.com/realms/hive/authorize');
     expect(resolveTokenEndpoint(config)).toBe('https://id.example.com/realms/hive/token');
+    expect(resolveEndSessionEndpoint(config)).toBe('https://id.example.com/realms/hive/logout');
   });
 
   it('prefers an explicit override for providers that do not follow the convention', () => {
     const config = oauth({
       authorizeEndpoint: 'https://id.example.com/protocol/openid-connect/auth',
       tokenEndpoint: 'https://id.example.com/protocol/openid-connect/token',
+      endSessionEndpoint: 'https://id.example.com/protocol/openid-connect/logout',
     });
 
     expect(resolveAuthorizeEndpoint(config)).toBe(
@@ -39,6 +47,9 @@ describe('endpoint resolution', () => {
     );
     expect(resolveTokenEndpoint(config)).toBe(
       'https://id.example.com/protocol/openid-connect/token',
+    );
+    expect(resolveEndSessionEndpoint(config)).toBe(
+      'https://id.example.com/protocol/openid-connect/logout',
     );
   });
 });
@@ -67,6 +78,15 @@ describe('environment files', () => {
     // because requesting it broke sign-in entirely (hive-m50).
     expect(environment.oauth.scope).not.toContain('offline_access');
     expect(devEnvironment.oauth.scope).not.toContain('offline_access');
+  });
+
+  it('points sign-out at the realm end-session endpoint, not the conventional path', () => {
+    // Local-only sign-out leaves the SSO cookie standing, so "Sign out" then
+    // "Sign in" silently re-authenticates the same user (hive-bra). Keycloak
+    // does not serve `<issuer>/logout`, so the override has to be explicit.
+    expect(resolveEndSessionEndpoint(environment.oauth)).toBe(
+      `${environment.oauth.issuer}/protocol/openid-connect/logout`,
+    );
   });
 
   it('derives devAuth from the build mode rather than hard-coding it on', () => {

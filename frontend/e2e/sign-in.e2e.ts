@@ -1,4 +1,4 @@
-import { ADA, expect, test } from './support/fixtures';
+import { ADA, expect, signIn, test } from './support/fixtures';
 
 /**
  * The sign-in every other screen depends on, driven the way a person drives it:
@@ -76,18 +76,34 @@ test.describe('sign-in', () => {
     expect(tokens?.refresh_token).toBeTruthy();
   });
 
-  test('signs out back to the sign-in screen', async ({ page, baseURL }) => {
-    await page.goto('/');
-    await page.getByTestId('oauth-sign-in').click();
-    await page.locator('#username').fill(ADA.username);
-    await page.locator('#password').fill(ADA.password);
-    await page.locator('#kc-login').click();
-    await expect(page.getByTestId('sign-out')).toBeVisible();
+  test('signs out of the realm, not just this tab', async ({ page, baseURL }) => {
+    await signIn(page);
 
     await page.getByTestId('sign-out').click();
 
+    // Back on the sign-in screen, by way of the realm's end-session endpoint.
     await expect(page).toHaveURL(`${baseURL}/login`);
     await expect(page.getByTestId('oauth-sign-in')).toBeVisible();
+
+    // Nothing usable left behind locally, even though the round trip through
+    // the realm reloaded the document.
+    const stored = await page.evaluate(() => ({
+      tokens: sessionStorage.getItem('hive.auth.tokens'),
+      tx: sessionStorage.getItem('hive.auth.tx'),
+    }));
+    expect(stored.tokens).toBeNull();
+    expect(stored.tx).toBeNull();
+
+    // The assertion this test exists for: signing in again has to reach the
+    // realm's login form. A surviving SSO cookie answers the authorization
+    // request silently and lands straight back on the dashboard, which is what
+    // made sign-out look like it did nothing at all (hive-bra).
+    await page.getByTestId('oauth-sign-in').click();
+    await expect(
+      page.locator('#username'),
+      'the realm re-authenticated silently: the SSO session outlived sign-out',
+    ).toBeVisible();
+    await expect(page.getByText(`Welcome back, ${ADA.fullName}`)).toHaveCount(0);
   });
 
   /**

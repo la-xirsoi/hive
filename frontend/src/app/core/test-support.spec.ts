@@ -24,6 +24,7 @@ export const TEST_API_BASE = '/api/v1';
 export const TEST_ISSUER = 'https://id.test.example/realms/hive';
 export const TEST_AUTHORIZE = `${TEST_ISSUER}/authorize`;
 export const TEST_TOKEN_ENDPOINT = `${TEST_ISSUER}/token`;
+export const TEST_END_SESSION = `${TEST_ISSUER}/logout`;
 export const TEST_REDIRECT_URI = 'http://localhost:9876/auth/callback';
 
 export function testConfig(overrides: Partial<AppConfig> = {}): AppConfig {

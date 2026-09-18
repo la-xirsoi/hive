@@ -2,7 +2,12 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import { APP_CONFIG, resolveAuthorizeEndpoint, resolveTokenEndpoint } from '../config/app-config';
+import {
+  APP_CONFIG,
+  resolveAuthorizeEndpoint,
+  resolveEndSessionEndpoint,
+  resolveTokenEndpoint,
+} from '../config/app-config';
 import {
   AuthCallbackParams,
   AuthError,
@@ -196,7 +201,8 @@ export class AuthService {
     if (this.refreshInFlight) {
       return this.refreshInFlight;
     }
-    const refreshToken = this.tokens()?.refreshToken;
+    const current = this.tokens();
+    const refreshToken = current?.refreshToken;
     if (!refreshToken) {
       return Promise.reject(
         new AuthError('no_refresh_token', 'This session cannot be renewed. Please sign in again.'),
@@ -213,8 +219,10 @@ export class AuthService {
       }),
     )
       .then((response) => {
-        // Providers that do not rotate refresh tokens omit it; keep the old one.
-        const tokens = this.toTokenSet(response, refreshToken);
+        // Providers that do not rotate refresh tokens omit it, and a refresh
+        // grant need not re-issue an id_token at all; keep the old ones so the
+        // id_token_hint sign-out still has a hint after a silent refresh.
+        const tokens = this.toTokenSet(response, refreshToken, current?.idToken ?? undefined);
         this.adopt(tokens);
         return tokens;
       })
@@ -232,10 +240,44 @@ export class AuthService {
     return request;
   }
 
-  /** Clears the session and returns the user to the login route. */
+  /**
+   * Signs the user out of the identity provider as well as this app.
+   *
+   * Clearing the local token set is not a sign-out on its own: the provider's
+   * SSO cookie survives it, so the next authorization request is answered
+   * silently and "Sign in" logs the same user straight back in with no prompt
+   * (hive-bra). So the local state is dropped first -- unconditionally, before
+   * anything that can fail -- and the browser is then handed to the provider's
+   * RP-initiated logout endpoint, which ends the session and returns here.
+   *
+   * A dev session has no provider session and no id_token, so it takes the
+   * local path and an in-app navigation.
+   */
   logout(): void {
+    const tokens = this.tokens();
+    const idToken = tokens?.dev === true ? null : tokens?.idToken;
     this.clearSession();
-    void this.router.navigateByUrl(LOGIN_ROUTE);
+
+    if (!idToken) {
+      void this.router.navigateByUrl(LOGIN_ROUTE);
+      return;
+    }
+
+    const url = new URL(resolveEndSessionEndpoint(this.config.oauth));
+    url.searchParams.set('id_token_hint', idToken);
+    url.searchParams.set('post_logout_redirect_uri', this.postLogoutRedirectUri());
+    url.searchParams.set('client_id', this.config.oauth.clientId);
+    this.location.assign(url.toString());
+  }
+
+  /**
+   * Where the provider sends the browser back to after ending the session. It
+   * is derived from the registered `redirectUri` rather than the current
+   * location so it is a URL the provider will actually honour -- an unregistered
+   * one is rejected and the user is left on a provider error page.
+   */
+  private postLogoutRedirectUri(): string {
+    return new URL(LOGIN_ROUTE, this.config.oauth.redirectUri).toString();
   }
 
   /**
@@ -340,7 +382,11 @@ export class AuthService {
     }
   }
 
-  private toTokenSet(response: TokenEndpointResponse, fallbackRefresh?: string): TokenSet {
+  private toTokenSet(
+    response: TokenEndpointResponse,
+    fallbackRefresh?: string,
+    fallbackIdToken?: string,
+  ): TokenSet {
     const lifetimeMs =
       typeof response.expires_in === 'number' && response.expires_in > 0
         ? response.expires_in * 1000
@@ -353,7 +399,7 @@ export class AuthService {
     return {
       accessToken: response.access_token,
       refreshToken: response.refresh_token ?? fallbackRefresh ?? null,
-      idToken: response.id_token ?? null,
+      idToken: response.id_token ?? fallbackIdToken ?? null,
       tokenType: response.token_type ?? 'Bearer',
       expiresAt,
       scope: response.scope ?? null,

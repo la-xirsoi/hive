@@ -19,7 +19,7 @@
       "serviceAccountsEnabled": false,
       "attributes": {
         "pkce.code.challenge.method": "S256",
-        "post.logout.redirect.uris": "https://localhost:8444/*"
+        "post.logout.redirect.uris": "https://localhost:8444/*##https://localhost:4200/*"
       },
       "redirectUris": [
         "https://localhost:8444/auth/callback",

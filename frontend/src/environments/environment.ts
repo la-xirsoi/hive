@@ -55,6 +55,10 @@ export const environment: AppConfig = {
     // `<issuer>/authorize` and get a 404 from the realm.
     authorizeEndpoint: `${issuer}/protocol/openid-connect/auth`,
     tokenEndpoint: `${issuer}/protocol/openid-connect/token`,
+    // RP-initiated logout. Without it sign-out is local-only: the realm's SSO
+    // cookie survives and the next authorization request is satisfied silently,
+    // so "Sign out" then "Sign in" logs the same user straight back in (hive-bra).
+    endSessionEndpoint: `${issuer}/protocol/openid-connect/logout`,
   },
   devAuth: isDevMode(),
 };
